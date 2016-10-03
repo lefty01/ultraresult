@@ -1,5 +1,6 @@
-extends layout
+extends aid-template
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h2= params.title
+  p #{params.type} @ #{params.totalDistance}km &Delta; #{params.legDistance}km
+
