@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
         console.log("find in collection ...");
         if (err === null) {
      	    res.json(docs);
-            //res.render('index', { title: 'Aidstation: ' + docs.directions });
+            //res.render('aid', { title: 'Aidstation: ' + docs.directions });
     	}
         else {
             res.json({msg: 'error: ' + err});
@@ -44,7 +44,7 @@ router.get('/:id', function(req, res) {
     console.log("valid name? " + found);
     if (! found) {
         // FIXME: 
-        res.render('index', { params : {
+        res.render('aid', { params : {
             title : 'aidstation not found: ' + req.params.id,
             type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
         }});
@@ -63,7 +63,7 @@ router.get('/:id', function(req, res) {
                 console.log(docs.name + " has " + numCheckpoints + " previous checkpoints: " + docs.checkpoints);
             }
             
-            res.render('index', { params : {
+            res.render('aid', { params : {
                 title         : docs.name + ': ' + docs.directions,
                 id            : docs.name,
                 type          : docs.pointType,

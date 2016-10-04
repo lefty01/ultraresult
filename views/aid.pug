@@ -1,1 +1,6 @@
-extends aid-template.pug
+extends aidlayout
+
+block content
+  h2= params.title
+  p #{params.type} @ #{params.totalDistance}km &Delta; #{params.legDistance}km
+
