@@ -4,3 +4,23 @@ block content
   h2= params.title
   p #{params.type} @ #{params.totalDistance}km &Delta; #{params.legDistance}km
 
+  aid(id=params.id, type=params.type)
+
+  button#btnLoad  Load Times
+  button#btnStore Store Times
+
+
+  #starterList
+    table
+      thead
+        th Start No.
+        th Name
+        th In (hh:mm)
+        th Save
+        th Edit
+        if params.type == "Aidstation"
+          th Out (hh:mm)
+          th Save
+          th Edit
+      tbody
+
