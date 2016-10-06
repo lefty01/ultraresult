@@ -30,6 +30,8 @@ router.get('/', function(req, res) {
            
 /*
  * GET entry page for specific aidstation by their (short) name.
+ * note: directions field hold long descriptive name (P Rittweg)
+ *       name field is the short id (vp1,k1,...)
  */
 router.get('/:id', function(req, res) {
     var db = req.db;
@@ -45,7 +47,8 @@ router.get('/:id', function(req, res) {
     if (! found) {
         // FIXME: 
         res.render('aid', { params : {
-            title : 'aidstation not found: ' + req.params.id,
+            title : 'aidstation not found',
+            id    : aidstationId,
             type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
         }});
         return;

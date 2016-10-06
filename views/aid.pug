@@ -11,16 +11,17 @@ block content
 
 
   #starterList
-    table
+    table(class="sortable", class="bordered centered highlight")
       thead
-        th Start No.
+        th(class="sorttable_numeric") Start No.
         th Name
-        th In (hh:mm)
-        th Save
-        th Edit
+        th Lastname
+        th(class="sorttable_nosort") In (hh:mm)
+        th(class="sorttable_nosort") Save
+        th(class="sorttable_nosort") Edit
         if params.type == "Aidstation"
-          th Out (hh:mm)
-          th Save
-          th Edit
+          th(class="sorttable_nosort") Out (hh:mm)
+          th(class="sorttable_nosort") Save
+          th(class="sorttable_nosort") Edit
       tbody
 
