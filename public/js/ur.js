@@ -27,16 +27,37 @@ $(document).ready(function() {
 
 $(document).on('click', function (e) {
     var target = $(e.target);
+    var aidId = $("aid").attr("id");
 
     if (target.is('.makeNonEditable')) {
         e.preventDefault(); // cancel the event flow
-        var setId  = target.data('setid');
-        alert("save time: id=" + setId);
+        var setId = target.data('setid');
+        var res = setId.split("_"); // t[in|out]_set_NN
+	    var isIn = res[0] === "tin" ? true : false;
+        var startnum = res[2];
+        var inout = {
+            'startnum' : startnum,
+            'aid'      : aidId,
+            'setId'    : res[0] + "_" + res[2],
+            'setRoId'  : res[0] + "ro_"  + res[2] // tinro_1
+        };
+
+        //alert("save time for no: " + startnum + " isIn=" + isIn + " @ aid=" + aidId);
+        saveTimeClick(inout);
 
     } else if (target.is('.makeEditable')) {
         e.preventDefault();
         var editId = target.data('editid');
-        alert("edit time: id=" + editId);
+        var res = editId.split("_"); // t[in|out]_set_NN
+        var startnum = res[2];
+        var inout = {
+            'startnum' : startnum,
+            'aid'      : aidId,
+            'editId'    : res[0] + "_" + res[2],
+            'editRoId'  : res[0] + "ro_"  + res[2] // toutro_1
+        };
+
+        editTimeClick(inout);
     }
 });
 
@@ -46,8 +67,9 @@ $(document).on('click', function (e) {
  */
 function date() {
 	var t_current = new Date();
-	var t_hh = t_current.getHours();
-	var t_mm = t_current.getMinutes();
+	var t_hh  = t_current.getHours();
+	var t_mm  = t_current.getMinutes();
+    var t_day = t_current.getDay(); // 6=saturday, 0=sunday
 
 	if (t_mm < 10) t_mm = "0" + t_mm;
 	if (t_hh < 10) t_hh = "0" + t_hh;
@@ -65,41 +87,31 @@ function date() {
 }
 
 
-    // the ButtonClick functions to lock/unlock the input fields
-    // background changed to red if locked/ green if editable
-    // in case of save we submit data if in and out times are both locked
-function saveTimeClick() {
-    alert("save Intime button click");
-	var buttId = this.id;
-	var res = buttId.split("_");
-	var setId = res[0] + "_" + res[2];
-
-    alert("set button click: setId=" + setId);
+// the ButtonClick functions to lock/unlock the input fields
+// background changed to red if locked/ green if editable
+// in case of save we submit data if in and out times are both locked
+function saveTimeClick(data) {
+	var setId = data.setId;
+    var setRoId = data.setRoId;
+    //alert("set button click: setId=" + setId);
 
 	$("#"+setId).prop("readonly", "readonly");
-	$("#"+setId).css("background-color", "#CC6666")
+	$("#"+setId).css("background-color", "#CC6666");
+	$("#"+setRoId).val("1"); // lock (make read-only)
 
-	var setRoId  = res[0] + "ro_"  + res[2]; // tinro_1
-	$("#"+setRoId).val("1");
 
-	//var inSetId = "tin_" + res[2];
-	//if ((res[0] == "tout") && $("#"+inSetId).prop("readonly")) {
-	//    $("form#vp1_form").submit(); // FIXME form name vpX_form
-	//}
+    // store time in database ...
+    // mark the time as valid, edit will invalidate the time again
 }
 
-function editTimeClick() {
-	var buttId = this.id;
-	var res = buttId.split("_");
-	var editId = res[0] + "_" + res[2];
-
-    alert("edit button click: editId=" + editId);
+function editTimeClick(data) {
+	var editId = data.editId;
+    var editRoId = data.editRoId;
+    //alert("edit button click: editId=" + editId);
 
 	$("#"+editId).prop("readonly", false);
-	$("#"+editId).css("background-color", "#99FFCC")
-
-	var setRoId  = res[0] + "ro_"  + res[2];
-	$("#"+setRoId).val("0");
+	$("#"+editId).css("background-color", "#99FFCC");
+	$("#"+editRoId).val("0"); // unlock
 }
 
 
@@ -113,6 +125,9 @@ function fillStarterTable(docTitle) {
     var tableContent = '';
     var runnerNum = 1;
 
+    // FIXME: get aidstation times from database,
+    // check some time valid flag and load into tinput and then lock the field (tinro_NN="1")
+
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
             tableContent += '<tr>';
@@ -123,7 +138,7 @@ function fillStarterTable(docTitle) {
             tableContent += '<td align="center"><input id="tin_' + this.startnum
                 + '" class="tinput" type="text" maxlength="5" size="5">'
                 + '<input type="hidden" id="tinro_' + this.startnum + '" value="0"></td>';
-
+            // FIXME: data- does not require set or edit info since we have the class already
             tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
                 + ' class="makeNonEditable">Save</button></td>';
             tableContent += '<td><button data-editid="tin_edit_' + this.startnum + '"'
