@@ -3,11 +3,11 @@
 // DOM Ready =============================================================
 $(document).ready(function() {
 
-
-    window.onload = function() {
-	    date();
-    },
-    setInterval(function() { date(); }, 10000);
+    // window.onload = function() {
+	//     date();
+    // },
+    //setInterval(function() { date(); }, 10000);
+    setInterval(date, 1000);
 
     if (document.title === "aidstation not found") {
         alert("aidstation not found: " + $("aid").attr("id"));
@@ -22,7 +22,10 @@ $(document).ready(function() {
 
     // load/store buttons - FIXME really need?
     //$('#btnLoad').on('click', storeAidTime);
+
+
 });
+
 
 
 $(document).on('click', function (e) {
@@ -33,33 +36,60 @@ $(document).on('click', function (e) {
         e.preventDefault(); // cancel the event flow
         var setId = target.data('setid');
         var res = setId.split("_"); // t[in|out]_set_NN
-	    var isIn = res[0] === "tin" ? true : false;
+        var inout = res[0];
         var startnum = res[2];
-        var inout = {
+	    //var isIn = res[0] === "tin" ? true : false;
+        
+        var time = $("input#" + inout + "_" + startnum).val();
+        
+        var data = {
             'startnum' : startnum,
             'aid'      : aidId,
-            'setId'    : res[0] + "_" + res[2],
-            'setRoId'  : res[0] + "ro_"  + res[2] // tinro_1
+            'inout'    : inout, // tin or tout
+            'setId'    : inout + "_" + startnum,
+            'setRoId'  : inout + "ro_"  + startnum, // eg. tinro_1
+            'time'     : time
         };
 
-        //alert("save time for no: " + startnum + " isIn=" + isIn + " @ aid=" + aidId);
-        saveTimeClick(inout);
+        //alert("save time for no: " + startnum + " inout=" + inout + " @ aid=" + aidId + " time=" + time);
+        saveTimeClick(data);
 
     } else if (target.is('.makeEditable')) {
         e.preventDefault();
         var editId = target.data('editid');
         var res = editId.split("_"); // t[in|out]_set_NN
         var startnum = res[2];
-        var inout = {
+        var data = {
             'startnum' : startnum,
             'aid'      : aidId,
             'editId'    : res[0] + "_" + res[2],
             'editRoId'  : res[0] + "ro_"  + res[2] // toutro_1
         };
 
-        editTimeClick(inout);
+        editTimeClick(data);
     }
 });
+
+
+// how to update runner identified by startnum
+        // $.ajax({
+        //     type: 'PUT',
+        //     data: runner,
+        //     url: '/runners/update/' + runnerId
+        // }).done(function( response ) {
+
+        //     // Check for a successful (blank) response
+        //     if (response.msg === '') {
+        //     }
+        //     else {
+        //         alert('Error: ' + response.msg);
+        //     }
+
+        //     // do somthing like update the table
+        //     update();
+        // });
+
+
 
 
 /*
@@ -84,24 +114,57 @@ function date() {
 		    $(this).val(now);
 	    }
 	});
+    //setTimeout(date, 15000);
 }
 
 
 // the ButtonClick functions to lock/unlock the input fields
 // background changed to red if locked/ green if editable
-// in case of save we submit data if in and out times are both locked
+// can save in or out times, set this time as valid and lock input field,
+// click on edit to invalidate and change value again
 function saveTimeClick(data) {
 	var setId = data.setId;
     var setRoId = data.setRoId;
-    //alert("set button click: setId=" + setId);
-
+    var aid = data.aid;
+    var intime = (data.inout === "tin") ? true : false;
+    
 	$("#"+setId).prop("readonly", "readonly");
 	$("#"+setId).css("background-color", "#CC6666");
 	$("#"+setRoId).val("1"); // lock (make read-only)
 
-
+    // alert();
     // store time in database ...
     // mark the time as valid, edit will invalidate the time again
+
+    var aidstations = {};
+    if (intime) {
+        aidstations[data.aid] = {
+            'intime_valid' : true,
+            'intime' : data.time
+        };
+    }
+    else {
+        aidstations[data.aid] = {
+            'outtime_valid' : true,
+            'outtime' : data.time
+        };
+    }
+
+    $.ajax({
+        type: 'PUT',
+        //dataType: 'JSON',
+        data: startNum,
+        url: '/runners/update/' + data.startNum
+    }).done(function( response ) {
+        // Check for a successful (blank) response
+        if (response.msg === '') {
+
+        }
+        else {
+            alert('Error: ' + response.msg);
+        }
+    });
+
 }
 
 function editTimeClick(data) {

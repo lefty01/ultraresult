@@ -27,4 +27,25 @@ router.get('/', function(req, res) {
 });
 
 
+/*
+ *
+ */
+router.put('/update/:num', function(req, res) {
+    var db = req.db;
+    var collection = db.get('userlist');
+    var runnerToUpdate = req.params.num;
+
+    console.log("Update runner: startnum=" + runnerToUpdate);
+
+    var confirmation = confirm('Are you sure you want to save changes for this runner?');
+    
+
+    collection.update({ startnum: runnerToUpdate}, req.body, function(err, cnt, stat){
+        res.send((err === null) ? { msg: '' } : { msg:'error: ' + err });
+        console.log("update  count=" + cnt);
+        console.log("update status=" + stat);
+    });
+    
+});
+
 module.exports = router;
