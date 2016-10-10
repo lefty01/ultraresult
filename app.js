@@ -13,6 +13,7 @@ var db = monk('localhost:9999/sutrunners1');
 var routes = require('./routes/index');
 var runners = require('./routes/runners');
 var aidstation = require('./routes/aidstation');
+var results = require('./routes/results');
 
 var app = express();
 
