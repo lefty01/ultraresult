@@ -26,8 +26,6 @@ $(document).ready(function() {
     // load/store buttons - FIXME really need?
     //$('#btnLoad').on('click', storeAidTime);
 
-
-
     
     //$("div.tinput").html(now);
     //alert(now);
@@ -69,32 +67,14 @@ $(document).on('click', function (e) {
         var data = {
             'startnum' : startnum,
             'aid'      : aidId,
-            'editId'    : res[0] + "_" + res[2],
-            'editRoId'  : res[0] + "ro_"  + res[2] // toutro_1
+            'editId'   : res[0] + "_" + res[2],
+            'editRoId' : res[0] + "ro_"  + res[2] // toutro_1
         };
 
         editTimeClick(data);
     }
 });
 
-
-// how to update runner identified by startnum
-        // $.ajax({
-        //     type: 'PUT',
-        //     data: runner,
-        //     url: '/runners/update/' + runnerId
-        // }).done(function( response ) {
-
-        //     // Check for a successful (blank) response
-        //     if (response.msg === '') {
-        //     }
-        //     else {
-        //         alert('Error: ' + response.msg);
-        //     }
-
-        //     // do somthing like update the table
-        //     update();
-        // });
 
 
 
@@ -144,24 +124,30 @@ function saveTimeClick(data) {
     // store time in database ...
     // mark the time as valid, edit will invalidate the time again
 
-    var aidstations = {};
+    var aidstation = { };
     if (intime) {
-        aidstations[data.aid] = {
+        //aidstations[data.aid] = { //eg. aidstation['START'], aidstation['VP2']
+	aidstation = {
+	    'inout'        : data.inout,
+	    'aid'          : data.aid,
             'intime_valid' : true,
-            'intime' : data.time
+            'intime'       : data.time
         };
     }
     else {
-        aidstations[data.aid] = {
+        aidstation = {
+	    'inout'         : data.inout,
+	    'aid'           : data.aid,
             'outtime_valid' : true,
-            'outtime' : data.time
+            'outtime'       : data.time
         };
     }
 
+
     $.ajax({
         type: 'PUT',
-        //dataType: 'JSON',
-        data: data,
+        dataType: 'JSON',
+        data: aidstation,
         url: '/runners/update/' + data.startnum
     }).done(function( response ) {
         // Check for a successful (blank) response
@@ -171,18 +157,20 @@ function saveTimeClick(data) {
         else {
             alert('Error: ' + response.msg);
         }
+	// do somthing like update the table
+        // update();
     });
 
 }
 
 function editTimeClick(data) {
-	var editId = data.editId;
+    var editId = data.editId;
     var editRoId = data.editRoId;
     //alert("edit button click: editId=" + editId);
 
-	$("#"+editId).prop("readonly", false);
-	$("#"+editId).css("background-color", "#99FFCC");
-	$("#"+editRoId).val("0"); // unlock
+    $("#"+editId).prop("readonly", false);
+    $("#"+editId).css("background-color", "#99FFCC");
+    $("#"+editRoId).val("0"); // unlock
 }
 
 

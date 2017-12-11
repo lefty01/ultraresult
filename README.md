@@ -9,6 +9,9 @@ Track times when runners enter and leave an aidstation during a (ultra) run/race
 remove all documents from collection:
 > db.aidstations.remove({})
 
+remove/drop collection:
+> db.aidstations.drop()
+
 update document within collection:
 this would replace the document mathcing name and direction string, but the updated document only has new name and new directions. ALL OTHER FIELDS ARE GONE!
 > db.aidstations.update( {name" : "Finish", directions : "Finish" }, { name : "FINISH", directions: "Sportplatz Altdorf" })
