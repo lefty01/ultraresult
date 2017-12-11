@@ -44,8 +44,8 @@ app.use(function(req, res, next) {
 
 app.use('/', routes);
 
-app.use('/runners', runners);
-app.use('/aid', aidstation);
+app.use('/runners', runners); // contains /update route to update runner results (aid in/out times)
+app.use('/aid',     aidstation);
 app.use('/results', results);
 
 

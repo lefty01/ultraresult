@@ -3,18 +3,21 @@
 // DOM Ready =============================================================
 $(document).ready(function() {
 
+    var now = date();
+    
     // window.onload = function() {
-	//     date();
-    // },
+    // 	date();
+    // }
     //setInterval(function() { date(); }, 10000);
-    setInterval(date, 1000);
+    //setInterval(date, 5000);
 
     if (document.title === "aidstation not found") {
         alert("aidstation not found: " + $("aid").attr("id"));
     } else {
         // fill table and make it sortable
-        fillStarterTable(document.title);
-        var tableObj = document.getElementById('starterList');
+        fillStarterTable(document.title, now);
+	//var tableObj = document.getElementById('starterList');
+	var tableObj = document.getElementById('startlist-table');
         sorttable.makeSortable(tableObj);
     }
 
@@ -24,8 +27,12 @@ $(document).ready(function() {
     //$('#btnLoad').on('click', storeAidTime);
 
 
-});
 
+    
+    //$("div.tinput").html(now);
+    //alert(now);
+
+});
 
 
 $(document).on('click', function (e) {
@@ -38,7 +45,7 @@ $(document).on('click', function (e) {
         var res = setId.split("_"); // t[in|out]_set_NN
         var inout = res[0];
         var startnum = res[2];
-	    //var isIn = res[0] === "tin" ? true : false;
+	//var isIn = res[0] === "tin" ? true : false;
         
         var time = $("input#" + inout + "_" + startnum).val();
         
@@ -51,7 +58,7 @@ $(document).on('click', function (e) {
             'time'     : time
         };
 
-        //alert("save time for no: " + startnum + " inout=" + inout + " @ aid=" + aidId + " time=" + time);
+        alert("save time for no: " + startnum + " inout=" + inout + " @ aid=" + aidId + " time=" + time);
         saveTimeClick(data);
 
     } else if (target.is('.makeEditable')) {
@@ -96,25 +103,26 @@ $(document).on('click', function (e) {
  * set current time (hh:mm) in tinput fields
  */
 function date() {
-	var t_current = new Date();
-	var t_hh  = t_current.getHours();
-	var t_mm  = t_current.getMinutes();
+    var t_current = new Date();
+    var t_hh  = t_current.getHours();
+    var t_mm  = t_current.getMinutes();
     var t_day = t_current.getDay(); // 6=saturday, 0=sunday
 
-	if (t_mm < 10) t_mm = "0" + t_mm;
-	if (t_hh < 10) t_hh = "0" + t_hh;
+    if (t_mm < 10) t_mm = "0" + t_mm;
+    if (t_hh < 10) t_hh = "0" + t_hh;
 
-	var now = t_hh + ":" + t_mm;
+    var now = t_hh + ":" + t_mm;
 
-	//$("div.tinput").html(now);
+    //$("div.tinput").html(now);
 
-	$("input.tinput").each(function(index) {
-	    // index: 0 .. last element
-	    if (! $(this).prop("readonly")) {
-		    $(this).val(now);
-	    }
-	});
+    $("input.tinput").each(function(index) {
+	// index: 0 .. last element
+	if (! $(this).prop("readonly")) {
+	    $(this).val(now);
+	}
+    });
     //setTimeout(date, 15000);
+    return now;
 }
 
 
@@ -123,7 +131,7 @@ function date() {
 // can save in or out times, set this time as valid and lock input field,
 // click on edit to invalidate and change value again
 function saveTimeClick(data) {
-	var setId = data.setId;
+    var setId = data.setId;
     var setRoId = data.setRoId;
     var aid = data.aid;
     var intime = (data.inout === "tin") ? true : false;
@@ -153,8 +161,8 @@ function saveTimeClick(data) {
     $.ajax({
         type: 'PUT',
         //dataType: 'JSON',
-        data: startNum,
-        url: '/runners/update/' + data.startNum
+        data: data,
+        url: '/runners/update/' + data.startnum
     }).done(function( response ) {
         // Check for a successful (blank) response
         if (response.msg === '') {
@@ -178,11 +186,11 @@ function editTimeClick(data) {
 }
 
 
-function fillStarterTable(docTitle) {
+function fillStarterTable(docTitle, thetime) {
 
     var aidId = $("aid").attr("id");
     //alert("aid id: " + aidId);
-    var match = /^(VP)\d$/i;
+    var match = /^(VP)\d\d?$/i;
     var isAidstation = match.test(aidId);
     
     var tableContent = '';
@@ -199,7 +207,7 @@ function fillStarterTable(docTitle) {
             tableContent += '<td>' + this.lastname  + '</td>';
 
             tableContent += '<td align="center"><input id="tin_' + this.startnum
-                + '" class="tinput" type="text" maxlength="5" size="5">'
+                + '" class="tinput" type="text" maxlength="5" size="5" value="' + thetime + '">'
                 + '<input type="hidden" id="tinro_' + this.startnum + '" value="0"></td>';
             // FIXME: data- does not require set or edit info since we have the class already
             tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
@@ -209,7 +217,7 @@ function fillStarterTable(docTitle) {
 
             if (isAidstation) {
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
-                    + '" class="tinput" type="text" maxlength="5" size="5">'
+                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + thetime + '">'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="0"></td>';
 
                 tableContent += '<td><button data-setid="tout_set_' + this.startnum + '"'

@@ -7,7 +7,7 @@ var assert = require('assert');
  */
 router.get('/', function(req, res) {
     var db = req.db;
-    var collection = db.get('userlist'); // FIXME once and forever change that name!
+    var collection = db.get('runnerlist'); // FIXME once and forever change that name!
 
     res.render('index', { title: 'Live Results - Shows Aidstation Check In/Out times' });
 

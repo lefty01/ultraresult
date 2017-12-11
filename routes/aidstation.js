@@ -38,7 +38,7 @@ router.get('/:id', function(req, res) {
     var db = req.db;
     var collection = db.get('aidstations');
     var aidstationId = req.params.id.toUpperCase();
-    var match = /^(VP|K)\d$/;
+    var match = /^(((VP|K)\d)|START|FINISH)$/;
     var found = match.test(aidstationId);
 
     // validate aidstation id or name
@@ -56,7 +56,7 @@ router.get('/:id', function(req, res) {
     }
 
     collection.findOne({ name: aidstationId }, function(err, docs) {
-        if (err === null) {
+        if (err === null && docs !== null) {
      	    //res.json(docs);
             console.log(docs);
 
@@ -78,14 +78,18 @@ router.get('/:id', function(req, res) {
             }});
     	}
         else {
-            res.json({msg: 'error: ' + err});
+            //res.json({msg: 'error: ' + err});
+	    res.render('aid', { params : {
+		title : 'aidstation not found',
+		id    : aidstationId,
+		type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
+            }});
+            return;
     	}
     });
 
 
-
 //    res.render('index', { title: 'Express aidstation ' + req.params.id });
-    
 });
 
 

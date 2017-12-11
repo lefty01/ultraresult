@@ -4,7 +4,7 @@ var router = express.Router();
 /* GET runner list */
 router.get('/', function(req, res) {
     var db = req.db;
-    var collection = db.get('userlist');
+    var collection = db.get('runnerlist');
     //collection.find({}, {sort: {datefield: 1}}).toArray(function(err, docs) {...});
 
 
@@ -32,7 +32,8 @@ router.get('/', function(req, res) {
  */
 router.put('/update/:num', function(req, res) {
     var db = req.db;
-    var collection = db.get('userlist');
+    //var collection = db.get('runnerlist');
+    var collection = db.get('results');
     var runnerToUpdate = req.params.num;
 
     console.log("Update runner: startnum=" + runnerToUpdate);
