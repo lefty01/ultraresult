@@ -8,7 +8,14 @@ var mongo = require('mongodb');
 var monk = require('monk');
 var assert = require('assert');
 
-var db = monk('localhost:9999/sutrunners1');
+//var db = monk('localhost:9999/sutrunners1');
+var db = monk('localhost:9999/sutrunners_wsut_2017', function(err, db){
+    if (err) {
+	console.error("error: not connected to database:", err.message);
+    } else {
+	console.log("connected to database");
+    }
+});
 
 var routes = require('./routes/index');
 var runners = require('./routes/runners');
