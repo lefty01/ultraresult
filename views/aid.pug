@@ -6,8 +6,8 @@ block content
 
   aid(id=params.id, type=params.type)
 
-  button#btnLoad  Load Times
-  button#btnStore Store Times
+  //button#btnLoad  Load Times
+  //button#btnStore Store Times
 
 
   #starterList
@@ -19,9 +19,8 @@ block content
         th(class="sorttable_nosort") In (hh:mm)
         th(class="sorttable_nosort") Save
         th(class="sorttable_nosort") Edit
-        if params.type == "Aidstation"
-          th(class="sorttable_nosort") Out (hh:mm)
-          th(class="sorttable_nosort") Save
-          th(class="sorttable_nosort") Edit
+        th(class="sorttable_nosort") Out (hh:mm)
+        th(class="sorttable_nosort") Save
+        th(class="sorttable_nosort") Edit
       tbody
 

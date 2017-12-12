@@ -7,21 +7,20 @@ var assert = require('assert');
  */
 router.get('/', function(req, res) {
     var db = req.db;
-    var collection = db.get('runnerlist'); // FIXME once and forever change that name!
+    var collection = db.get('runnerlist');
 
-    res.render('index', { title: 'Live Results - Shows Aidstation Check In/Out times' });
+    res.render('results', { title: 'SUT Live Results' });
 
     collection.find({}, {fields: { _id: 0,
                     startnum : 1,
                     firstname : 1,
                     lastname : 1,
-                    aidstations : 1
+                    results : 1
                     }, sort : {startnum : 1}
         }, function(err, docs) {
             console.log(docs);
             //res.json(docs);
     });
-
 
 });
 

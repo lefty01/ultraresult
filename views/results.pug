@@ -1,21 +1,23 @@
-doctype html
-html
-  head
-    title Results
+extends aidlayout
 
-    meta(charset="utf-8")
-    meta(http-equiv="X-UA-Compatible" content="IE=edge")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+block content
+  h2= params.title
 
-    link(rel='stylesheet', href='/css/style.css')
-    link(rel='stylesheet', href='/css/bootstrap.min.css')
-    link(rel='stylesheet', href='/css/materialize.min.css')
+  //p #{params.type} @ #{params.totalDistance}km &Delta; #{params.legDistance}km
+  //aid(id=params.id, type=params.type)
 
-  body
-    block content
+  #resulttable
+    table(id="results-table", class="sortable", class="bordered centered highlight")
+      thead
+        th(class="sorttable_numeric") Start No.
+        th Name
+        th Lastname
+        th(class="sorttable_nosort") In (hh:mm)
+        th(class="sorttable_nosort") Save
+        th(class="sorttable_nosort") Edit
+        th(class="sorttable_nosort") Out (hh:mm)
+        th(class="sorttable_nosort") Save
+        th(class="sorttable_nosort") Edit
+      tbody
 
-    script(src='/js/jquery-3.1.1.min.js')
-    script(src='/js/bootstrap.min.js')
-    script(src='/js/materialize.min.js')
-    script(src='/js/sorttable.js')
-    script(src='/js/results.js')
+
