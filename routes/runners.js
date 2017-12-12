@@ -5,25 +5,17 @@ var router = express.Router();
 router.get('/', function(req, res) {
     var db = req.db;
     var collection = db.get('runnerlist');
-    //collection.find({}, {sort: {datefield: 1}}).toArray(function(err, docs) {...});
-
-
-    // collection.find().sort({ a: -1 }).toArray(function (err2, items2) {
-    //     if (err2) console.log(err2);
-    //     console.log(items2);
-    //     db.close();
-    // });
 
     collection.find({}, {fields: { _id: 0,
                                    startnum : 1,
                                    firstname : 1,
-                                   lastname : 1
+                                   lastname : 1,
+				   results: 1
                                  }, sort : {startnum : 1}
                         }, function(err, docs) {
                             console.log(docs);
                             res.json(docs);
     });
-
 });
 
 
@@ -33,54 +25,47 @@ router.get('/', function(req, res) {
 router.put('/update/:num', function(req, res) {
     var db = req.db;
     var collection = db.get('runnerlist');
-    //var collection = db.get('results');
-    var runnerToUpdate = req.params.num;
 
-    console.log("Update runner: startnum=" + runnerToUpdate);
-
-//    var confirmation = confirm('Are you sure you want to save changes for this runner?');
-    var aidName = req.body.aid;
     var isIn = (req.body.inout === "tin") ? true : false;
+    var startnum = req.params.num;
+    var aidName = req.body.aid;
+    var timeValid = req.body.time_valid;
+    var time = req.body.time;
 
+    console.log("Update runner: startnum=" + startnum);
+    console.log("aid name:   " + aidName);
+    console.log("inout:      " + req.body.inout);
+    console.log("time:       " + time);
+    console.log("time valid: " + timeValid);
 
-    // collection.find( { 'startnum' : runnerToUpdate, "aidstations.name" : aidName},
-    // 		     { fields: { _id: 0,
-    //                              startnum : 1,
-    //                              aidstations : 1
-    //                            }
-    //                  }, function(err, docs) {
-    //                      console.log(docs);
-    //                      res.json(docs);
-    // });
+    // var keyInTimeVld = "results." + aidName + ".intime_valid";
+    // var keyInTime    = "results." + aidName + ".intime";
+    // var key = {
+    // 	[ keyInTimeVld ] : timeValid,
+    // };
 
     
-
+    var aidData = {};
     if (isIn) {
-	collection.updateOne({ 'startnum' : runnerToUpdate, "aidstations.name" : aidName},
-			     { $set : {
-				 "aidstations.$.intime_valid" : req.body.intime_valid,
-				 "aidstations.$.intime" : req.body.intime 
-	                     }},
-
-     			     function(err, cnt, stat){
-     				 res.send((err === null) ? { msg: '' } : { msg:'error: ' + err });
-     				 console.log("update  count=" + cnt);
-     				 console.log("update status=" + stat);
-	     });
+	aidData = {
+    	    [ "results." + aidName + ".intime_valid" ] : timeValid,
+	    [ "results." + aidName + ".intime" ] : time
+	};
+    } else {
+    	aidData = {
+    	    [ "results." + aidName + ".outtime_valid" ] : timeValid,
+	    [ "results." + aidName + ".outtime" ] : time
+	}
     }
-    else {
-	collection.updateOne({ 'startnum' : runnerToUpdate, "aidstations.name" : aidName},
-			     { $set : {
-				 "aidstations.$.outtime_valid" : req.body.outtime,
-				 "aidstations.$.outtime" : req.body.outtime 
-	                     }},
 
-     			     function(err, cnt, stat){
-     				 res.send((err === null) ? { msg: '' } : { msg:'error: ' + err });
-     				 console.log("update  count=" + cnt);
-     				 console.log("update status=" + stat);
-	     });
-    }
+    collection.update({ 'startnum' : startnum },
+		      { $set : aidData },
+		      function(err, cnt, stat) {
+     			  res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
+     			  console.log("update  count=" + cnt);
+     			  console.log("update status=" + stat);
+    });
+
     
 });
 
