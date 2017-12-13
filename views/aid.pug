@@ -6,21 +6,19 @@ block content
 
   aid(id=params.id, type=params.type)
 
-  //button#btnLoad  Load Times
-  //button#btnStore Store Times
-
-
   #starterList
     table(id="startlist-table", class="sortable", class="bordered centered highlight")
       thead
         th(class="sorttable_numeric") Start No.
         th Name
         th Lastname
-        th(class="sorttable_nosort") In (hh:mm)
-        th(class="sorttable_nosort") Save
-        th(class="sorttable_nosort") Edit
-        th(class="sorttable_nosort") Out (hh:mm)
-        th(class="sorttable_nosort") Save
-        th(class="sorttable_nosort") Edit
+        unless params.type == 'Start'
+          th(class="sorttable_nosort") In (hh:mm)
+          th(class="sorttable_nosort") Save
+          th(class="sorttable_nosort") Edit
+        unless params.type == 'Finish'
+          th(class="sorttable_nosort") Out (hh:mm)
+          th(class="sorttable_nosort") Save
+          th(class="sorttable_nosort") Edit
       tbody
 
