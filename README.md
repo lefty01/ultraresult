@@ -1,4 +1,7 @@
 # ultraresult
+
+[![Build Status](https://travis-ci.org/lefty01/ultraresult.svg?branch=leaderboard)](https://travis-ci.org/lefty01/ultraresult)
+
 Track times when runners enter and leave an aidstation during a (ultra) run/race.
 
 
