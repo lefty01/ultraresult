@@ -1,0 +1,9 @@
+{ "lat": "48.61589",  "lng": "8.99734", "legDistance": "0.000",  "totalDistance": "0.000",   "height": "520.66",  "pointType": "Start",   "name": "Start",   "directions": "Start" }
+{ "lat": "48.61753",  "lng": "8.90156", "legDistance": "24.921", "totalDistance": "24.947",  "height": "501.43",  "pointType": "Food",    "name": "VP1",     "directions": "Sportplatz Nufringen" }
+{ "lat": "48.56033",  "lng": "8.98395", "legDistance": "21.815", "totalDistance": "46.754",  "height": "472.66",  "pointType": "Food",    "name": "VP2",     "directions": "Entringen" }
+{ "lat": "48.55192",  "lng": "9.05676", "legDistance": "20.490", "totalDistance": "67.244",  "height": "474.89",  "pointType": "Food",    "name": "VP3",     "directions": "Tue Rittweg" }
+{ "lat": "48.53145",  "lng": "9.09301", "legDistance": "16.600", "totalDistance": "83.859",  "height": "376.39",  "pointType": "Food",    "name": "VP4",     "directions": "Lustnau Anders" }
+{ "lat": "48.59280",  "lng": "9.14731", "legDistance": "20.450", "totalDistance": "104.321", "height": "476.15",  "pointType": "Food",    "name": "VP5",     "directions": "P Steinbrennerhaus" }
+{ "lat": "48.62070",  "lng": "9.11771", "legDistance": "23.124", "totalDistance": "127.434", "height": "472.05",  "pointType": "Food",    "name": "VP6",     "directions": "P Teufelsbruch" }
+{ "lat": "48.59998",  "lng": "9.09916", "legDistance": "9.379",  "totalDistance": "137.006", "height": "442.97",  "pointType": "Food",    "name": "VP7",     "directions": "Sportplatz Dettenhausen" }
+{ "lat": "48.61571",  "lng": "8.99734", "legDistance": "26.482", "totalDistance": "163.283", "height": "523.29",  "pointType": "Finish",  "name": "Finish",  "directions": "Finish" }

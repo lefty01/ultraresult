@@ -1,17 +1,26 @@
 var express = require('express');
 var path = require('path');
-var favicon = require('static-favicon');
+var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongo = require('mongodb');
 var monk = require('monk');
 var assert = require('assert');
-var db = monk('localhost:9999/sutrunners1');
+
+//var db = monk('localhost:9999/sutrunners1');
+var db = monk('localhost:9999/sutrunners_wsut_2017', function(err, db){
+    if (err) {
+	console.error("error: not connected to database:", err.message);
+    } else {
+	console.log("connected to database");
+    }
+});
 
 var routes = require('./routes/index');
 var runners = require('./routes/runners');
 var aidstation = require('./routes/aidstation');
+var results = require('./routes/results');
 
 var app = express();
 
@@ -19,7 +28,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(favicon());
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -32,10 +41,12 @@ app.use(function(req, res, next) {
     next();
 });
 
-
 app.use('/', routes);
-app.use('/runners', runners);
-app.use('/aid', aidstation);
+
+app.use('/runners', runners); // update runner results (aid in/out times)
+app.use('/aid',     aidstation);
+app.use('/results', results);
+
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
