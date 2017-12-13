@@ -49,8 +49,65 @@ function fillResultTable(docTitle, thetime) {
     var tableContent = '';
     var tableHeader = '';
     var runnerNum = 1;
+    var aidStations = [];
+
+    // <caption>T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
+    //      T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub> , &nbsp;
+    //      P<sub>1</sub>(mm:ss/km): &#216; Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
+    // 	   P<sub>2</sub>(mm:ss/km): &#216; Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub></caption>
 
 
+    tableHeader += '<tr>';
+    tableHeader += '<th class="sortable_numeric">#</th>';
+    tableHeader += '<th class="sortable_numeric">Rang</th>';
+    tableHeader += '<th class="name">Name</th>';
+    tableHeader += '<th class="starttime">Start</th>';
+
+    $.getJSON('/aid', function(data) {
+        $.each(data, function() {
+	    console.log("aid data: " + this.name);
+	    aidStations.push(this);
+
+	    if ('START' === this.name) { return true; }
+	    if ('FINISH' === this.name) {
+		tableHeader += '<th class="vp" colspan="5" id="' + this.name + '">' + this.name + ' '
+		    + this.directions + ', @km ' + this.totalDistance + ',  &Delta; ' + this.legDistance + '</th>';
+		return true;
+	    }
+	    tableHeader += '<th class="vp" colspan="7" id="' + this.name + '">' + this.name + ' '
+		+ this.directions + ', @km ' + this.totalDistance + ',  &Delta; ' + this.legDistance + '</th>';
+	});
+    });
+
+    tableHeader += '<th class="total">Zeit</th>';
+    tableHeader += '<th class="totalpause">&sum; Pause</th>';
+    tableHeader += '</tr>';
+
+    tableContent += '<tr>';
+    tableContent += '<th></th>';
+    tableContent += '<th></th>';
+    tableContent += '<th></th>';
+    tableContent += '<th></th>';
+
+    $.each(aidStations, function() {
+	if ('START' === this.name) { return true; }
+	tableContent += '<th class="time"  headers="' + this.name + '">IN</th>';
+	if ('FINISH' !== this.name) {
+	    tableContent += '<th class="time " headers="' + this.name + '">OUT</th>';
+	    tableContent += '<th class="pause" headers="' + this.name + '">Pause (min)</th>';
+	}
+	tableContent += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
+	tableContent += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
+	tableContent += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
+	tableContent += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
+
+    });
+
+    tableContent += '<th></th>';
+    tableContent += '<th></th>';
+    tableContent += '</tr>';
+    tableContent += '<tr>';
+    
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
 	    var intime = "n/a";
@@ -60,6 +117,54 @@ function fillResultTable(docTitle, thetime) {
 	    var pace = "6:00";
 	    var avgpace = "6:30";
 	    var place = 'n/a';
+
+
+            tableContent += '<td>' + this.startnum  + '</td>';
+	    tableContent += '<td>' + place + '</td>'; // place
+	    tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
+
+
+	    // check the results field if we have valid times for this runner/aid
+	    var results = this.results;
+	    // for each aidstation ... aka $each(this.results, function() { ... })
+	    $.each(results, function(aidId, times) {
+		console.log(aidId + ": " + times);
+
+		if (results[aidId]) {
+		    //console.log('fillStarterTable: ' + aidId + ' valid: ' + results[aidId].intime_valid);
+		    //console.log('fillStarterTable: ' + aidId + ' time:  ' + results[aidId].intime);
+		    
+		    if ("true" === results[aidId].intime_valid) {
+			intime = results[aidId].intime;
+		    }
+		    if ("true" === results[aidId].outtime_valid) {
+			outtime = results[aidId].outtime;
+		    }
+		}
+		// if ("Start" === aidId) {
+		//     tableContent += '<td>' + this.lastname  + '</td>';
+		// }
+		
+	    });
+
+	    
+
+            // tableContent += '<td align="center">' + intime  + '</td>';
+            // tableContent += '<td align="center">' + outtime + '</td>';
+            // tableContent += '<td align="center">' + pause   + '</td>';
+            // tableContent += '<td align="center">' + pace    + '</td>';
+            // tableContent += '<td align="center">' + avgpace + '</td>';
+
+            tableContent += '</tr>';
+            runnerNum++;
+        });
+    });
+
+    // Inject the whole content string into our existing HTML table
+
+    $('#resultstable table thead').html(tableHeader);
+    $('#resultstable table tbody').html(tableContent);
+}
 
 
         // th(class="sorttable_numeric") Start #
@@ -87,58 +192,3 @@ function fillResultTable(docTitle, thetime) {
    //  <th class="total">Total</th>
    //  <th>Urkunde</th>
    // </tr></thead>
-		
-	    tableHeader += '<tr><th class="sortable_numeric">#</th>';
-	    tableHeader += '<th>Platz</th>';
-	    tableHeader += '<th class="name">Vor-</th>';
-	    tableHeader += '<th class="name">Nachname</th>';
-	    tableHeader += '<th class="starttime">Start</th>';
-	    tableHeader += '</tr>';
-
-	    tableContent += '<tr>';
-            tableContent += '<td>' + this.startnum  + '</td>';
-	    tableContent += '<td>' + place + '</td>'; // place
-	    tableContent += '<td>' + this.firstname + '</td>';
-            tableContent += '<td>' + this.lastname  + '</td>';
-
-	    // check the results field if we have valid times for this runner/aid
-	    var results = this.results;
-	    // for each aidstation ... aka $each(this.results, function() { ... })
-	    $.each(results, function(aidId, times) {
-		console.log(aidId + ": " + times);
-
-		if (results[aidId]) {
-		    //console.log('fillStarterTable: ' + aidId + ' valid: ' + results[aidId].intime_valid);
-		    //console.log('fillStarterTable: ' + aidId + ' time:  ' + results[aidId].intime);
-		    
-		    if ("true" === results[aidId].intime_valid) {
-			intime = results[aidId].intime;
-		    }
-		    if ("true" === results[aidId].outtime_valid) {
-			outtime = results[aidId].outtime;
-		    }
-		}
-		if ("Start" === aidId) {
-		    tableContent += '<td>' + this.lastname  + '</td>';
-		}
-		
-	    });
-
-	    
-
-            tableContent += '<td align="center">' + intime  + '</td>';
-            tableContent += '<td align="center">' + outtime + '</td>';
-            tableContent += '<td align="center">' + pause   + '</td>';
-            tableContent += '<td align="center">' + pace    + '</td>';
-            tableContent += '<td align="center">' + avgpace + '</td>';
-
-            tableContent += '</tr>';
-            runnerNum++;
-        });
-
-        // Inject the whole content string into our existing HTML table
-        $('#resultstable table thead').html(tableHeader);
-        $('#resultstable table tbody').html(tableContent);
-
-    });
-}
