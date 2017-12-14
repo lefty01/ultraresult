@@ -1,23 +1,13 @@
-extends aidlayout
+extends resultslayout
 
 block content
-  h2= params.title
 
-  //p #{params.type} @ #{params.totalDistance}km &Delta; #{params.legDistance}km
-  //aid(id=params.id, type=params.type)
+  h1= title
+  //p Welcome to #{title}
 
-  #resulttable
+
+  #resultstable
     table(id="results-table", class="sortable", class="bordered centered highlight")
       thead
-        th(class="sorttable_numeric") Start No.
-        th Name
-        th Lastname
-        th(class="sorttable_nosort") In (hh:mm)
-        th(class="sorttable_nosort") Save
-        th(class="sorttable_nosort") Edit
-        th(class="sorttable_nosort") Out (hh:mm)
-        th(class="sorttable_nosort") Save
-        th(class="sorttable_nosort") Edit
       tbody
-
 

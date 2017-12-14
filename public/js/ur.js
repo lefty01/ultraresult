@@ -1,5 +1,4 @@
 
-
 // DOM Ready =============================================================
 $(document).ready(function() {
 
@@ -191,43 +190,44 @@ function editTimeClick(data) {
 
 
 function fillStarterTable(docTitle, thetime) {
-
     var aidId = $("aid").attr("id");
-    //alert("aid id: " + aidId);
-    var match = /^(VP)\d\d?$/i;
-    var isAidstation = match.test(aidId);
-    
+    var matchVP = /^(VP)\d\d?$/i;
+    var matchStart = /^START$/i;
+    var matchFinish = /^FINISH$/i;
+    var isAidstation = matchVP.test(aidId);
+    var isStart = matchStart.test(aidId);
+    var isFinish = matchFinish.test(aidId);
     var tableContent = '';
     var runnerNum = 1;
-    var intime = thetime;
-    var outtime = thetime;
-
-    // FIXME: get aidstation times from database,
-    // check some time valid flag and load into tinput and then lock the field (tinro_NN="1")
 
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
+	    var intime = thetime;
+	    var outtime = thetime;
 	    var inro = "0";
 	    var outro = "0";
 	    var inreadonly = "";
 	    var outreadonly = "";
 
 	    // check the results field if we have valid times for this runner/aid
+	    // if valid time is available set input field and mark as readonly
 	    var results = this.results;
-	    if (results[aidId]) {
-		console.log('fillStarterTable: ' + aidId + ' valid: ' + results[aidId].intime_valid);
-		console.log('fillStarterTable: ' + aidId + ' time:  ' + results[aidId].intime);
-		// if time's valid make input read-only and change color
-		if (results[aidId].intime_valid) {
+	    if (typeof results !== 'undefined' && results) {
+		// if time's valid make input read-only (and todo: change color)
+		if ("true" === results[aidId].intime_valid) {
 		    intime = results[aidId].intime;
 		    inro = "1";
 		    inreadonly = "readonly";
 		}
-		if (results[aidId].outtime_valid) {
+		if ("true" === results[aidId].outtime_valid) {
 		    outtime = results[aidId].outtime;
 		    outro = "1";
 		    outreadonly = "readonly";
 		}
+		console.log('fillStarterTable: ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
+		console.log('fillStarterTable: ' + aidId + ' in time:   ' + results[aidId].intime);
+		console.log('fillStarterTable: ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
+		console.log('fillStarterTable: ' + aidId + ' out time:  ' + results[aidId].outtime);
 	    }
 	    
             tableContent += '<tr>';
@@ -235,16 +235,17 @@ function fillStarterTable(docTitle, thetime) {
             tableContent += '<td>' + this.firstname + '</td>';
             tableContent += '<td>' + this.lastname  + '</td>';
 
-            tableContent += '<td align="center"><input id="tin_' + this.startnum
-                + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" '+ inreadonly+'>'
-                + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
-            // FIXME: data- does not require set or edit info since we have the class already
-            tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
-                + ' class="makeNonEditable">Save</button></td>';
-            tableContent += '<td><button data-editid="tin_edit_' + this.startnum + '"'
-                + ' class="makeEditable">Edit</button></td>';
-
-            if (isAidstation) {
+	    if (! isStart) {
+		tableContent += '<td align="center"><input id="tin_' + this.startnum
+                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" '+ inreadonly+'>'
+                    + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
+		// FIXME: data- does not require set or edit info since we have the class already
+		tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
+                    + ' class="makeNonEditable">Save</button></td>';
+		tableContent += '<td><button data-editid="tin_edit_' + this.startnum + '"'
+                    + ' class="makeEditable">Edit</button></td>';
+	    }
+            if (! isFinish) {
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
                     + '" class="tinput" type="text" maxlength="5" size="5" value="' + outtime + '"'+outreadonly+'>'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="' + outro + '"></td>';
