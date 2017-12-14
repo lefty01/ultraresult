@@ -12,7 +12,9 @@ $(document).ready(function() {
         alert("no results found!");
     } else {
         // fill table and make it sortable
-        fillResultTable(document.title, now);
+        //fillResultTableX(document.title, now);
+        fillResultTable();
+	
 	var tableObj = document.getElementById('results-table');
         sorttable.makeSortable(tableObj);
     }
@@ -44,7 +46,102 @@ function date() {
     return now;
 }
 
-function fillResultTable(docTitle, thetime) {
+function fillResultTable() {
+    var tableContent = "";
+    var aidStations = [];
+
+    $.getJSON('/aid', function(data) {
+        $.each(data, function() {
+	    //console.log("aid data: " + this.name);
+	    aidStations.push(this);
+	});
+    });
+
+    
+    $.getJSON('/runners', function(data) {
+        $.each(data, function() {
+	    var intime = "n/a";
+	    var outtime = "n/a";
+	    // todo ...
+	    var pause = "n/a";
+	    var pace = "n/a";
+	    var avgpace = "n/a";
+	    var place = 'n/a';
+
+	    tableContent += '<tr>';
+            tableContent += '<td>' + this.startnum  + '</td>';
+	    tableContent += '<td>' + place + '</td>'; // place
+	    tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
+
+
+	    // check the results field if we have valid times for this runner/aid
+	    var results = this.results;
+	    // for each aidstation ... aka $each(this.results, function() { ... }) -> aidstations that are stored with runner!
+	    // todo/fixme: interate over ALL aidstations $.each(aidStations, function() { .. }
+	    // then check for each start/aid/finish if there are times for this runner ...
+	    $.each(aidStations, function() {
+		console.log("aidstation name: " + this.name + " - " + this.directions);
+		console.log("aidstation  @km: " + this.totalDistance);
+		console.log("aidstation  Δkm: " + this.legDistance);
+		
+		if ('START' === this.name) { return true; }
+		if ('FINISH' !== this.name) {
+		    // ...
+		    return true;
+		}
+		// ...
+	    });
+
+
+	    
+	    $.each(results, function(aidId, times) {
+		console.log(aidId + ": " + times);
+
+		if (results[aidId]) {
+		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
+		    console.log('fillStarterTable: ' + aidId + ' in time:   ' + results[aidId].intime);
+		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
+		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + results[aidId].outtime);
+
+		    intime  = ("true" === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
+		    outtime = ("true" === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
+		    
+		    // if ("true" === results[aidId].intime_valid) {
+		    // 	intime = results[aidId].intime;
+		    // }
+		    // if ("true" === results[aidId].outtime_valid) {
+		    // 	outtime = results[aidId].outtime;
+		    // }
+		}
+		if ("Start" === aidId) {
+		    tableContent += '<td>Start: ' + outtime  + '</td>';
+		}
+		if ("Finish" === aidId) {
+		    tableContent += '<td>Finish: ' + intime  + '</td>';
+		}
+		tableContent += '<td>' + aidId + ' in:  ' + intime  + '</td>';
+		tableContent += '<td>' + aidId + ' out: ' + outtime  + '</td>';
+	    });
+
+	    
+            // tableContent += '<td align="center">' + intime  + '</td>';
+            // tableContent += '<td align="center">' + outtime + '</td>';
+            // tableContent += '<td align="center">' + pause   + '</td>';
+            // tableContent += '<td align="center">' + pace    + '</td>';
+            // tableContent += '<td align="center">' + avgpace + '</td>';
+
+            tableContent += '</tr>';
+
+        });
+
+	//console.log("tableContent2 : " + tableContent);
+	// Inject the whole content string into our existing HTML table
+	$('#resultstable table tbody').html(tableContent);
+    });
+
+}
+
+function fillResultTableX(docTitle, thetime) {
 
     var tableContent = '';
     var tableHeader = '';
@@ -127,19 +224,18 @@ function fillResultTable(docTitle, thetime) {
 	    // check the results field if we have valid times for this runner/aid
 	    var results = this.results;
 	    // for each aidstation ... aka $each(this.results, function() { ... })
+
 	    $.each(results, function(aidId, times) {
 		console.log(aidId + ": " + times);
 
 		if (results[aidId]) {
-		    //console.log('fillStarterTable: ' + aidId + ' valid: ' + results[aidId].intime_valid);
-		    //console.log('fillStarterTable: ' + aidId + ' time:  ' + results[aidId].intime);
-		    
-		    if ("true" === results[aidId].intime_valid) {
-			intime = results[aidId].intime;
-		    }
-		    if ("true" === results[aidId].outtime_valid) {
-			outtime = results[aidId].outtime;
-		    }
+		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
+		    console.log('fillStarterTable: ' + aidId + ' in time:   ' + results[aidId].intime);
+		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
+		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + results[aidId].outtime);
+
+		    intime  = ("true" === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
+		    outtime = ("true" === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
 		}
 		// if ("Start" === aidId) {
 		//     tableContent += '<td>' + this.lastname  + '</td>';
@@ -161,7 +257,6 @@ function fillResultTable(docTitle, thetime) {
     });
 
     // Inject the whole content string into our existing HTML table
-
     $('#resultstable table thead').html(tableHeader);
     $('#resultstable table tbody').html(tableContent);
 }

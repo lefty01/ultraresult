@@ -2,6 +2,14 @@ extends aidlayout
 
 block content
   h2= params.title
+
+  // div.control-section
+  //   a#prevaid(class='prevcuraid' href='#' title="Previous")
+  //     i.fa.fa-chevron-left(aria-hidden="true")
+  //   a#currentaid(href='#') Aidstation 
+  //   a#nextaid(class='prevcuraid' href='#' title="Next")
+  //     i.fa.fa-chevron-right(aria-hidden="true")
+
   p #{params.type} @ #{params.totalDistance}km &Delta; #{params.legDistance}km
 
   aid(id=params.id, type=params.type)
