@@ -212,7 +212,7 @@ function fillStarterTable(docTitle, thetime) {
 	    // check the results field if we have valid times for this runner/aid
 	    // if valid time is available set input field and mark as readonly
 	    var results = this.results;
-	    if (typeof results !== 'undefined' && results) {
+	    if (typeof results !== 'undefined' && results && results[aidId]) {
 		// if time's valid make input read-only (and todo: change color)
 		if ("true" === results[aidId].intime_valid) {
 		    intime = results[aidId].intime;
