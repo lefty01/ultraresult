@@ -75,30 +75,6 @@ function fillResultTable() {
     });
 
 
-    // // second header line ...
-    // tableHeader += '</tr><tr>';
-    // tableHeader += '<th></th>';
-    // tableHeader += '<th></th>';
-    // tableHeader += '<th></th>';
-    // tableHeader += '<th></th>';
-
-    // $.each(aidStations, function() {
-    // 	if ('START'  === this.name) { return true; }
-    // 	if ('FINISH' === this.name) { return true; }
-    // 	tableHeader += '<th>IN</th>';
-    // 	tableHeader += '<th>OUT</th>';
-    // 	// tableHeader += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
-    // 	// tableHeader += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
-    // 	// tableHeader += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
-    // 	// tableHeader += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
-    // });
-
-    // tableHeader += '<th></th>';
-    // tableHeader += '<th></th>';
-    // tableHeader += '<th></th>';
-    // tableHeader += '</tr>';
-
-
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
 	    var intime = "n/a";
@@ -156,15 +132,15 @@ function fillResultTable() {
 		    // }
 		}
 		if ("START" === aidId) {
-		    tableContent += '<td>Start: ' + outtime  + '</td>';
+		    tableContent += '<td>' + outtime  + '</td>';
 		    return true;
 		}
 		if ("FINISH" === aidId) {
-		    tableContent += '<td>Finish: ' + intime  + '</td>';
+		    tableContent += '<td>' + intime  + '</td>';
 		    return true;
 		}
-		tableContent += '<td>' + aidId + ' in:  ' + intime  + '</td>';
-		tableContent += '<td>' + aidId + ' out: ' + outtime  + '</td>';
+		tableContent += '<td>' + intime  + '</td>';
+		tableContent += '<td>' + outtime + '</td>';
 	    });
 
 	    
@@ -180,9 +156,32 @@ function fillResultTable() {
 	
 	//console.log("tableContent2 : " + tableContent);
 	// Inject the whole content string into our existing HTML table
-	tableHeader += '<th class="total">Zeit</th>';
-	tableHeader += '<th class="totalpause">&sum; Pause</th>';
+	tableHeader += '<th>Zeit</th>';
+	tableHeader += '<th>&sum; Pause</th>';
 	tableHeader += '</tr>';
+
+	// second header line ...
+	tableHeader += '<tr>';
+	tableHeader += '<th></th>';
+	tableHeader += '<th></th>';
+	tableHeader += '<th></th>';
+	tableHeader += '<th></th>';
+	$.each(aidStations, function() {
+		if ('START'  === this.name) { return true; }
+		if ('FINISH' === this.name) { return true; }
+		tableHeader += '<th>IN</th>';
+		tableHeader += '<th>OUT</th>';
+		// tableHeader += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
+		// tableHeader += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
+		// tableHeader += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
+		// tableHeader += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
+	});
+	tableHeader += '<th></th>';
+	tableHeader += '<th></th>';
+	tableHeader += '<th></th>';
+	tableHeader += '</tr>';
+
+
 	$('#resultstable table thead').html(tableHeader);
 	$('#resultstable table tbody').html(tableContent);
     });
