@@ -9,7 +9,10 @@ var monk = require('monk');
 var assert = require('assert');
 
 //var db = monk('localhost:9999/sutrunners1');
-var db = monk('localhost:9999/sutrunners_wsut_2017', function(err, db){
+var database_name = "sutrunners_demo";
+// sutrunners_wsut_2017
+
+var db = monk('localhost:9999/' + database_name, function(err, db) {
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
@@ -28,7 +31,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
