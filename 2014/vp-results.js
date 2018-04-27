@@ -1,13 +1,13 @@
-// copyright 2014 (c) andreas loeffler <al@exitzero.de>
+// copyright 2014,2018 (c) andreas loeffler <al@exitzero.de>
 
 
 $(document).ready(function() {
     // all jQuery code goes here
 
     window.onload = function() {
-	date()
+	date();
     },
-    setInterval(function(){date()}, 30000);
+    setInterval(function() { date(); }, 30000);
 
 
     // save/restore ... save done via form submit action
@@ -37,14 +37,14 @@ $(document).ready(function() {
 		      $("#"+inSetId).val(times[1]);
 		      if (1 == times[3]) {
 			  $("#"+inSetId).prop("readonly", "readonly");
-			  $("#"+inSetId).css("background-color", "#CC6666")
+			  $("#"+inSetId).css("background-color", "#CC6666");
 			  $("#"+inRoId).val("1");
 		      }
 		      
 		      $("#"+outSetId).val(times[2]);
 		      if (1 == times[4]) {
 			  $("#"+outSetId).prop("readonly", "readonly");
-			  $("#"+outSetId).css("background-color", "#CC6666")
+			  $("#"+outSetId).css("background-color", "#CC6666");
 			  $("#"+outRoId).val("1");
 		      }
 		      $('#stage').append(lines[i]+"<br>");
@@ -109,7 +109,7 @@ $(document).ready(function() {
 	var editId = res[0] + "_" + res[2];
 
 	$("#"+editId).prop("readonly", false);
-	$("#"+editId).css("background-color", "#99FFCC")
+	$("#"+editId).css("background-color", "#99FFCC");
 
 	var setRoId  = res[0] + "ro_"  + res[2];
 	$("#"+setRoId).val("0");

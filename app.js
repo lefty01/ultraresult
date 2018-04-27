@@ -8,11 +8,16 @@ var mongo = require('mongodb');
 var monk = require('monk');
 var assert = require('assert');
 
+var passport = require('passport');
+var Strategy = require('passport-local').Strategy;
+var session = require('express-session');
+
 //var db = monk('localhost:9999/sutrunners1');
-var database_name = "sutrunners_demo";
+//var database_name = "sutrunners_demo";
+var database_name = "ultraresult_test";
 // sutrunners_wsut_2017
 
-var db = monk('localhost:9999/' + database_name, function(err, db) {
+var db = monk('localhost:27017/' + database_name, function(err, db) {
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
@@ -34,7 +39,7 @@ app.set('view engine', 'pug');
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
