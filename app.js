@@ -55,6 +55,7 @@ app.use('/runners', runners); // update runner results (aid in/out times)
 app.use('/aid',     aidstation);
 app.use('/results', results);
 
+//console.log('env: ' + app.get('env'));
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {

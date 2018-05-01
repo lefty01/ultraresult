@@ -13,7 +13,8 @@ router.get('/', function(req, res) {
     //res.render('index', { title: 'List of Aidstations' });
 
     // FIXME filter only adistation and checkpoints (in case we have other stuff in this collection)
-    collection.find( {}, {}, function(err, docs) {
+    // sort : {totalDistance : 1}
+    collection.find( {}, { sort: {totalDistance: 1}}, function(err, docs) {
         console.log("find in collection ...");
         if (err === null) {
      	    res.json(docs);

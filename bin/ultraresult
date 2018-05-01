@@ -11,7 +11,9 @@ var app = require('../app');
 
 app.set('port', process.env.PORT || 3100);
 
-var server = app.listen(app.get('port'), function() {
+
+var listenOnIp = '0.0.0.0'; // vs. 127.0.0.1
+var server = app.listen(app.get('port'), listenOnIp, function() {
   debug('Express server listening on port ' + server.address().port);
 });
 
