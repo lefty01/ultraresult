@@ -1,2 +1,7 @@
+-> get pace, time for last leg/total time, and aid pause time into result view
+-> add prediction of finish time / estimated time until next aid
+   take elevation change per leg into account
+   take into account later legs usually slower
+   maybe add "terrain" factor (?) for each leg ...
 
 
