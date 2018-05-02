@@ -35,18 +35,21 @@ $(document).ready(function() {
 $(document).on('click', function (e) {
     var target = $(e.target);
     var aidId = $("aid").attr("id");
-
+    var res;
+    var inout;
+    var startnum;
+    var data;
+    
     if (target.is('.makeNonEditable')) {
         e.preventDefault(); // cancel the event flow
         var setId = target.data('setid');
-        var res = setId.split("_"); // t[in|out]_set_NN
-        var inout = res[0];
-        var startnum = res[2];
+        res = setId.split("_"); // t[in|out]_set_NN
+        inout = res[0];
+        startnum = res[2];
 	//var isIn = res[0] === "tin" ? true : false;
         
         var time = $("input#" + inout + "_" + startnum).val();
-        
-        var data = {
+        data = {
             'startnum' : startnum,
             'aid'      : aidId,
             'inout'    : inout, // tin or tout
@@ -62,10 +65,10 @@ $(document).on('click', function (e) {
     } else if (target.is('.makeEditable')) {
         e.preventDefault();
         var editId = target.data('editid');
-        var res = editId.split("_"); // t[in|out]_edit_NN
-	var inout = res[0];
-        var startnum = res[2];
-        var data = {
+        res = editId.split("_"); // t[in|out]_edit_NN
+	inout = res[0];
+        startnum = res[2];
+        data = {
             'startnum' : startnum,
             'aid'      : aidId,
 	    'inout'    : inout,
@@ -81,7 +84,7 @@ $(document).on('click', function (e) {
 
 
 
-
+//TODO save date AND time
 /*
  * set current time (hh:mm) in tinput fields
  */
@@ -119,7 +122,7 @@ function saveTimeClick(data) {
     var aid = data.aid;
     
     $("#"+setId).prop("readonly", "readonly");
-    $("#"+setId).css("background-color", "#CC6666");
+    $("#"+setId).css("background-color", "#FF2F2F59");
     $("#"+setRoId).val("1"); // lock (make read-only)
 
     // if ( "1" === $("#"+setRoId)) {
@@ -143,7 +146,7 @@ function saveTimeClick(data) {
     }).done(function( response ) {
         // Check for a successful (blank) response
         if (response.msg === '') {
-	    console.log("update runner OK!");
+	    console.log("update runner " + data.startnum + " OK!");
         }
         else {
             alert('Error: ' + response.msg);
@@ -208,6 +211,7 @@ function fillStarterTable(docTitle, thetime) {
 	    var outro = "0";
 	    var inreadonly = "";
 	    var outreadonly = "";
+	    var roStyle = "";
 
 	    // check the results field if we have valid times for this runner/aid
 	    // if valid time is available set input field and mark as readonly
@@ -218,16 +222,18 @@ function fillStarterTable(docTitle, thetime) {
 		    intime = results[aidId].intime;
 		    inro = "1";
 		    inreadonly = "readonly";
+		    roStyle = ' style="background-color: #FF2F2F59" ';
 		}
 		if ("true" === results[aidId].outtime_valid) {
 		    outtime = results[aidId].outtime;
 		    outro = "1";
 		    outreadonly = "readonly";
+		    roStyle = ' style="background-color: #FF2F2F59" ';
 		}
-		console.log('fillStarterTable: ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
-		console.log('fillStarterTable: ' + aidId + ' in time:   ' + results[aidId].intime);
-		console.log('fillStarterTable: ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
-		console.log('fillStarterTable: ' + aidId + ' out time:  ' + results[aidId].outtime);
+		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
+		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' in time:   ' + results[aidId].intime);
+		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
+		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' out time:  ' + results[aidId].outtime);
 	    }
 	    
             tableContent += '<tr>';
@@ -237,7 +243,7 @@ function fillStarterTable(docTitle, thetime) {
 
 	    if (! isStart) {
 		tableContent += '<td align="center"><input id="tin_' + this.startnum
-                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" '+ inreadonly+'>'
+                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" '+ inreadonly + roStyle + '>'
                     + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
 		// FIXME: data- does not require set or edit info since we have the class already
 		tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
@@ -247,7 +253,7 @@ function fillStarterTable(docTitle, thetime) {
 	    }
             if (! isFinish) {
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
-                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + outtime + '"'+outreadonly+'>'
+                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + outtime + '"' + outreadonly + roStyle + '>'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="' + outro + '"></td>';
 
                 tableContent += '<td><button data-setid="tout_set_' + this.startnum + '"'
