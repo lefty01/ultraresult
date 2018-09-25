@@ -8,8 +8,8 @@ var mongo = require('mongodb');
 var monk = require('monk');
 var assert = require('assert');
 
-//var db = monk('localhost:9999/sutrunners1');
-var db = monk('localhost:9999/sutrunners_wsut_2017', function(err, db){
+var database_name = "sutrunners_2018";
+var db = monk('localhost:37128/' + database_name, function(err, db){
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
@@ -41,8 +41,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use('/', routes);
-
+app.use('/', results);
 app.use('/runners', runners); // update runner results (aid in/out times)
 app.use('/aid',     aidstation);
 app.use('/results', results);
