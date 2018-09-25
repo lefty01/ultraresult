@@ -8,12 +8,12 @@ var mongo = require('mongodb');
 var monk = require('monk');
 var assert = require('assert');
 
-var passport = require('passport');
+//var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 var session = require('express-session');
 
 var database_name = "sutrunners_2018";
-var db = monk('localhost:27017/' + database_name, function(err, db){
+var db = monk('localhost:37128/' + database_name, function(err, db){
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
