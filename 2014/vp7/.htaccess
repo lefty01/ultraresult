@@ -1,5 +1,0 @@
-
-AuthType Basic
-AuthName "Password ?"
-AuthUserFile /usr/local/etc/.htpasswd
-Require user vp7
