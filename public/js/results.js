@@ -57,6 +57,12 @@ function fillResultTable() {
     tableHeader += '<th class="name">Name</th>';
     tableHeader += '<th class="starttime">Start</th>';
 
+    // <caption>T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
+    //      T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub> , &nbsp;
+    //      P<sub>1</sub>(mm:ss/km): &#216; Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
+    // 	   P<sub>2</sub>(mm:ss/km): &#216; Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub></caption>
+
+    
     // fill the table header with aidstation info
     $.getJSON('/aid', function(data) {
         $.each(data, function() {
@@ -65,12 +71,14 @@ function fillResultTable() {
 
 	    if ('START' === this.name) { return true; }
 	    if ('FINISH' === this.name) {
-		tableHeader += '<th>' + this.name + ' ' + this.directions + 
-		    ', @' + this.totalDistance + ',  &Delta; ' + this.legDistance + '</th>';
+		// colspan number of cells in finish coloumn: in, last pace, avg. pace, last time
+		tableHeader += '<th colspan="4">' + this.name + ' ' + this.directions +
+		    ', @' + this.totalDistance.toFixed(0) + ',  &Delta; ' + this.legDistance.toFixed(0) + '</th>';
 		return true;
 	    }
-	    tableHeader += '<th colspan="2" id="' + this.name + '">' + this.name + ' '
-		+ this.directions + ', @km ' + this.totalDistance + ',  &Delta; ' + this.legDistance + '</th>';
+	    tableHeader += '<th colspan="7" id="' + this.name + '">' + this.name + ' '
+		+ this.directions + ', @km ' + this.totalDistance.toFixed(0) + ',  &Delta; ' + this.legDistance.toFixed(0) + '</th>';
+	    return true;
 	});
     });
 
@@ -81,8 +89,10 @@ function fillResultTable() {
 	    var outtime = "n/a";
 	    // todo ...
 	    var pause = "n/a";
-	    var pace = "n/a";
+	    var lastpace = "n/a";
 	    var avgpace = "n/a";
+	    var lasttime = "n/a";
+	    var totaltime = "n/a";
 	    var place = 'n/a';
 
 	    tableContent += '<tr>';
@@ -98,8 +108,8 @@ function fillResultTable() {
 	    // then check for each start/aid/finish if there are times for this runner ...
 	    $.each(aidStations, function() {
 		console.log("aidstation name: " + this.name + " - " + this.directions);
-		console.log("aidstation  @km: " + this.totalDistance);
-		console.log("aidstation  Δkm: " + this.legDistance);
+		console.log("aidstation  @km: " + this.totalDistance.toFixed(1));
+		console.log("aidstation  Δkm: " + this.legDistance.toFixed(1));
 		
 		if ('START'  === this.name) { return true; }
 		if ('FINISH' === this.name) {
@@ -107,7 +117,7 @@ function fillResultTable() {
 		    return true;
 		}
 		// ...
-
+		return true;
 	    });
 
 
@@ -137,18 +147,21 @@ function fillResultTable() {
 		}
 		if ("FINISH" === aidId) {
 		    tableContent += '<td>' + intime  + '</td>';
+		    tableContent += '<td>' + lasttime + '</td>';
+		    tableContent += '<td>' + lastpace + '</td>';
+		    tableContent += '<td>' + avgpace  + '</td>';
+
 		    return true;
 		}
-		tableContent += '<td>' + intime  + '</td>';
-		tableContent += '<td>' + outtime + '</td>';
+		tableContent += '<td>' + intime    + '</td>';
+		tableContent += '<td>' + outtime   + '</td>';
+		tableContent += '<td>' + lasttime  + '</td>';
+		tableContent += '<td>' + totaltime + '</td>';
+		tableContent += '<td>' + pause     + '</td>';
+		tableContent += '<td>' + lastpace  + '</td>';
+		tableContent += '<td>' + avgpace   + '</td>';
+		return true;
 	    });
-
-	    
-            // tableContent += '<td align="center">' + intime  + '</td>';
-            // tableContent += '<td align="center">' + outtime + '</td>';
-            // tableContent += '<td align="center">' + pause   + '</td>';
-            // tableContent += '<td align="center">' + pace    + '</td>';
-            // tableContent += '<td align="center">' + avgpace + '</td>';
 
             tableContent += '</tr>';
 
@@ -167,18 +180,20 @@ function fillResultTable() {
 	tableHeader += '<th></th>';
 	tableHeader += '<th></th>';
 	$.each(aidStations, function() {
-		if ('START'  === this.name) { return true; }
-		if ('FINISH' === this.name) { return true; }
-		tableHeader += '<th>IN</th>';
-		tableHeader += '<th>OUT</th>';
-		// tableHeader += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
-		// tableHeader += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
-		// tableHeader += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
-		// tableHeader += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
+	    if ('START'  === this.name) { return true; }
+	    if ('FINISH' === this.name) { return true; }
+	    tableHeader += '<th>IN</th>';
+	    tableHeader += '<th>OUT</th>';
+	    tableHeader += '<th>Pause</th>';
+	    tableHeader += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
+	    tableHeader += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
+	    tableHeader += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
+	    tableHeader += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
 	});
-	tableHeader += '<th></th>';
-	tableHeader += '<th></th>';
-	tableHeader += '<th></th>';
+	tableHeader += '<th>IN</th>';
+	tableHeader += '<th>T<sub>1</sub></th>';
+	tableHeader += '<th>P<sub>1</sub></th>';
+	tableHeader += '<th>P<sub>2</sub></th>';
 	tableHeader += '</tr>';
 
 
@@ -188,102 +203,7 @@ function fillResultTable() {
 
 }
 
-function fillResultTableX(docTitle, thetime) {
-
-    var tableContent = '';
-    var tableHeader = '';
-    var runnerNum = 1;
-    var aidStations = [];
-
-    // <caption>T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
-    //      T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub> , &nbsp;
-    //      P<sub>1</sub>(mm:ss/km): &#216; Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
-    // 	   P<sub>2</sub>(mm:ss/km): &#216; Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub></caption>
-
-
-    tableHeader += '<tr>';
-    tableHeader += '<th class="sortable_numeric">#</th>';
-    tableHeader += '<th class="sortable_numeric">Rang</th>';
-    tableHeader += '<th class="name">Name</th>';
-    tableHeader += '<th class="starttime">Start</th>';
-
-    $.getJSON('/aid', function(data) {
-        $.each(data, function() {
-	    console.log("aid data: " + this.name);
-	    aidStations.push(this);
-
-	    if ('START' === this.name) { return true; }
-	    if ('FINISH' === this.name) {
-		tableHeader += '<th class="vp" colspan="5" id="' + this.name + '">' + this.name + ' '
-		    + this.directions + ', @km ' + this.totalDistance + ',  &Delta; ' + this.legDistance + '</th>';
-		return true;
-	    }
-	    tableHeader += '<th class="vp" colspan="7" id="' + this.name + '">' + this.name + ' '
-		+ this.directions + ', @km ' + this.totalDistance + ',  &Delta; ' + this.legDistance + '</th>';
-	});
-    });
-
-    tableHeader += '<th class="total">Zeit</th>';
-    tableHeader += '<th class="totalpause">&sum; Pause</th>';
-    tableHeader += '</tr>';
-
-    
-    $.getJSON('/runners', function(data) {
-        $.each(data, function() {
-	    var intime = "n/a";
-	    var outtime = "n/a";
-	    // todo ...
-	    var pause = "00";
-	    var pace = "6:00";
-	    var avgpace = "6:30";
-	    var place = 'n/a';
-
-
-            tableContent += '<td>' + this.startnum  + '</td>';
-	    tableContent += '<td>' + place + '</td>'; // place
-	    tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
-
-
-	    // check the results field if we have valid times for this runner/aid
-	    var results = this.results;
-	    // for each aidstation ... aka $each(this.results, function() { ... })
-
-	    $.each(results, function(aidId, times) {
-		console.log(aidId + ": " + times);
-
-		if (results[aidId]) {
-		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
-		    console.log('fillStarterTable: ' + aidId + ' in time:   ' + results[aidId].intime);
-		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
-		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + results[aidId].outtime);
-
-		    intime  = ("true" === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
-		    outtime = ("true" === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
-		}
-		// if ("Start" === aidId) {
-		//     tableContent += '<td>' + this.lastname  + '</td>';
-		// }
-		
-	    });
-
-	    
-
-            // tableContent += '<td align="center">' + intime  + '</td>';
-            // tableContent += '<td align="center">' + outtime + '</td>';
-            // tableContent += '<td align="center">' + pause   + '</td>';
-            // tableContent += '<td align="center">' + pace    + '</td>';
-            // tableContent += '<td align="center">' + avgpace + '</td>';
-
-            tableContent += '</tr>';
-            runnerNum++;
-        });
-    });
-
-    // Inject the whole content string into our existing HTML table
-    $('#resultstable table thead').html(tableHeader);
-    $('#resultstable table tbody').html(tableContent);
-}
-
+//function fillResultTableX(docTitle, thetime) {
 
         // th(class="sorttable_numeric") Start #
         // th(class="sorttable_numeric") Place

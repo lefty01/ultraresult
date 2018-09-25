@@ -5,7 +5,26 @@
 [![Join the chat at https://gitter.im/lefty01/ultraresult](https://badges.gitter.im/lefty01/ultraresult.svg)](https://gitter.im/lefty01/ultraresult?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-Track times when runners enter and leave an aidstation during a (ultra) run/race.
+Track times when runners enter and leave an aidstation/checkpoint during a (ultra) run/race.
+This nodejs/express/mongodb based app offers webpages for each aidstation showing the runner list and two input fields for the in and out time.
+It will also feature a "drop out" checkbox in case a runner decides to not finish the run.
+
+Furthermore a overall result webpage with the current overall standings (live result) is offered.
+This result page can be sorted and will show some estimates when next aidstation/checkpoint and finish line might be reached based on the
+pace achieved during the previous stages of the race.
+Race prediction can take course elevation into account if that data is provided.
+
+
+
+# Implementation
+## results webpage
+
+## aidstation input page
+each aidstation has its own page where a list of runners is shown.
+After page load/reload for each runner the current time is displayed in the in and out input fields.
+If there has been a time entered (and saved) for this runner previously then this time is shown instead, and the field gets a red background and is locked.
+You can click "Edit" to change a already saved (locked) time. After "Edit" click "Save" again. If you click "Edit" background color change to green. On "Save" background becomes red.
+
 
 
 
