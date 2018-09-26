@@ -160,6 +160,7 @@ function fillResultTable() {
 	    
 	    $.each(results, function(aidId, times) {
 		console.log(aidId + ": " + times);
+		pause = "n/a";
 
 		if (results[aidId]) {
 		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
@@ -170,17 +171,12 @@ function fillResultTable() {
 		    intime  = (true === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
 		    outtime = (true === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
 
-		    pause = hhmmSubstract(intime, outtime);
-		    console.log('fillStarterTable: ' + aidId + ' pause:     ' + pause);
-
-		    if (("true" === results[aidId].outtime_valid) &&
-			("true" === results[aidId].intime_valid)) {
-                       //outtime = results[aidId].outtime;
-                    //   pause = results[aidId].outtime - results[aidId].intime;
-                       //console.log(results[aidId].outtime + " - " + results[aidId].intime);
-                       //console.log(moment.duration(moment(results[aidId].outtime).subtract(moment.duration(results[aidId].intime))));
-                       //pause = 
-                       //console.log(moment(results[aidId].intime));
+		    if ((true === results[aidId].outtime_valid) &&
+			(true === results[aidId].intime_valid)) {
+			pause = hhmmSubstract(intime, outtime);
+			console.log('fillStarterTable: ' + aidId + ' pause:     ' + pause);
+			//console.log(moment.duration(moment(results[aidId].outtime).subtract(moment.duration(results[aidId].intime))));
+			//console.log(moment(results[aidId].intime));
                     }
 
 		}
