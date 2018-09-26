@@ -1,3 +1,6 @@
+// ur.js -> better rename to aidstation.js
+// handle aidstation input save/edit, display runnerlist table for each aid
+
 
 // DOM Ready =============================================================
 $(document).ready(function() {
