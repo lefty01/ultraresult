@@ -46,6 +46,42 @@ function date() {
     return now;
 }
 
+// prev php code snippet to calc with string times hh:mm eg. substract
+// // subtract t1 - t2
+// // return string hh:mm
+// function hhmmSubtract($t1, $t2) {
+//   $in  = explode(':', $t1);
+//   $out = explode(':', $t2);
+
+//   if ($in[0] < $out[0]) $in[0] += 24;
+//   $total[0] = $in[0] - $out[0];
+
+//   if ($in[1] < $out[1]) {
+//     $in[1]    += 60;
+//     $total[0] -= 1;
+//   }
+//   $total[1] = $in[1] - $out[1];
+
+//   return sprintf("%02d:%02d", $total[0], $total[1]);
+// }
+
+
+function hhmmSubstract(t1, t2) {
+    var int = t1.split(':');
+    var out = t2.split(':');
+
+    if (int[0] > out[0]) {
+	out[0] = out[0] + 24;
+    }
+    var minsdiff = parseInt(out[0], 10) * 60 + parseInt(out[1], 10) -
+	           parseInt(int[0], 10) * 60 - parseInt(int[1], 10);
+
+    var result = String(100 + Math.floor(minsdiff / 60)).substr(1) + ':' +
+                 String(100 + minsdiff % 60).substr(1);
+    return result;
+}
+
+
 function fillResultTable() {
     var tableContent = "";
     var tableHeader = '';
@@ -85,15 +121,15 @@ function fillResultTable() {
 
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
-	    var intime = "n/a";
-	    var outtime = "n/a";
+	    var intime    = "n/a";
+	    var outtime   = "n/a";
 	    // todo ...
-	    var pause = "n/a";
-	    var lastpace = "n/a";
-	    var avgpace = "n/a";
-	    var lasttime = "n/a";
+	    var pause     = "n/a";
+	    var lastpace  = "n/a";
+	    var avgpace   = "n/a";
+	    var lasttime  = "n/a";
 	    var totaltime = "n/a";
-	    var place = 'n/a';
+	    var place     = 'n/a';
 
 	    tableContent += '<tr>';
             tableContent += '<td>' + this.startnum  + '</td>';
@@ -133,18 +169,14 @@ function fillResultTable() {
 
 		    intime  = (true === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
 		    outtime = (true === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
-		    
-		    // if ("true" === results[aidId].intime_valid) {
-		    // 	intime = results[aidId].intime;
-		    // }
-		    // if ("true" === results[aidId].outtime_valid) {
-		    // 	outtime = results[aidId].outtime;
-		    // }
+
+		    pause = hhmmSubstract(intime, outtime);
+		    console.log('fillStarterTable: ' + aidId + ' pause:     ' + pause);
 
 		    if (("true" === results[aidId].outtime_valid) &&
 			("true" === results[aidId].intime_valid)) {
                        //outtime = results[aidId].outtime;
-                       //pause = results[aidId].outtime - results[aidId].intime;
+                    //   pause = results[aidId].outtime - results[aidId].intime;
                        //console.log(results[aidId].outtime + " - " + results[aidId].intime);
                        //console.log(moment.duration(moment(results[aidId].outtime).subtract(moment.duration(results[aidId].intime))));
                        //pause = 
@@ -166,9 +198,9 @@ function fillResultTable() {
 		}
 		tableContent += '<td>' + intime    + '</td>';
 		tableContent += '<td>' + outtime   + '</td>';
+		tableContent += '<td>' + pause     + '</td>';
 		tableContent += '<td>' + lasttime  + '</td>';
 		tableContent += '<td>' + totaltime + '</td>';
-		tableContent += '<td>' + pause     + '</td>';
 		tableContent += '<td>' + lastpace  + '</td>';
 		tableContent += '<td>' + avgpace   + '</td>';
 		return true;
