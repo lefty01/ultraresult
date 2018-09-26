@@ -7,13 +7,23 @@ var bodyParser = require('body-parser');
 var mongo = require('mongodb');
 var monk = require('monk');
 var assert = require('assert');
+//var validate = require('express-validation');
+var fs    = require('fs'),
+    nconf = require('nconf');
 
 //var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 var session = require('express-session');
 
-var database_name = "sutrunners_2018";
-var db = monk('localhost:37128/' + database_name, function(err, db){
+nconf.file('ultraresult.conf');
+
+var database_name = nconf.get('database:name');
+var database_port = nconf.get('database:port');
+
+console.log('database: ' + nconf.get('database:name'));
+console.log('database: ' + nconf.get('database:port'));
+
+var db = monk('localhost:' + database_port + '/' + database_name, function(err, db){
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {

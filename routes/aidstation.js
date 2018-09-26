@@ -41,11 +41,11 @@ router.get('/:id', function(req, res) {
     var db = req.db;
     var collection = db.get('aidstations');
     var aidstationId = req.params.id.toUpperCase();
-    var match = /^(((VP|K)\d)|START|FINISH)$/;
+    var match = /^(((VP|K)\d\d?)|START|FINISH)$/;
     var found = match.test(aidstationId);
 
     // validate aidstation id or name
-    // right now allow VPn or Kn with n as single digit decimal number
+    // right now allow VPn or Kn with n as single or double digit decimal number
     console.log("aidstation: " + aidstationId);
     console.log("valid name? " + found);
     if (! found) {

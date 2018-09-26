@@ -117,9 +117,9 @@ function date() {
 // can save in or out times, set this time as valid and lock input field,
 // click on edit to invalidate and change value again
 function saveTimeClick(data) {
-    var setId = data.setId;
+    var setId   = data.setId;
     var setRoId = data.setRoId;
-    var aid = data.aid;
+    var aid     = data.aid;
     
     $("#"+setId).prop("readonly", "readonly");
     $("#"+setId).css("background-color", "#FF2F2F59");
@@ -157,9 +157,9 @@ function saveTimeClick(data) {
 }
 
 function editTimeClick(data) {
-    var editId = data.editId;
+    var editId   = data.editId;
     var editRoId = data.editRoId;
-    var aid = data.aid;
+    var aid      = data.aid;
     //alert("edit button click: editId=" + editId);
 
     $("#"+editId).prop("readonly", false);
@@ -218,13 +218,13 @@ function fillStarterTable(docTitle, thetime) {
 	    var results = this.results;
 	    if (typeof results !== 'undefined' && results && results[aidId]) {
 		// if time's valid make input read-only (and todo: change color)
-		if ("true" === results[aidId].intime_valid) {
+		if (true == results[aidId].intime_valid) {
 		    intime = results[aidId].intime;
 		    inro = "1";
 		    inreadonly = "readonly";
 		    roStyle = ' style="background-color: #FF2F2F59" ';
 		}
-		if ("true" === results[aidId].outtime_valid) {
+		if (true === results[aidId].outtime_valid) {
 		    outtime = results[aidId].outtime;
 		    outro = "1";
 		    outreadonly = "readonly";

@@ -131,8 +131,8 @@ function fillResultTable() {
 		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
 		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + results[aidId].outtime);
 
-		    intime  = ("true" === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
-		    outtime = ("true" === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
+		    intime  = (true === results[aidId].intime_valid)  ? results[aidId].intime  : "n/a";
+		    outtime = (true === results[aidId].outtime_valid) ? results[aidId].outtime : "n/a";
 		    
 		    // if ("true" === results[aidId].intime_valid) {
 		    // 	intime = results[aidId].intime;
@@ -140,6 +140,17 @@ function fillResultTable() {
 		    // if ("true" === results[aidId].outtime_valid) {
 		    // 	outtime = results[aidId].outtime;
 		    // }
+
+		    if (("true" === results[aidId].outtime_valid) &&
+			("true" === results[aidId].intime_valid)) {
+                       //outtime = results[aidId].outtime;
+                       //pause = results[aidId].outtime - results[aidId].intime;
+                       //console.log(results[aidId].outtime + " - " + results[aidId].intime);
+                       //console.log(moment.duration(moment(results[aidId].outtime).subtract(moment.duration(results[aidId].intime))));
+                       //pause = 
+                       //console.log(moment(results[aidId].intime));
+                    }
+
 		}
 		if ("START" === aidId) {
 		    tableContent += '<td>' + outtime  + '</td>';

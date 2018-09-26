@@ -1,6 +1,40 @@
 var express = require('express');
 var router = express.Router();
 
+
+function isValidNum(num) {
+    var reNum = /^\d{1,4}$/;
+    if (! reNum.test(num)) {
+	return false;
+    }
+    return true;
+}
+
+function isValidAid(aid) {
+    var reAid = /^(START|FINISH|VP\d\d?)+$/i;
+    if (! reAid.test(aid)) {
+	return false;
+    }
+    return true;
+}
+
+function isValidDateTime(time) {
+    var reTime = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d:\d\d$/;
+    if (! reTime.test(time)) {
+	return false;
+    }
+    return true;
+}
+function isValidTime(time) {
+    var reTime = /^\d\d:\d\d$/;
+    if (! reTime.test(time)) {
+	return false;
+    }
+    return true;
+}
+
+
+
 /* GET runner list */
 router.get('/', function(req, res) {
     var db = req.db;
@@ -20,29 +54,25 @@ router.get('/', function(req, res) {
 
 
 /*
- *
+ * update in/out time
  */
 router.put('/update/:num', function(req, res) {
     var db = req.db;
     var collection = db.get('runnerlist');
 
-    var isIn = (req.body.inout === "tin") ? true : false;
-    var startnum = req.params.num;
-    var aidName = req.body.aid;
-    var timeValid = req.body.time_valid;
-    var time = req.body.time;
+    //console.log("time valid: " + req.body.time_valid); -> prints true!
+
+    var isIn      = (req.body.inout === "tin") ? true : false;
+    var timeValid = (req.body.time_valid === 'true') ? true : false; // -> false !?
+    var startnum  = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.sed('invalid input')
+    var aidName   = isValidAid(req.body.aid)   ? req.body.aid   : "INVALID";
+    var time      = isValidTime(req.body.time) ? req.body.time  : "INVALID";
 
     console.log("Update runner: startnum=" + startnum);
     console.log("aid name:   " + aidName);
-    console.log("inout:      " + req.body.inout);
+    console.log("isIn:       " + isIn);
     console.log("time:       " + time);
     console.log("time valid: " + timeValid);
-
-    // var keyInTimeVld = "results." + aidName + ".intime_valid";
-    // var keyInTime    = "results." + aidName + ".intime";
-    // var key = {
-    // 	[ keyInTimeVld ] : timeValid,
-    // };
 
     
     var aidData = {};
@@ -55,7 +85,7 @@ router.put('/update/:num', function(req, res) {
     	aidData = {
     	    [ "results." + aidName + ".outtime_valid" ] : timeValid,
 	    [ "results." + aidName + ".outtime" ] : time
-	}
+	};
     }
 
     collection.update({ 'startnum' : startnum },
