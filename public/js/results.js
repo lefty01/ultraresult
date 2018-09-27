@@ -83,20 +83,21 @@ function hhmmSubstract(t1, t2) {
 
 
 function fillResultTable() {
-    var tableContent = "";
-    var tableHeader = '';
-    var aidStations = [];
+    var tableContent = '';
+    var tableHeader  = '';
+    var aidStations  = [];
+
+    var tableCaption = '\
+T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
+T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
+P<sub>1</sub>(mm:ss/km): Ø Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
+P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>';
 
     tableHeader += '<tr>';
     tableHeader += '<th class="sortable_numeric">#</th>';
     tableHeader += '<th class="sortable_numeric">Rang</th>';
     tableHeader += '<th class="name">Name</th>';
     tableHeader += '<th class="starttime">Start</th>';
-
-    // <caption>T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
-    //      T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub> , &nbsp;
-    //      P<sub>1</sub>(mm:ss/km): &#216; Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp;
-    // 	   P<sub>2</sub>(mm:ss/km): &#216; Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub></caption>
 
     
     // fill the table header with aidstation info
@@ -235,8 +236,8 @@ function fillResultTable() {
 	tableHeader += '<th>P<sub>2</sub></th>';
 	tableHeader += '</tr>';
 
-
 	$('#resultstable table thead').html(tableHeader);
+	$('#resultstable table caption').html(tableCaption);
 	$('#resultstable table tbody').html(tableContent);
     });
 
