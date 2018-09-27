@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title= params.title
+    title= title
 
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible" content="IE=edge")
@@ -10,13 +10,23 @@ html
     link(rel='stylesheet', href='/css/style.css')
     link(rel='stylesheet', href='/css/bootstrap.min.css')
     link(rel='stylesheet', href='/css/materialize.min.css')
-    link(rel="stylesheet", href="/css/font-awesome.min.css")
 
   body
     block content
+
+      #starterListTable
+        table
+          thead
+            th No.
+            th Name
+            th Nationality
+            th Residence
+            th Club
+            th Cat
+          tbody
 
     script(src='/js/jquery-3.1.1.min.js')
     script(src='/js/bootstrap.min.js')
     script(src='/js/materialize.min.js')
     script(src='/js/sorttable.js')
-    script(src='/js/aidstation.js')
+    script(src='/js/starterlist.js')

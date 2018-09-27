@@ -33,10 +33,11 @@ var db = monk(database_host + ':' + database_port + '/' + database_name, functio
     }
 });
 
-var routes = require('./routes/index');
-var runners = require('./routes/runners');
+var routes     = require('./routes/index');
+var runners    = require('./routes/runners');
+var starters   = require('./routes/starters');
 var aidstation = require('./routes/aidstation');
-var results = require('./routes/results');
+var results    = require('./routes/results');
 
 var app = express();
 
@@ -58,9 +59,10 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', results);
-app.use('/runners', runners); // update runner results (aid in/out times)
-app.use('/aid',     aidstation);
-app.use('/results', results);
+app.use('/runners',  runners); // update runner results (aid in/out times)
+app.use('/starters', starters);
+app.use('/aid',      aidstation);
+app.use('/results',  results);
 
 //console.log('env: ' + app.get('env'));
 

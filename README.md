@@ -17,7 +17,7 @@ Race prediction can take course elevation into account if that data is provided.
 
 # Config
 Now featuring a config file which currently holds only mongo database name and port.
-Format is json, example:
+Format is json, for example create a file called 'ultraresult.conf':
 ```json
 {
     "database": {
@@ -48,7 +48,7 @@ each aidstation has its own page where a list of runners is shown.
 After page load/reload for each runner the current time is displayed in the in and out input fields.
 If there has been a time entered (and saved) for this runner previously then this time is shown instead, and the field gets a red background and is locked.
 You can click "Edit" to change a already saved (locked) time. After "Edit" click "Save" again. If you click "Edit" background color change to green. On "Save" background becomes red.
-The related javascript code is in ur.js (-> better rename to aidstation.js)
+The related javascript code is in aidstation.js
 
 
 

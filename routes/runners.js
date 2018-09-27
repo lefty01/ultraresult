@@ -51,6 +51,25 @@ router.get('/', function(req, res) {
                             res.json(docs);
     });
 });
+/* GET starter list */
+router.get('/starterlist', function(req, res) {
+    var db = req.db;
+    var collection = db.get('runnerlist');
+
+    collection.find({}, {fields: { _id: 0,
+                                   duvid : 1,
+                                   firstname : 1,
+                                   lastname : 1,
+                                   nationality : 1,
+                                   residence : 1,
+                                   club : 1,
+                                   catger : 1
+                                 }
+                        }, function(err, docs) {
+                            console.log(docs);
+                            res.json(docs);
+    });
+});
 
 
 /*

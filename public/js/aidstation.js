@@ -1,4 +1,4 @@
-// ur.js -> better rename to aidstation.js
+// aidstation.js
 // handle aidstation input save/edit, display runnerlist table for each aid
 
 
