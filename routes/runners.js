@@ -32,6 +32,10 @@ function isValidTime(time) {
     }
     return true;
 }
+function isValidTimeObj(time) {
+    //return Object.prototype.toString.call(time) === '[object Date]'
+    return time instanceof Date;
+}
 
 
 
@@ -85,7 +89,7 @@ router.put('/update/:num', function(req, res) {
     var timeValid = (req.body.time_valid === 'true') ? true : false; // -> false !?
     var startnum  = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.sed('invalid input')
     var aidName   = isValidAid(req.body.aid)   ? req.body.aid   : "INVALID";
-    var time      = isValidTime(req.body.time) ? req.body.time  : "INVALID";
+    var time      = isValidTimeObj(req.body.time) ? req.body.time.toJSON()  : "INVALID";
 
     console.log("Update runner: startnum=" + startnum);
     console.log("aid name:   " + aidName);
@@ -93,7 +97,7 @@ router.put('/update/:num', function(req, res) {
     console.log("time:       " + time);
     console.log("time valid: " + timeValid);
 
-    
+
     var aidData = {};
     if (isIn) {
 	aidData = {
@@ -111,11 +115,10 @@ router.put('/update/:num', function(req, res) {
 		      { $set : aidData },
 		      function(err, cnt, stat) {
      			  res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
-     			  console.log("update  count=" + cnt);
-     			  console.log("update status=" + stat);
+			  console.log("update  count=" + cnt.nModified);
+			  console.log("update status=" + stat);
     });
 
-    
 });
 
 module.exports = router;
