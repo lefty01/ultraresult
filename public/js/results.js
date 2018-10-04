@@ -73,12 +73,13 @@ function hhmmSubstract(tin, tout) {
 }
 // expect t to be a string "hh:mm", d is distance in km
 function calcPace(t, d) {
-    var intime  = t.split(':');
-    var seconds = intime[0] * 3600 + intime[1] * 60;
-    var pace = seconds / d;
+    var intime = t.split(':');
+    //console.log("intime h="+intime[0]+", intime m="+intime[1]);
 
-    var result = Math.floor(seconds/60) + ":" + Math.floor(seconds % 60);
-
+    var mins = parseInt(intime[0], 10) * 60 + parseInt(intime[1], 10); //intime[0] * 60 + intime[1];
+    var pace = mins / d;
+    //console.log("pace="+pace);
+    var result = Math.floor(pace) + ":" + Math.floor(60 * (pace - Math.floor(pace)));
     return result;
 }
 
@@ -102,6 +103,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
     
     // fill the table header with aidstation info
+    // note: /aid returns data sorted by total distance
     $.getJSON('/aid', function(data) {
         $.each(data, function() {
 	    //console.log("aid data: " + this.name);
@@ -111,11 +113,11 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    if ('FINISH' === this.name) {
 		// colspan number of cells in finish coloumn: in, last pace, avg. pace, last time
 		tableHeader += '<th colspan="4">' + this.name + ' ' + this.directions +
-		    ', @' + this.totalDistance.toFixed(0) + ',  &Delta; ' + this.legDistance.toFixed(0) + '</th>';
+		    ', @' + this.totalDistance.toFixed(1) + ',  &Delta; ' + this.legDistance.toFixed(1) + '</th>';
 		return true;
 	    }
 	    tableHeader += '<th colspan="7" id="' + this.name + '">' + this.name + ' '
-		+ this.directions + ', @km ' + this.totalDistance.toFixed(0) + ',  &Delta; ' + this.legDistance.toFixed(0) + '</th>';
+		+ this.directions + ', @km ' + this.totalDistance.toFixed(1) + ',  &Delta; ' + this.legDistance.toFixed(1) + '</th>';
 	    return true;
 	});
     });
@@ -181,15 +183,30 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			//console.log(moment(results[aidId].intime));
                     }
 
+		    // get last time (between last aid out and this aid in)
+		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
+		    if (prevAidIdx >= 0) {
+			var prevAid = aidStations[prevAidIdx];
+			console.log('prevAid.name=' + prevAid.name);
+			if ((typeof prevAid !== 'undefined') &&
+			    (true === results[prevAid.name].outtime_valid) &&
+		     	    (true === results[aidId].intime_valid)) {
+			    console.log('last out: ' + results[prevAid.name].outtime);
+			    console.log('this  in: ' + results[aidId].intime);
+			    lasttime = hhmmSubstract(results[prevAid.name].outtime, results[aidId].intime);
+			    totaltime = hhmmSubstract(results["START"].outtime, results[aidId].intime);
+			}
+		    }
 		    // calc pace ...
-		    // // P1: avg. vp-vp
-		    // //echo "pace 1:      " . time2str((int)$pace1) . " (mm:ss/km)<br>\n";
-		    // $runner[$key][$k2]['pace1'] = getPace($runner[$key][$k2]['time1'], $vp_info[$k2]['delta'] * 1.61);
-		    // // P2: avg start-vp
-		    // //echo "pace 2:      " . time2str((int)$pace2) . " (mm:ss/km)<br>\n";
-		    // $runner[$key][$k2]['pace2'] = getPace($runner[$key][$k2]['time2'], $vp_info[$k2]['total'] * 1.61);
-//		    lastpace = calcPace();
+		    // P1: avg. pace between aid stations
+		    var lastDist = aidStations.find(x => x.name === aidId).legDistance;
+		    var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
+		    console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
+		    console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
+		    lastpace = calcPace(lasttime, lastDist);
 
+		    // P2: avg between start and current aidstation in
+		    avgpace = calcPace(totaltime, totalDist);
 		}
 		if ("START" === aidId) {
 		    tableContent += '<td>' + outtime  + '</td>';
@@ -207,7 +224,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		tableContent += '<td>' + outtime   + '</td>';
 		tableContent += '<td>' + pause     + '</td>';
 		tableContent += '<td>' + lasttime  + '</td>';
-		tableContent += '<td>' + totaltime + '</td>';
+		tableContent += '<td><b>' + totaltime + '</b></td>';
 		tableContent += '<td>' + lastpace  + '</td>';
 		tableContent += '<td>' + avgpace   + '</td>';
 		return true;
