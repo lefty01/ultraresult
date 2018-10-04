@@ -36,9 +36,9 @@ $(document).on('click', function (e) {
         
         var time = $("input#" + inout + "_" + startnum).val();
 	var date = $("input#" + (inout === 'tin' ? 'tdin' : 'tdout') + "_" + startnum).val();
-
 	console.log('date: ' + date);
-	FIXME:	var dateObj = input2dateObj(date, time);
+	console.log('time: ' + time);
+	var dateObj = input2dateObj(date, time);
 
         data = {
             'startnum' : startnum,
@@ -47,7 +47,7 @@ $(document).on('click', function (e) {
             'setId'    : inout + "_" + startnum,
             'setRoId'  : inout + "ro_"  + startnum, // eg. tinro_1
             'time'     : time,
-	    'datetime' : dateObj
+	    'date'     : date
         };
 
         //alert("save time for no: " + startnum + " inout=" + inout + 
@@ -67,14 +67,16 @@ $(document).on('click', function (e) {
             'editId'   : res[0] + "_" + res[2],
             'editRoId' : res[0] + "ro_"  + res[2],
 	    'time'     : time,
-	    'datetime' : date
+	    'date'     : date
         };
         editTimeClick(data);
     }
 });
 
 
-
+function input2dateObj(date, time) {
+    return new Date(date + " " + time);
+}
 
 function date2timeStr(d) {
     // validate d object
@@ -131,7 +133,7 @@ function saveTimeClick(data) {
 	'time_valid' : true,
 	'aid'        : data.aid,
         'time'       : data.time,
-	'datetime'   : data.date.toJSON()
+	'date'       : data.date
     };
 
     $.ajax({
@@ -172,10 +174,10 @@ function editTimeClick(data) {
 	'time_valid' : false,
 	'time'       : data.time, //FIXME??? here
 	//'time'       : data.time.toJSON(),
-	'datetime'   : data.date.toJSON(),
+	'date'       : data.date,
 	'aid'        : data.aid
     };
-    console.log('editTimeClick: ' + data.date.toJSON());
+
     $.ajax({
         type: 'PUT',
         dataType: 'JSON',
@@ -229,16 +231,17 @@ function fillStarterTable(docTitle, theDate) {
 		// if time's valid make input read-only (and todo: change color)
 		if (true == results[aidId].intime_valid) {
 // FIXME: json-string-date to Date(): //intime = json2timeStr(results[aidId].intime) / indate = ...
-		    intime = json2timeStr(results[aidId].intime);
-		    indate = json2dateStr(results[aidId].intime);
+		    // intime = json2timeStr(results[aidId].intime);
+		    // indate = json2dateStr(results[aidId].intime);
+		    intime = results[aidId].intime;
+		    indate = results[aidId].indate;
 		    inro = "1";
 		    inreadonly = "readonly";
 		    roStyle = ' style="background-color: #FF2F2F59" ';
 		}
 		if (true === results[aidId].outtime_valid) {
-		    //outtime = results[aidId].outtime; // FIXME: outtimeObj = new Date(results[aidId].outtime);
-		    outtime = json2timeStr(results[aidId].outtime);
-		    outdate = json2dateStr(results[aidId].outtime);
+		    outtime = results[aidId].outtime; // FIXME: outtimeObj = new Date(results[aidId].outtime);
+		    outdate = results[aidId].outdate;
 		    outro = "1";
 		    outreadonly = "readonly";
 		    roStyle = ' style="background-color: #FF2F2F59" ';
