@@ -46,16 +46,6 @@ function date() {
     return now;
 }
 
-// prev php code snippet(s)
-// calc pace from t(hh:mm) and distance d(km)
-// return pace in mm:ss/km
-// function getPace($t, $d) {
-//   $in  = explode(':', $t);
-//   $sec = $in[0] * 60 * 60 + $in[1] * 60;
-//   $pace = $sec / $d;
-//   return sprintf("%02d:%02d", (int)($pace / 60), $pace % 60);
-// }
-
 
 function hhmmSubstract(tin, tout) {
     var intime  = tin.split(':');
