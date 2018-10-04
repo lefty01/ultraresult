@@ -46,38 +46,39 @@ function date() {
     return now;
 }
 
-// prev php code snippet to calc with string times hh:mm eg. substract
-// // subtract t1 - t2
-// // return string hh:mm
-// function hhmmSubtract($t1, $t2) {
-//   $in  = explode(':', $t1);
-//   $out = explode(':', $t2);
-
-//   if ($in[0] < $out[0]) $in[0] += 24;
-//   $total[0] = $in[0] - $out[0];
-
-//   if ($in[1] < $out[1]) {
-//     $in[1]    += 60;
-//     $total[0] -= 1;
-//   }
-//   $total[1] = $in[1] - $out[1];
-
-//   return sprintf("%02d:%02d", $total[0], $total[1]);
+// prev php code snippet(s)
+// calc pace from t(hh:mm) and distance d(km)
+// return pace in mm:ss/km
+// function getPace($t, $d) {
+//   $in  = explode(':', $t);
+//   $sec = $in[0] * 60 * 60 + $in[1] * 60;
+//   $pace = $sec / $d;
+//   return sprintf("%02d:%02d", (int)($pace / 60), $pace % 60);
 // }
 
 
-function hhmmSubstract(t1, t2) {
-    var int = t1.split(':');
-    var out = t2.split(':');
+function hhmmSubstract(tin, tout) {
+    var intime  = tin.split(':');
+    var outtime = tout.split(':');
 
-    if (int[0] > out[0]) {
-	out[0] = out[0] + 24;
+    if (intime[0] > outtime[0]) {
+	outtime[0] = outtime[0] + 24;
     }
-    var minsdiff = parseInt(out[0], 10) * 60 + parseInt(out[1], 10) -
-	           parseInt(int[0], 10) * 60 - parseInt(int[1], 10);
+    var minsdiff = parseInt(outtime[0], 10) * 60 + parseInt(outtime[1], 10) -
+                   parseInt(intime[0],  10) * 60 - parseInt(intime[1],  10);
 
     var result = String(100 + Math.floor(minsdiff / 60)).substr(1) + ':' +
                  String(100 + minsdiff % 60).substr(1);
+    return result;
+}
+// expect t to be a string "hh:mm", d is distance in km
+function calcPace(t, d) {
+    var intime  = t.split(':');
+    var seconds = intime[0] * 3600 + intime[1] * 60;
+    var pace = seconds / d;
+
+    var result = Math.floor(seconds/60) + ":" + Math.floor(seconds % 60);
+
     return result;
 }
 
@@ -179,6 +180,15 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			//console.log(moment.duration(moment(results[aidId].outtime).subtract(moment.duration(results[aidId].intime))));
 			//console.log(moment(results[aidId].intime));
                     }
+
+		    // calc pace ...
+		    // // P1: avg. vp-vp
+		    // //echo "pace 1:      " . time2str((int)$pace1) . " (mm:ss/km)<br>\n";
+		    // $runner[$key][$k2]['pace1'] = getPace($runner[$key][$k2]['time1'], $vp_info[$k2]['delta'] * 1.61);
+		    // // P2: avg start-vp
+		    // //echo "pace 2:      " . time2str((int)$pace2) . " (mm:ss/km)<br>\n";
+		    // $runner[$key][$k2]['pace2'] = getPace($runner[$key][$k2]['time2'], $vp_info[$k2]['total'] * 1.61);
+//		    lastpace = calcPace();
 
 		}
 		if ("START" === aidId) {
