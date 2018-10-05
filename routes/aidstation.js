@@ -11,10 +11,7 @@ router.get('/', function(req, res) {
     var collection = db.get('aidstations');
 
     //res.render('index', { title: 'List of Aidstations' });
-
     // FIXME filter only adistation and checkpoints (in case we have other stuff in this collection)
-    // sort collection.find( {}, {"sort" : ['totalDistance', 'asc']}, function(err, docs) {
-    // collection.find( {}, {}, function(err, docs) {
     //collection.find({}, {}).sort({'totalDistance': 1}).exec(function(err, docs) { -> not working
     collection.find( {}, { 'sort' : ['totalDistance', 'asc']}, function(err, docs) {
         console.log("find in collection ...");

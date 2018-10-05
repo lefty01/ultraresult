@@ -25,12 +25,33 @@ function isValidDateTime(time) {
     }
     return true;
 }
+function isValidDate(time) {
+    var reTime = /^\d\d\d\d-\d\d-\d\d$/;
+    if (! reTime.test(time)) {
+	return false;
+    }
+    return true;
+}
 function isValidTime(time) {
     var reTime = /^\d\d:\d\d$/;
     if (! reTime.test(time)) {
 	return false;
     }
     return true;
+}
+function isValidJsonTime(time) {
+    // 2018-10-04T20:27:10.106Z
+    console.list("isValidJsonTime: " + time);
+
+    var reTime = /^\d{4,4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ$/;
+    if (! reTime.test(time)) {
+	return false;
+    }
+    return true;
+}
+function isValidTimeObj(time) {
+    //return Object.prototype.toString.call(time) === '[object Date]'
+    return time instanceof Date;
 }
 
 
@@ -86,24 +107,29 @@ router.put('/update/:num', function(req, res) {
     var startnum  = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.sed('invalid input')
     var aidName   = isValidAid(req.body.aid)   ? req.body.aid   : "INVALID";
     var time      = isValidTime(req.body.time) ? req.body.time  : "INVALID";
+    //var datetime  = isValidJsonTime(req.body.datetime) ? req.body.datetime  : "INVALID";
+    var date      = isValidDate(req.body.date) ? req.body.date  : "INVALID";
 
     console.log("Update runner: startnum=" + startnum);
     console.log("aid name:   " + aidName);
     console.log("isIn:       " + isIn);
+    console.log("date:       " + date);
     console.log("time:       " + time);
     console.log("time valid: " + timeValid);
 
-    
+
     var aidData = {};
     if (isIn) {
 	aidData = {
     	    [ "results." + aidName + ".intime_valid" ] : timeValid,
-	    [ "results." + aidName + ".intime" ] : time
+	    [ "results." + aidName + ".intime" ] : time,
+	    [ "results." + aidName + ".indate" ] : date
 	};
     } else {
     	aidData = {
     	    [ "results." + aidName + ".outtime_valid" ] : timeValid,
-	    [ "results." + aidName + ".outtime" ] : time
+	    [ "results." + aidName + ".outtime" ] : time,
+	    [ "results." + aidName + ".outdate" ] : date
 	};
     }
 
@@ -111,11 +137,10 @@ router.put('/update/:num', function(req, res) {
 		      { $set : aidData },
 		      function(err, cnt, stat) {
      			  res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
-     			  console.log("update  count=" + cnt);
-     			  console.log("update status=" + stat);
+			  console.log("update  count=" + cnt.nModified);
+			  console.log("update status=" + stat);
     });
 
-    
 });
 
 module.exports = router;

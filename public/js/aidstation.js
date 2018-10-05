@@ -5,32 +5,16 @@
 // DOM Ready =============================================================
 $(document).ready(function() {
 
-    var now = date();
-    
-    // window.onload = function() {
-    // 	date();
-    // }
-    //setInterval(function() { date(); }, 10000);
-    //setInterval(date, 5000);
+    var now = new Date();
 
     if (document.title === "aidstation not found") {
         alert("aidstation not found: " + $("aid").attr("id"));
     } else {
         // fill table and make it sortable
         fillStarterTable(document.title, now);
-	//var tableObj = document.getElementById('starterList');
 	var tableObj = document.getElementById('startlist-table');
         sorttable.makeSortable(tableObj);
     }
-
-    //showAidstations();
-
-    // load/store buttons - FIXME really need?
-    //$('#btnLoad').on('click', storeAidTime);
-
-    
-    //$("div.tinput").html(now);
-    //alert(now);
 
 });
 
@@ -47,18 +31,23 @@ $(document).on('click', function (e) {
         e.preventDefault(); // cancel the event flow
         var setId = target.data('setid');
         res = setId.split("_"); // t[in|out]_set_NN
-        inout = res[0];
+        inout = res[0]; // tin|tout
         startnum = res[2];
-	//var isIn = res[0] === "tin" ? true : false;
         
         var time = $("input#" + inout + "_" + startnum).val();
+	var date = $("input#" + (inout === 'tin' ? 'tdin' : 'tdout') + "_" + startnum).val();
+	console.log('date: ' + date);
+	console.log('time: ' + time);
+	var dateObj = input2dateObj(date, time);
+
         data = {
             'startnum' : startnum,
             'aid'      : aidId,
             'inout'    : inout, // tin or tout
             'setId'    : inout + "_" + startnum,
             'setRoId'  : inout + "ro_"  + startnum, // eg. tinro_1
-            'time'     : time
+            'time'     : time,
+	    'date'     : date
         };
 
         //alert("save time for no: " + startnum + " inout=" + inout + 
@@ -77,41 +66,47 @@ $(document).on('click', function (e) {
 	    'inout'    : inout,
             'editId'   : res[0] + "_" + res[2],
             'editRoId' : res[0] + "ro_"  + res[2],
-	    'time'     : time
+	    'time'     : time,
+	    'date'     : date
         };
-
         editTimeClick(data);
     }
 });
 
 
+function input2dateObj(date, time) {
+    return new Date(date + " " + time);
+}
 
+function date2timeStr(d) {
+    // validate d object
+    // ...
+    var d_hh = d.getHours();
+    var d_mm = d.getMinutes();
+    //var t_day = t_current.getDay(); // 6=saturday, 0=sunday
+    if (d_mm < 10) d_mm = "0" + d_mm;
+    if (d_hh < 10) d_hh = "0" + d_hh;
 
-//TODO save date AND time
-/*
- * set current time (hh:mm) in tinput fields
- */
-function date() {
-    var t_current = new Date();
-    var t_hh  = t_current.getHours();
-    var t_mm  = t_current.getMinutes();
-    var t_day = t_current.getDay(); // 6=saturday, 0=sunday
+    return d_hh + ":" + d_mm;
+}
+function date2dateStr(d) {
+    var d_MM = d.getMonth() + 1;
+    var d_DD = d.getDate();
+    var d_YY = d.getFullYear();
 
-    if (t_mm < 10) t_mm = "0" + t_mm;
-    if (t_hh < 10) t_hh = "0" + t_hh;
+    if (d_MM < 10) d_MM = "0" + d_MM;
+    if (d_DD < 10) d_DD = "0" + d_DD;
 
-    var now = t_hh + ":" + t_mm;
-
-    //$("div.tinput").html(now);
-
-    $("input.tinput").each(function(index) {
-	// index: 0 .. last element
-	if (! $(this).prop("readonly")) {
-	    $(this).val(now);
-	}
-    });
-    //setTimeout(date, 15000);
-    return now;
+    return d_YY + "-" + d_MM + "-" + d_DD;
+}
+// d = "4.10.2018, 22:55:23"
+function json2timeStr(d) {
+    var d1 = new Date(d); //.toLocaleString('de-DE');
+    return date2timeStr(d1);
+}
+function json2dateStr(d) {
+    var d1 = new Date(d);
+    return date2dateStr(d1);
 }
 
 
@@ -123,14 +118,13 @@ function saveTimeClick(data) {
     var setId   = data.setId;
     var setRoId = data.setRoId;
     var aid     = data.aid;
-    
+    var setIdDate = "td" + setId.slice(1, 10);
     $("#"+setId).prop("readonly", "readonly");
     $("#"+setId).css("background-color", "#FF2F2F59");
+    $("#"+setIdDate).prop("readonly", "readonly");
+    $("#"+setIdDate).css("background-color", "#FF2F2F59");
     $("#"+setRoId).val("1"); // lock (make read-only)
 
-    // if ( "1" === $("#"+setRoId)) {
-    // 	console.log("read-only already ... do not save again!");
-    // }
 
     // store time in database ...
     // mark the time as valid, edit will invalidate the time again
@@ -138,7 +132,8 @@ function saveTimeClick(data) {
 	'inout'      : data.inout,
 	'time_valid' : true,
 	'aid'        : data.aid,
-        'time'       : data.time
+        'time'       : data.time,
+	'date'       : data.date
     };
 
     $.ajax({
@@ -160,19 +155,26 @@ function saveTimeClick(data) {
 }
 
 function editTimeClick(data) {
-    var editId   = data.editId;
-    var editRoId = data.editRoId;
+    var editId   = data.editId;   // eg. tout_7, tin_1
+    var editRoId = data.editRoId; //     toutro_7
     var aid      = data.aid;
-    //alert("edit button click: editId=" + editId);
+    //alert("edit button click: editRoId=" + editRoId);
+
+    // get Id for date tout_1 -> tdout_1
+    var editIdDate = "td" + editId.slice(1, 10);
 
     $("#"+editId).prop("readonly", false);
     $("#"+editId).css("background-color", "#99FFCC");
+    $("#"+editIdDate).prop("readonly", false);
+    $("#"+editIdDate).css("background-color", "#99FFCC");
     $("#"+editRoId).val("0"); // unlock
 
     var aidstation = {
 	'inout'      : data.inout,
 	'time_valid' : false,
-	'time'       : data.time,
+	'time'       : data.time, //FIXME??? here
+	//'time'       : data.time.toJSON(),
+	'date'       : data.date,
 	'aid'        : data.aid
     };
 
@@ -195,7 +197,9 @@ function editTimeClick(data) {
 }
 
 
-function fillStarterTable(docTitle, thetime) {
+
+// theDate is Date() object
+function fillStarterTable(docTitle, theDate) {
     var aidId = $("aid").attr("id");
     var matchVP = /^(VP)\d\d?$/i;
     var matchStart = /^START$/i;
@@ -208,11 +212,15 @@ function fillStarterTable(docTitle, thetime) {
 
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
-	    var intime = thetime;
-	    var outtime = thetime;
-	    var inro = "0";
-	    var outro = "0";
-	    var inreadonly = "";
+	    // initially fill date/time with current date/time via theDate obj,
+	    // will be overwritten below if we have stored data
+	    var intime  = date2timeStr(theDate);
+	    var outtime = date2timeStr(theDate);
+	    var indate  = date2dateStr(theDate);// eg. "2018-10-13"
+	    var outdate = date2dateStr(theDate);
+	    var inro    = "0";
+	    var outro   = "0";
+	    var inreadonly  = "";
 	    var outreadonly = "";
 	    var roStyle = "";
 
@@ -222,13 +230,18 @@ function fillStarterTable(docTitle, thetime) {
 	    if (typeof results !== 'undefined' && results && results[aidId]) {
 		// if time's valid make input read-only (and todo: change color)
 		if (true == results[aidId].intime_valid) {
+// FIXME: json-string-date to Date(): //intime = json2timeStr(results[aidId].intime) / indate = ...
+		    // intime = json2timeStr(results[aidId].intime);
+		    // indate = json2dateStr(results[aidId].intime);
 		    intime = results[aidId].intime;
+		    indate = results[aidId].indate;
 		    inro = "1";
 		    inreadonly = "readonly";
 		    roStyle = ' style="background-color: #FF2F2F59" ';
 		}
 		if (true === results[aidId].outtime_valid) {
-		    outtime = results[aidId].outtime;
+		    outtime = results[aidId].outtime; // FIXME: outtimeObj = new Date(results[aidId].outtime);
+		    outdate = results[aidId].outdate;
 		    outro = "1";
 		    outreadonly = "readonly";
 		    roStyle = ' style="background-color: #FF2F2F59" ';
@@ -244,9 +257,13 @@ function fillStarterTable(docTitle, thetime) {
             tableContent += '<td>' + this.firstname + '</td>';
             tableContent += '<td>' + this.lastname  + '</td>';
 
+	    // FIXME: below maxlength/size is hardcoded to 10 to match date format of yyyy-mm-dd
 	    if (! isStart) {
+		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="text" maxlength="10" size="10" value="'
+		    + indate + '" ' + inreadonly + roStyle + '/></td>';
+
 		tableContent += '<td align="center"><input id="tin_' + this.startnum
-                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" '+ inreadonly + roStyle + '>'
+                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" ' + inreadonly + roStyle + '>'
                     + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
 		// FIXME: data- does not require set or edit info since we have the class already
 		tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
@@ -255,6 +272,9 @@ function fillStarterTable(docTitle, thetime) {
                     + ' class="makeEditable">Edit</button></td>';
 	    }
             if (! isFinish) {
+		tableContent += '<td align="center"><input id="tdout_' + this.startnum + '" class="tdinput" type="text" maxlength="10" size="10" value="'
+		    + outdate + '" ' + outreadonly + roStyle + '/></td>';
+
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
                     + '" class="tinput" type="text" maxlength="5" size="5" value="' + outtime + '"' + outreadonly + roStyle + '>'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="' + outro + '"></td>';
@@ -272,24 +292,6 @@ function fillStarterTable(docTitle, thetime) {
         // Inject the whole content string into our existing HTML table
         $('#starterList table tbody').html(tableContent);
 
-	// FIXME:  most likely we need to do this after table is fully shown ...
-	//         so we could save the runner Ids that have valid times in database
-	//         to some list then iterate over the list here ...
-	// $("#"+setId).prop("readonly", "readonly");
-	// $("#"+setId).css("background-color", "#CC6666");
-	// $("#"+setRoId).val("1"); // lock (make read-only)
-
     });
 }
 
-function showAidstations() {
-
-    $.getJSON( '/aid/', function(data) {
-        // For each item in our JSON, add a table row and cells to the content string
-        $.each(data, function() {
-
-        });
-    });
-}
-
-//    $.getJSON( '/aid/' + aidId, function(data) {
