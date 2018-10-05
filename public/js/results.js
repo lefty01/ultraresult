@@ -7,7 +7,7 @@
 // DOM Ready =============================================================
 $(document).ready(function() {
 
-//    var now = date();
+    //    var now = date();
     
     if (document.title === "results not found") {
         alert("no results found!");
@@ -22,6 +22,18 @@ $(document).ready(function() {
 
 });
 
+var finisher = {};
+
+function setFinisher(num) {
+    finisher[num] = true;
+}
+function isFinisher(num) {
+    if ((typeof finisher[num] !== 'undefined') &&
+	(true === finisher[num])) {
+	return true;
+    }
+    return false;
+}
 
 function isValidAid(aid) {
     var reAid = /^(START|FINISH|VP\d{1,3})+$/i;
@@ -82,16 +94,11 @@ function substractTimeDate2Str(outTime, outDate, inTime, inDate) {
 }
 
 function calcTotalPause(totalp, delta) {
-    console.log('totalp: ' + totalp);
-    console.log('delta : ' + delta);
     var d = delta.split(':');
     var t = totalp.split(':');
     var dMins = parseInt(d[0], 10) * 60 + parseInt(d[1], 10);
     var tMins = parseInt(t[0], 10) * 60 + parseInt(t[1], 10);
     var sum = tMins + dMins;
-
-    console.log("d=" + d + ", t=" + t);
-    console.log("total pause min: " + sum);
 
     var result = String(100 + Math.floor(sum / 60)).substr(1) + ':' +
         String(100 + sum % 60).substr(1);
@@ -165,7 +172,6 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
     // FIXME check input validation (using database input)
     $.getJSON('/runners', function(data) {
-
         $.each(data, function() {
 	    var intimeValid  = false;
 	    var outtimeValid = false;
@@ -181,7 +187,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    var totaltime  = "n/a";
 	    var place      = "n/a";
 	    var totalpause = "0:00";
-	    runnersPause[this.startnum] = "00:00";
+	    var curStarter = this.startnum;
 
 	    tableContent += '<tr>';
             tableContent += '<td>' + this.startnum  + '</td>';
@@ -197,7 +203,6 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    // sort result list ... if VPn data for some reason was entered before VPn-1 (eg. entering data after the run)
 	    resultsList = sortResultObject(results);
 
-	    //$.each(results, function(aidId, times) {
 	    $.each(resultsList, function(index, res) {
 		var aidId = isValidAid(res[0]) ? res[0] : "INVALID"; // validate aidId
 		var times = res[1];
@@ -216,9 +221,15 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			intime  = isValidTime(results[aidId].intime) ? results[aidId].intime  : "n/a";
 			indate  = isValidDate(results[aidId].indate) ? results[aidId].indate  : "n/a";
 		    }
+		    else {
+			intime = "n/a";
+		    }
 		    if (true === outtimeValid) {
 			outtime = isValidTime(results[aidId].outtime) ? results[aidId].outtime : "n/a";
 			outdate = isValidDate(results[aidId].outdate) ? results[aidId].outdate : "n/a";
+		    }
+		    else {
+			outtime = "n/a";
 		    }
 
 		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + intimeValid);
@@ -229,10 +240,9 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    console.log('fillStarterTable: ' + aidId + ' out date:  ' + outdate);
 
 
-		    if ((true === results[aidId].outtime_valid) &&
-			(true === results[aidId].intime_valid)) {
+		    if ((true === outtimeValid) && (true === intimeValid)) {
 			pause = substractTimeDate2Str(intime, indate, outtime, outdate);
-			console.log("pause=" + pause + ", total pause=" + totalpause);
+			//console.log("pause=" + pause + ", total pause=" + totalpause);
 			var zzz = totalpause;
 			totalpause = calcTotalPause(zzz, pause);
 			console.log('calc total pause: ' + totalpause);
@@ -266,15 +276,18 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			    lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
 			    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
 			}
+			else {
+			    lasttime = "n/a";
+			    totaltime = "n/a";
+			}
 		    }
 		    // calc pace ...
 		    // P1: avg. pace between aid stations
 		    var lastDist = aidStations.find(x => x.name === aidId).legDistance;
 		    var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
-		    console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
-		    console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
+		    //console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
+		    //console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
 		    lastpace = calcPace(lasttime, lastDist);
-
 		    // P2: avg between start and current aidstation in
 		    avgpace = calcPace(totaltime, totalDist);
 		}
@@ -288,6 +301,8 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    tableContent += '<td><b>' + totaltime + '</b></td>'; // -> Ziel/Gesamtzeit
 		    tableContent += '<td>' + lastpace + '</td>';
 		    tableContent += '<td>' + avgpace  + '</td>';
+		    //console.log('***** welcome num=' + curStarter + ' FINISHED!!!');
+		    if (true === intimeValid) setFinisher(curStarter);
 
 		    return true;
 		}
@@ -301,8 +316,10 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		return true;
 	    });
 
-	    tableContent += '<td><b>' + totaltime  + '</b></td>'; // FIXME only if finished
-	    tableContent += '<td><b>' + totalpause + '</b></td>'; // FIXME only if finished
+	    if (isFinisher(curStarter)) {
+		tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime
+		tableContent += '<td>'    + totalpause + '</td>';     // totalpause
+	    }
             tableContent += '</tr>';
 
         });
