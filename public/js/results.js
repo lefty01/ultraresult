@@ -130,6 +130,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    tableContent += '<td>' + place + '</td>'; // place
 	    tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
 
+	    console.log("=== checking runner #" + this.startnum + " ===");
 
 	    // check the results field if we have valid times for this runner/aid
 	    var results = this.results;
@@ -151,7 +152,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    });
 
 
-	    
+	    // fixme: not sorted! ... if vp3 data for some reason was entered before vp2 (eg. entering data after the run)
 	    $.each(results, function(aidId, times) {
 		console.log(aidId + ": " + times);
 		pause = "n/a";
@@ -175,10 +176,13 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
 		    // get last time (between last aid out and this aid in)
 		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
+		    console.log('prevAidIdx: ' + prevAidIdx);
 		    if (prevAidIdx >= 0) {
 			var prevAid = aidStations[prevAidIdx];
 			console.log('prevAid.name=' + prevAid.name);
+			console.log('prev aid results: ' + results[prevAid.name]);
 			if ((typeof prevAid !== 'undefined') &&
+			    (typeof results[prevAid.name] !== 'undefined') &&
 			    (true === results[prevAid.name].outtime_valid) &&
 		     	    (true === results[aidId].intime_valid)) {
 			    console.log('last out: ' + results[prevAid.name].outtime);
