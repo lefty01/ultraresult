@@ -74,6 +74,31 @@ function calcPace(t, d) {
 }
 
 
+function sortResultObject(o) {
+    var a = [], i;
+    for (i in o) {
+	if (o.hasOwnProperty(i)) {
+            a.push([i, o[i]]);
+	}
+    }
+    a.sort(function(a, b) {
+	var idA = a[0].toUpperCase();
+	var idB = b[0].toUpperCase();
+
+	if ((idA < idB) || ('FINISH' === idB)) {
+	    return -1;
+	}
+	if ((idA > idB) || ('FINISH' === idA)) {
+	    return 1;
+	}
+	return 0; // should not happen!
+	//if (a[0] === 'FINISH') return 1;
+	//return idA > b[0] ? 1 : -1;
+    })
+    return a;
+}
+
+
 function fillResultTable() {
     var tableContent = '';
     var tableHeader  = '';
@@ -124,6 +149,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    var lasttime  = "n/a";
 	    var totaltime = "n/a";
 	    var place     = 'n/a';
+	    var resultsList = [];
 
 	    tableContent += '<tr>';
             tableContent += '<td>' + this.startnum  + '</td>';
@@ -134,27 +160,35 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
 	    // check the results field if we have valid times for this runner/aid
 	    var results = this.results;
-	    // for each aidstation ... aka $each(this.results, function() { ... }) -> aidstations that are stored with runner!
-	    // todo/fixme: interate over ALL aidstations $.each(aidStations, function() { .. }
-	    // then check for each start/aid/finish if there are times for this runner ...
-	    $.each(aidStations, function() {
-		console.log("aidstation name: " + this.name + " - " + this.directions);
-		console.log("aidstation  @km: " + this.totalDistance.toFixed(1));
-		console.log("aidstation  Δkm: " + this.legDistance.toFixed(1));
+	    //console.log(results);
+
+//	    // for each aidstation ... aka $each(this.results, function() { ... }) -> aidstations that are stored with runner!
+//	    // todo/fixme: interate over ALL aidstations $.each(aidStations, function() { .. }
+//	    // then check for each start/aid/finish if there are times for this runner ...
+//	    $.each(aidStations, function() {
+//		console.log("aidstation name: " + this.name + " - " + this.directions);
+//		console.log("aidstation  @km: " + this.totalDistance.toFixed(1));
+//		console.log("aidstation  Δkm: " + this.legDistance.toFixed(1));
+//
+//		if ('START'  === this.name) { return true; }
+//		if ('FINISH' === this.name) {
+//			//...
+//		    return true;
+//		}
+//		// ...
+//		return true;
+//	    });
+
+
+	    // sort result list ... if VPn data for some reason was entered before VPn-1 (eg. entering data after the run)
+	    resultsList = sortResultObject(results);
+
+	    //$.each(results, function(aidId, times) {
+	    $.each(resultsList, function(index, res) {
+		var aidId = res[0];
+		var times = res[1];
 		
-		if ('START'  === this.name) { return true; }
-		if ('FINISH' === this.name) {
-			//...
-		    return true;
-		}
-		// ...
-		return true;
-	    });
-
-
-	    // fixme: not sorted! ... if vp3 data for some reason was entered before vp2 (eg. entering data after the run)
-	    $.each(results, function(aidId, times) {
-		console.log(aidId + ": " + times);
+		console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
 		pause = "n/a";
 
 		if (results[aidId]) {
@@ -264,30 +298,3 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
 }
 
-//function fillResultTableX(docTitle, thetime) {
-
-        // th(class="sorttable_numeric") Start #
-        // th(class="sorttable_numeric") Place
-        // th Name
-        // th Lastname
-	// th Start
-        // th(class="sorttable_nosort") In  (hh:mm)
-        // th(class="sorttable_nosort") Out (hh:mm)
-        // th(class="sorttable_nosort") Pause (min)
-        // th(class="sorttable_nosort") Pace
-        // th(class="sorttable_nosort") Avg Pace
-   // <tr>
-   //  <th>#</th>
-
-   //  <th class="vp" colspan="7" id="vp1">VP1 Atdorf,            @mi 17.5,  Δ 17.5</th>
-   //  <th class="vp" colspan="7" id="vp2">VP2 Nufringen,         @mi 32.7,  Δ 15.22</th>
-   //  <th class="vp" colspan="7" id="vp3">VP3 Entringen,         @mi 46.7,  Δ 13.98</th>
-   //  <th class="vp" colspan="7" id="vp4">VP4 Tü Rittweg,   @mi 59.7,  Δ 12.99</th>
-   //  <th class="vp" colspan="7" id="vp5">VP5 Anders,            @mi 69.9,  Δ 10.25</th>
-   //  <th class="vp" colspan="7" id="vp6">VP6 Steinbrennerhaus,  @mi 83.5,  Δ 13.55</th>
-   //  <th class="vp" colspan="7" id="vp7">VP7 Teufelsbruch,      @mi 96.8,  Δ 13.36</th>
-   //  <th class="vp" colspan="5" id="vp8">Ziel Dettenhausen,     @mi 103.5, Δ 6.71</th>
-
-   //  <th class="total">Total</th>
-   //  <th>Urkunde</th>
-   // </tr></thead>
