@@ -129,6 +129,7 @@ function saveTimeClick(data) {
     // store time in database ...
     // mark the time as valid, edit will invalidate the time again
     var aidstation = {
+	'startnum'   : data.startnum,
 	'inout'      : data.inout,
 	'time_valid' : true,
 	'aid'        : data.aid,
@@ -170,6 +171,7 @@ function editTimeClick(data) {
     $("#"+editRoId).val("0"); // unlock
 
     var aidstation = {
+	'startnum'   : data.startnum,
 	'inout'      : data.inout,
 	'time_valid' : false,
 	'time'       : data.time, //FIXME??? here

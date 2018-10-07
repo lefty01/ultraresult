@@ -54,7 +54,13 @@ function isValidTimeObj(time) {
     return time instanceof Date;
 }
 
-
+function isValidRank(rank) {
+    var reRank = /^\d{1,4}$/;
+    if (! reRank.test(rank)) {
+	return false;
+    }
+    return true;
+}
 
 /* GET runner list */
 router.get('/', function(req, res) {
@@ -92,6 +98,36 @@ router.get('/starterlist', function(req, res) {
     });
 });
 
+/*
+ * set rank/finish time
+ * 'rank_cat'
+ * 'rank_all'
+ * 'finish_time'
+ */
+router.put('/update/rank/:num', function(req, res) {
+    var db = req.db;
+    var collection = db.get('runnerlist');
+
+    var startnum   = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.send('invalid input')
+
+    var rankCat    = isValidRank(req.body.rankcat) ? req.body.rankcat : "INVALID";
+    var rankAll    = isValidRank(req.body.rankall) ? req.body.rankall : "INVALID";
+    var finishTime = isValidTime(req.body.finishtime) ? req.body.time : "INVALID";
+
+    console.log("runner: " + startnum + ", finish_time: " + finishTime +
+		", rank_all: " + rankAll + ", rank_cat: " + rankCat);
+
+    var resultData = { 'rank_all': rankAll, 'rank_cat': rankCat, 'finish_time': finishTime };
+    //var resultData = { 'rank_all': 1, 'rank_cat': 1, 'finish_time': "99:99" };
+
+    collection.updateOne({ 'startnum' : startnum },
+			 { $set : resultDate },
+			 function(err, cnt, stat) {
+			     res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
+			     console.log("update  count=" + cnt.nModified);
+			     console.log("update status=" + stat);
+			 });
+});
 
 /*
  * update in/out time
@@ -105,6 +141,8 @@ router.put('/update/:num', function(req, res) {
     var isIn      = (req.body.inout === "tin") ? true : false;
     var timeValid = (req.body.time_valid === 'true') ? true : false; // -> false !?
     var startnum  = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.sed('invalid input')
+    // we get startnum via param and req.body.startnum -> can use as sanity check
+
     var aidName   = isValidAid(req.body.aid)   ? req.body.aid   : "INVALID";
     var time      = isValidTime(req.body.time) ? req.body.time  : "INVALID";
     //var datetime  = isValidJsonTime(req.body.datetime) ? req.body.datetime  : "INVALID";

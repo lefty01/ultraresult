@@ -1,6 +1,18 @@
 // results.js display leaderboard
 // calculate pace and avg. pace, ...
 
+// TODO:
+// for certificate store rank and finish time ...
+// 'rank_cat'  => 1,
+// 'rank_all'  => 1,
+// 'finish_time'  => 1
+
+// TODO:
+// calc rank for each runner as we go ...
+// that is sort by aidstation number that has valid in time
+// then second sort by total time
+
+
 "use strict";
 
 
@@ -15,7 +27,8 @@ $(document).ready(function() {
         // fill table and make it sortable
         //fillResultTableX(document.title, now);
         fillResultTable();
-	
+
+	// FIXME: does not sort yet!?
 	var tableObj = document.getElementById('results-table');
         sorttable.makeSortable(tableObj);
     }
@@ -126,6 +139,37 @@ function sortResultObject(o) {
     })
     return a;
 }
+
+/*
+ *
+ */
+function setRankAndFinishtime(data) {
+
+    var ranking = {
+	'startnum'   : data.startnum,
+	'rankall'    : data.rankall,
+	'rankcat'    : rankcat,
+	'finishtime' : finishtime
+    };
+
+    $.ajax({
+        type: 'PUT',
+        dataType: 'JSON',
+        data: ranking,
+        url: '/runners/update/rank/' + data.startnum
+    }).done(function( response ) {
+        // Check for a successful (blank) response
+        if (response.msg === '') {
+	    console.log("update rank/time for runner " + data.startnum + " OK!");
+        }
+        else {
+            alert('Error: ' + response.msg);
+        }
+
+    });
+
+}
+
 
 
 function fillResultTable() {
@@ -362,4 +406,5 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
     });
 
 }
+
 
