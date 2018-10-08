@@ -47,10 +47,14 @@ function setFinisher(num) {
     finisher[num] = true;
 }
 function isFinisher(num) {
-    if ((typeof finisher[num] !== 'undefined') &&
-	(true === finisher[num])) {
+    if ((typeof ranking[num] !== 'undefined') &&
+	('FINISH' === ranking[num]['lastAidIn'])) { // toUpperCase()
 	return true;
     }
+    // if ((typeof finisher[num] !== 'undefined') &&
+    // 	(true === finisher[num])) {
+    // 	return true;
+    // }
     return false;
 }
 
@@ -145,7 +149,7 @@ function sortResultObject(o) {
 	    return 1;
 	}
 	return 0; // should not happen!
-    })
+    });
     return a;
 }
 
@@ -368,7 +372,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    //console.log("aid data: " + this.name);
 	    if (!isValidAid(this.name)) {
 		console.log("invalid aid name!");
-		return;
+		return false;
 	    }
 	    aidStations.push(this);
 
