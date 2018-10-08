@@ -36,11 +36,32 @@ $(document).ready(function() {
 });
 
 var finisher = {};
-var ranking = {};
+var ranking = [];
+
+
+function sortRunnerByAidAndTime() {
+    ranking.sort(function(a, b) {
+	// if ((idA < idB) || ('FINISH' === idB)) {
+	//     return -1;
+	// }
+	// if ((idA > idB) || ('FINISH' === idA)) {
+	//     return 1;
+	// }
+
+	if ((a.lastAidIn > b.lastAidIn) || ('FINISH' === b.lastAidIn)) return -1;
+	if ((a.lastAidIn < b.lastAidIn) || ('FINISH' === a.lastAidIn)) return  1;
+
+	if (a.totalTime > b.totalTime) return  1;
+	if (a.totalTime < b.totalTime) return -1;
+    });
+}
 
 function setRanking(num, aid, time) {
-    ranking[num] = {'lastAidIn': aid,
-		    'totalTime': time};
+    ranking[num] = {
+	'lastAidIn': aid,
+	'totalTime': time
+    };
+    sortRunnerByAidAndTime();
 }
 
 function setFinisher(num) {
@@ -48,7 +69,7 @@ function setFinisher(num) {
 }
 function isFinisher(num) {
     if ((typeof ranking[num] !== 'undefined') &&
-	('FINISH' === ranking[num]['lastAidIn'])) { // toUpperCase()
+	('FINISH' === ranking[num].lastAidIn.toUpperCase())) {
 	return true;
     }
     // if ((typeof finisher[num] !== 'undefined') &&
@@ -153,12 +174,6 @@ function sortResultObject(o) {
     return a;
 }
 
-function sortRunnerByAidAndTime() {
-    ranking.sort(function(a, b) {
-	
-    });
-    return ranking;
-}
 
 /*
  *
@@ -340,9 +355,8 @@ function generateResultTableRankedList() {
         }); // for each runner
     });
 
-    $.each(ranking, function(index, r) {
-
-    });
+    // $.each(ranking, function(index, r) {
+    // });
 
 }
 
@@ -523,6 +537,8 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    tableContent += '<td>' + lastpace + '</td>';
 		    tableContent += '<td>' + avgpace  + '</td>';
 		    //console.log('***** welcome num=' + curStarter + ' FINISHED!!!');
+		    //setRanking(curStarter, aidId, totaltime);
+		    //console.log(ranking);
 		    if (true === intimeValid) setFinisher(curStarter);
 
 		    return true;
@@ -581,7 +597,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	$('#resultstable table caption').html(tableCaption);
 	$('#resultstable table tbody').html(tableContent);
     });
-
+    
 }
 
 
