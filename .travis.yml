@@ -2,5 +2,5 @@
   "language": "node_js",
   "group": "stable",
   "dist": "trusty",
-  "os": "linux"
+  "os": "linux",
 }
