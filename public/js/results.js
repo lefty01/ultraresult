@@ -7,10 +7,13 @@
 // 'rank_all'  => 1,
 // 'finish_time'  => 1
 
+// TODO: clean up this mess!!
+//       probably could  "outsource" functions into module
+//       I admit I'm no javascript/web dev expert, learn callbacks/async/wait...
+
 // TODO:
-// calc rank for each runner as we go ...
-// that is sort by aidstation number that has valid in time
-// then second sort by total time
+// use socket io to get table updates direclty once aidstations get updated
+
 "use strict";
 
 var finisher = {};
@@ -51,7 +54,7 @@ $(document).ready(function() {
 function fillRankId() {
 
 }
-
+// fixme: split function, eg. rank table cell update as extra function
 function genRankedList(o) {
     var a = [], i, n;
     for (i in o) {
@@ -75,10 +78,13 @@ function genRankedList(o) {
     // fill-out rank
     for (n in a) {
 	var startnum = a[n][0];
+	var rank = parseInt(n) + 1;
 
-	a[n][1]['rank'] = parseInt(n) + 1;
-	runnerList[startnum].rank = a[n][1]['rank'];
-	console.log("genrankedklist: startnum=" + startnum + ", rank=" + a[n][1]['rank']);
+	a[n][1]['rank'] = rank;
+	runnerList[startnum].rank = rank;
+	console.log("genrankedklist: startnum=" + startnum + ", rank=" + rank);
+	document.getElementById('rank_' + startnum).innerHTML = rank;
+	//console.log("rank td#rank_" + startnum + ", " + document.getElementById('rank_' + startnum).innerHTML);
     }
 
     return a;
@@ -382,10 +388,6 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
 			    setRunnerList(curStarter, aidId, totaltime);
 			    //console.log(runnerList);
-
-			    rankedRunnerList = callback(runnerList); // generate ranked list FIXME: coding
-			    console.log("rankedRunnerList:");
-			    console.log(rankedRunnerList);
 			}
 			else {
 			    lasttime = "n/a";
@@ -412,11 +414,6 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    tableContent += '<td><b>' + totaltime + '</b></td>'; // -> Ziel/Gesamtzeit
 		    tableContent += '<td>' + lastpace + '</td>';
 		    tableContent += '<td>' + avgpace  + '</td>';
-		    //console.log('***** welcome num=' + curStarter + ' FINISHED!!!');
-		    //setRanking(curStarter, aidId, totaltime);
-		    //console.log(runnerList);
-		    //if (true === intimeValid) setFinisher(curStarter);
-
 		    return true;
 		}
 		tableContent += '<td>' + intime    + '</td>';
@@ -437,7 +434,6 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
         });
 	
-	//console.log("tableContent2 : " + tableContent);
 	// Inject the whole content string into our existing HTML table
 	tableHeader += '<th>Zeit</th>';
 	tableHeader += '<th>&sum; Pause</th>';
@@ -472,6 +468,10 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	$('#resultstable table thead').html(tableHeader);
 	$('#resultstable table caption').html(tableCaption);
 	$('#resultstable table tbody').html(tableContent);
+
+	rankedRunnerList = callback(runnerList);
+	console.log("rankedRunnerList:");
+	console.log(rankedRunnerList);
     });
 }
 
