@@ -25,20 +25,20 @@ $(document).ready(function() {
         alert("no results found!");
     } else {
         // fill table and make it sortable
-        //fillResultTableX(document.title, now);
         fillResultTable(genRankedList);
-	//console.log(rankedRunnerList);
 
 	// FIXME: does not sort yet!?
 	var tableObj = document.getElementById('results-table');
         sorttable.makeSortable(tableObj);
 
-	rankedRunnerList = genRankedList(runnerList);
-	console.log("rankedRunnerList:");
-	console.log(rankedRunnerList);
-
+	//rankedRunnerList = genRankedList(runnerList); not yet available ...
+	//console.log("rankedRunnerList:");
+	//console.log(rankedRunnerList);
     }
 
+    // $("td#rank_").each(function( index ) {
+    // 	console.log( index + ": " + $( this ).text() );
+    // });
 
 });
 
@@ -47,6 +47,11 @@ $(document).ready(function() {
  * sort runnerList by aidId and time, fill in rank
  * return sorted array
  */
+// fixme: callback ...
+function fillRankId() {
+
+}
+
 function genRankedList(o) {
     var a = [], i, n;
     for (i in o) {
@@ -70,9 +75,10 @@ function genRankedList(o) {
     // fill-out rank
     for (n in a) {
 	var startnum = a[n][0];
+
 	a[n][1]['rank'] = parseInt(n) + 1;
 	runnerList[startnum].rank = a[n][1]['rank'];
-	console.log("genrankedklist: #" + a[n][0] + ", rank=" + a[n][1]['rank']);
+	console.log("genrankedklist: startnum=" + startnum + ", rank=" + a[n][1]['rank']);
     }
 
     return a;
@@ -210,7 +216,7 @@ function setRankAndFinishtime(data) {
         dataType: 'JSON',
         data: ranking,
         url: '/runners/update/rank/' + data.startnum
-    }).done(function( response ) {
+    }).done(function(response) {
         // Check for a successful (blank) response
         if (response.msg === '') {
 	    console.log("update rank/time for runner " + data.startnum + " OK!");
@@ -283,12 +289,13 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    var avgpace    = "n/a";
 	    var lasttime   = "n/a";
 	    var totaltime  = "n/a";
-	    var place      = "n/a";
+	    var rank       = "n/a";
 	    var totalpause = "0:00";
 	    var curStarter = this.startnum;
+	    var rankId = "rank_" + this.startnum;
 
 	    tableContent += '<tr>';
-	    tableContent += '<td>' + place + '</td>'; // place
+	    tableContent += '<td id=' + rankId + '>' + rank + '</td>'; // rank
             tableContent += '<td>' + this.startnum  + '</td>';
 	    tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
 
@@ -374,11 +381,11 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			    lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
 			    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
 			    setRunnerList(curStarter, aidId, totaltime);
-			    console.log(runnerList);
-			    rankedRunnerList = callback(runnerList);
+			    //console.log(runnerList);
+
+			    rankedRunnerList = callback(runnerList); // generate ranked list FIXME: coding
 			    console.log("rankedRunnerList:");
 			    console.log(rankedRunnerList);
-
 			}
 			else {
 			    lasttime = "n/a";
