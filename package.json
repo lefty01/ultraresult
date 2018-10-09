@@ -2,7 +2,7 @@
   "name": "ultra-result",
   "author": "Andreas Loeffler <al@exitzero.de>",
   "license": "GPL-3.0-or-later",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "scripts": {
     "start": "node ./bin/ultraresult",

@@ -11,71 +11,89 @@
 // calc rank for each runner as we go ...
 // that is sort by aidstation number that has valid in time
 // then second sort by total time
-
-
 "use strict";
 
+var finisher = {};
+var runnerList = {};
+var rankedRunnerList = [];
 
 // DOM Ready =============================================================
 $(document).ready(function() {
-
-    //    var now = date();
+    //var now = date();
     
     if (document.title === "results not found") {
         alert("no results found!");
     } else {
         // fill table and make it sortable
         //fillResultTableX(document.title, now);
-        fillResultTable();
+        fillResultTable(genRankedList);
+	//console.log(rankedRunnerList);
 
 	// FIXME: does not sort yet!?
 	var tableObj = document.getElementById('results-table');
         sorttable.makeSortable(tableObj);
+
+	rankedRunnerList = genRankedList(runnerList);
+	console.log("rankedRunnerList:");
+	console.log(rankedRunnerList);
+
     }
+
 
 });
 
-var finisher = {};
-var ranking = [];
 
+/*
+ * sort runnerList by aidId and time, fill in rank
+ * return sorted array
+ */
+function genRankedList(o) {
+    var a = [], i, n;
+    for (i in o) {
+	if (o.hasOwnProperty(i)) {
+            a.push([i, o[i]]);
+	}
+    }
+    a.sort(function(a, b) {
+	// we need FINISH before VPx
+	var idA = a[1].lastAidIn.toUpperCase() === 'FINISH' ? 'ZZZ' : a[1].lastAidIn.toUpperCase();
+	var idB = b[1].lastAidIn.toUpperCase() === 'FINISH' ? 'ZZZ' : b[1].lastAidIn.toUpperCase();
 
-function sortRunnerByAidAndTime() {
-    ranking.sort(function(a, b) {
-	// if ((idA < idB) || ('FINISH' === idB)) {
-	//     return -1;
-	// }
-	// if ((idA > idB) || ('FINISH' === idA)) {
-	//     return 1;
-	// }
-
-	if ((a.lastAidIn > b.lastAidIn) || ('FINISH' === b.lastAidIn)) return -1;
-	if ((a.lastAidIn < b.lastAidIn) || ('FINISH' === a.lastAidIn)) return  1;
-
-	if (a.totalTime > b.totalTime) return  1;
-	if (a.totalTime < b.totalTime) return -1;
+	if (idA < idB)  return 1;
+	if (idA > idB)  return -1;
+	// same VP (aidstation name), check time
+	if (a[1].totalTime > b[1].totalTime) return  1; // totalTime format: "hh:mm"
+	if (a[1].totalTime < b[1].totalTime) return -1;
+	return 0;
     });
+
+    // fill-out rank
+    for (n in a) {
+	var startnum = a[n][0];
+	a[n][1]['rank'] = parseInt(n) + 1;
+	runnerList[startnum].rank = a[n][1]['rank'];
+	console.log("genrankedklist: #" + a[n][0] + ", rank=" + a[n][1]['rank']);
+    }
+
+    return a;
 }
 
-function setRanking(num, aid, time) {
-    ranking[num] = {
-	'lastAidIn': aid,
-	'totalTime': time
-    };
-    sortRunnerByAidAndTime();
+
+function setRunnerList(num, aid, time) {
+    if (typeof runnerList[num] === 'undefined') {
+	runnerList[num] = {};
+    }
+    runnerList[num].rank = 0;
+    runnerList[num].lastAidIn = aid;
+    runnerList[num].totalTime = time;
 }
 
-function setFinisher(num) {
-    finisher[num] = true;
-}
+
 function isFinisher(num) {
-    if ((typeof ranking[num] !== 'undefined') &&
-	('FINISH' === ranking[num].lastAidIn.toUpperCase())) {
+    if ((typeof runnerList[num] !== 'undefined') &&
+	('FINISH' === runnerList[num].lastAidIn.toUpperCase())) {
 	return true;
     }
-    // if ((typeof finisher[num] !== 'undefined') &&
-    // 	(true === finisher[num])) {
-    // 	return true;
-    // }
     return false;
 }
 
@@ -206,162 +224,9 @@ function setRankAndFinishtime(data) {
 }
 
 
-
-function generateResultTableRankedList() {
-
-    // for each runner get in/out time for each aidstation, stop if aid as invalid intime
-    // in addition calculate (total/last aid) time and pace
-    $.getJSON('/runners', function(data) {
-        $.each(data, function() {
-	    var intimeValid  = false;
-	    var outtimeValid = false;
-	    var resultsList = [];
-	    var intime     = "n/a";
-	    var indate     = "n/a";
-	    var outtime    = "n/a";
-	    var outdate    = "n/a";
-	    var pause      = "n/a";
-	    var lastpace   = "n/a";
-	    var avgpace    = "n/a";
-	    var lasttime   = "n/a";
-	    var totaltime  = "n/a";
-	    var place      = "n/a";
-	    var totalpause = "0:00";
-	    var curStarter = this.startnum;
-
-	    console.log("=== checking runner #" + this.startnum + " ===");
-	    // check the results field if we have valid times for this runner/aid
-	    var results = this.results;
-
-
-	    // sort result list ... if VPn data for some reason was entered before VPn-1 (eg. entering data after the run)
-	    resultsList = sortResultObject(results);
-
-	    // for each aidstation the runner reached. res[0] is aidID (START, VP1, VPn..., FINISH),
-	    //                                         res[1] is in/out time,date and valid flag
-	    $.each(resultsList, function(index, res) {
-		var aidId = isValidAid(res[0]) ? res[0] : "INVALID"; // validate aidId
-		var times = res[1];
-		
-		console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
-		pause = "n/a";
-
-		if (results[aidId]) {
-		    // make sure valids are really only true or false
-		    intimeValid = ((typeof results[aidId].intime_valid !== 'undefined')
-				   && (true === results[aidId].intime_valid)) ? true : false;
-		    outtimeValid = ((typeof results[aidId].outtime_valid !== 'undefined')
-				    && (true === results[aidId].outtime_valid)) ? true : false;
-
-		    if (true === intimeValid) {
-			intime  = isValidTime(results[aidId].intime) ? results[aidId].intime  : "n/a";
-			indate  = isValidDate(results[aidId].indate) ? results[aidId].indate  : "n/a";
-		    }
-		    else {
-			intime = "n/a";
-		    }
-		    if (true === outtimeValid) {
-			outtime = isValidTime(results[aidId].outtime) ? results[aidId].outtime : "n/a";
-			outdate = isValidDate(results[aidId].outdate) ? results[aidId].outdate : "n/a";
-		    }
-		    else {
-			outtime = "n/a";
-		    }
-
-		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + intimeValid);
-		    console.log('fillStarterTable: ' + aidId + ' in time:   ' + intime);
-		    console.log('fillStarterTable: ' + aidId + ' in date:   ' + indate);
-		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + outtimeValid);
-		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + outtime);
-		    console.log('fillStarterTable: ' + aidId + ' out date:  ' + outdate);
-
-
-		    if ((true === outtimeValid) && (true === intimeValid)) {
-			pause = substractTimeDate2Str(intime, indate, outtime, outdate);
-			//console.log("pause=" + pause + ", total pause=" + totalpause);
-			var zzz = totalpause;
-			totalpause = calcTotalPause(zzz, pause);
-			console.log('calc total pause: ' + totalpause);
-			console.log('fillStarterTable: ' + aidId + ' pause:     ' + pause);
-                    }
-
-		    // get last time (between last aid out and this aid in)
-		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
-		    console.log('prevAidIdx: ' + prevAidIdx);
-		    if (prevAidIdx >= 0) {
-			var prevAid = aidStations[prevAidIdx];
-			console.log('prevAid.name=' + prevAid.name);
-			console.log('prev aid results: ' + results[prevAid.name]);
-			if ((typeof prevAid !== 'undefined') &&
-			    (typeof results[prevAid.name] !== 'undefined') &&
-			    (true === results[prevAid.name].outtime_valid) &&
-		     	    (true === results[aidId].intime_valid)) {
-			    // FIXME: check if prev time valid, validate time
-			    var prevOutTime = isValidTime(results[prevAid.name].outtime) ? results[prevAid.name].outtime : "n/a";
-			    var prevOutDate = isValidDate(results[prevAid.name].outdate) ? results[prevAid.name].outdate : "n/a";
-			    var startTime   = isValidTime(results["START"].outtime) ? results["START"].outtime : "n/a";
-			    var startDate   = isValidDate(results["START"].outdate) ? results["START"].outdate : "n/a";
-
-			    console.log('last out time: ' + prevOutTime);
-			    console.log('last out date: ' + prevOutDate);//results[prevAid.name].outdate);
-			    console.log('this  in time: ' + intime);
-			    console.log('this  in date: ' + indate);
-			    console.log('start    time: ' + startTime);
-			    console.log('start    date: ' + startDate);
-
-			    lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
-			    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
-			}
-			else {
-			    lasttime = "n/a";
-			    totaltime = "n/a";
-			}
-		    }
-		    // calc pace ...
-		    // P1: avg. pace between aid stations
-		    var lastDist = aidStations.find(x => x.name === aidId).legDistance;
-		    var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
-		    //console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
-		    //console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
-		    lastpace = calcPace(lasttime, lastDist);
-		    // P2: avg between start and current aidstation in
-		    avgpace = calcPace(totaltime, totalDist);
-		}
-		if ("START" === aidId) {
-		    console.log('aidId === START !!!');
-
-		    return true;
-		}
-		if ("FINISH" === aidId) {
-		    console.log('aidId === FINISH !!!');
-		    if (true === intimeValid) setFinisher(curStarter);
-
-		    return true;
-		}
-		// tableContent += '<td>' + intime    + '</td>';
-		// tableContent += '<td>' + outtime   + '</td>';
-		// tableContent += '<td>' + pause     + '</td>';
-		// tableContent += '<td>' + lasttime  + '</td>';
-		// tableContent += '<td><b>' + totaltime + '</b></td>';
-		// tableContent += '<td>' + lastpace  + '</td>';
-		// tableContent += '<td>' + avgpace   + '</td>';
-		return true;
-	    });
-
-	    if (isFinisher(curStarter)) {
-		// tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime
-		// tableContent += '<td>'    + totalpause + '</td>';     // totalpause
-	    }
-        }); // for each runner
-    });
-
-    // $.each(ranking, function(index, r) {
-    // });
-
-}
-
-
-function fillResultTable() {
+// FIXME: quite some large piece of function code...
+// callback to sort when result table done ??!!
+function fillResultTable(callback) {
     var tableContent = '';
     var tableHeader  = '';
     var aidStations  = [];
@@ -508,8 +373,12 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 
 			    lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
 			    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
-			    setRanking(curStarter, aidId, totaltime);
-			    console.log(ranking);
+			    setRunnerList(curStarter, aidId, totaltime);
+			    console.log(runnerList);
+			    rankedRunnerList = callback(runnerList);
+			    console.log("rankedRunnerList:");
+			    console.log(rankedRunnerList);
+
 			}
 			else {
 			    lasttime = "n/a";
@@ -538,8 +407,8 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    tableContent += '<td>' + avgpace  + '</td>';
 		    //console.log('***** welcome num=' + curStarter + ' FINISHED!!!');
 		    //setRanking(curStarter, aidId, totaltime);
-		    //console.log(ranking);
-		    if (true === intimeValid) setFinisher(curStarter);
+		    //console.log(runnerList);
+		    //if (true === intimeValid) setFinisher(curStarter);
 
 		    return true;
 		}
@@ -597,7 +466,6 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	$('#resultstable table caption').html(tableCaption);
 	$('#resultstable table tbody').html(tableContent);
     });
-    
 }
 
 
