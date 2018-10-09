@@ -403,6 +403,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    lastpace = calcPace(lasttime, lastDist);
 		    // P2: avg between start and current aidstation in
 		    avgpace = calcPace(totaltime, totalDist);
+		    // estTotalTime = FINISH.totalDist(km) * avgpace(min/km) -> min
 		}
 		if ("START" === aidId) {
 		    tableContent += '<td>' + outtime  + '</td>';
