@@ -363,7 +363,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    // get last time (between last aid out and this aid in)
 		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
 		    console.log('prevAidIdx: ' + prevAidIdx);
-		    if (prevAidIdx >= 0) {
+		    if (prevAidIdx >= 0) { // index=0 means START
 			var prevAid = aidStations[prevAidIdx];
 			console.log('prevAid.name=' + prevAid.name);
 			console.log('prev aid results: ' + results[prevAid.name]);
@@ -396,13 +396,15 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    }
 		    // calc pace ...
 		    // P1: avg. pace between aid stations
-		    var lastDist = aidStations.find(x => x.name === aidId).legDistance;
+		    var lastDist  = aidStations.find(x => x.name === aidId).legDistance;
 		    var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
 		    //console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
 		    //console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
 		    lastpace = calcPace(lasttime, lastDist);
 		    // P2: avg between start and current aidstation in
 		    avgpace = calcPace(totaltime, totalDist);
+
+		    // estimated arrival at next VPs and Finish with current avg. pace
 		}
 		if ("START" === aidId) {
 		    tableContent += '<td>' + outtime  + '</td>';

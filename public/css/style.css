@@ -17,3 +17,13 @@ input.tinput {
 #starterList table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after {
     content: " \25B4\25BE"
 }
+
+
+
+#starterListTable table tr:hover td {
+    background-color: #c0fff7;
+}
+#resultstable table tr:hover td {
+    background-color: #c0fff7;
+}
+

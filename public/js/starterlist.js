@@ -15,7 +15,7 @@ function genStartList() {
         // For each item in our JSON, add a table row and cells to the content string
         $.each(data, function(){
             tableContent += '<tr>';
-            tableContent += '<td>' + runnerNum + '</td>';
+            tableContent += '<td>' + runnerNum + '</td>'; // this.startnum
             tableContent += '<td><a href="http://statistik.d-u-v.org/getresultperson.php?runner='
 		+ this.duvid + '" >' + this.firstname + ' ' + this.lastname + '</a></td>';
 	    tableContent += '<td>' + this.nationality + '</td>';
