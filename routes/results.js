@@ -6,10 +6,9 @@ var assert = require('assert');
  *
  */
 router.get('/', function(req, res) {
-    //var db = req.db;
+    var progver = req.progver;
     //var collection = db.get('runnerlist');
-
-    res.render('results', { title: 'SUT Live Results' });
+    res.render('results', { title: 'SUT 100 - Live Results', progver: progver });
 
     // collection.find({}, {fields: { _id: 0,
     //                 startnum : 1,

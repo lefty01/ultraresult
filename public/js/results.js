@@ -137,10 +137,10 @@ function isValidTime(time) {
 function calcPace(t, d) {
     var intime = t.split(':');
     //console.log("intime h="+intime[0]+", intime m="+intime[1]);
+    if (isNaN(intime[0])) return "n/a";
 
     var mins = parseInt(intime[0], 10) * 60 + parseInt(intime[1], 10); //intime[0] * 60 + intime[1];
     var pace = mins / d;
-    //console.log("pace="+pace);
 
     var paceSec = Math.floor(60 * (pace - Math.floor(pace)));
     var paceSecStr = paceSec < 10 ? "0" + paceSec : paceSec;
