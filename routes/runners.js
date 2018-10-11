@@ -84,6 +84,7 @@ router.get('/starterlist', function(req, res) {
     var collection = db.get('runnerlist');
 
     collection.find({}, {fields: { _id: 0,
+				   startnum : 1,
                                    duvid : 1,
                                    firstname : 1,
                                    lastname : 1,
@@ -91,7 +92,7 @@ router.get('/starterlist', function(req, res) {
                                    residence : 1,
                                    club : 1,
                                    catger : 1
-                                 }
+                                 }, sort : {startnum : 1}
                         }, function(err, docs) {
                             console.log(docs);
                             res.json(docs);
@@ -108,7 +109,7 @@ router.put('/update/rank/:num', function(req, res) {
     var db = req.db;
     var collection = db.get('runnerlist');
 
-    var startnum   = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.send('invalid input')
+    var startnum   = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID"; // res.send('invalid input') // FIXME parseInt -> store startnum as in not string
 
     var rankCat    = isValidRank(req.body.rankcat) ? req.body.rankcat : "INVALID";
     var rankAll    = isValidRank(req.body.rankall) ? req.body.rankall : "INVALID";
@@ -140,7 +141,7 @@ router.put('/update/:num', function(req, res) {
 
     var isIn      = (req.body.inout === "tin") ? true : false;
     var timeValid = (req.body.time_valid === 'true') ? true : false; // -> false !?
-    var startnum  = isValidNum(req.params.num) ? req.params.num : "INVALID"; // res.sed('invalid input')
+    var startnum  = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID"; // res.sed('invalid input')  // FIXME parseInt -> store startnum as in not string
     // we get startnum via param and req.body.startnum -> can use as sanity check
 
     var aidName   = isValidAid(req.body.aid)   ? req.body.aid   : "INVALID";
@@ -149,6 +150,7 @@ router.put('/update/:num', function(req, res) {
     var date      = isValidDate(req.body.date) ? req.body.date  : "INVALID";
 
     console.log("Update runner: startnum=" + startnum);
+    console.log("typeof startnum: " + (typeof startnum));
     console.log("aid name:   " + aidName);
     console.log("isIn:       " + isIn);
     console.log("date:       " + date);

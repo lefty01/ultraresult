@@ -133,14 +133,18 @@ function isValidTime(time) {
     return true;
 }
 
+function paceStr2Min(p) {
+
+}
+
 // expect t to be a string "hh:mm", d is distance in km
 function calcPace(t, d) {
     var intime = t.split(':');
     //console.log("intime h="+intime[0]+", intime m="+intime[1]);
+    if (isNaN(intime[0])) return "n/a";
 
     var mins = parseInt(intime[0], 10) * 60 + parseInt(intime[1], 10); //intime[0] * 60 + intime[1];
     var pace = mins / d;
-    //console.log("pace="+pace);
 
     var paceSec = Math.floor(60 * (pace - Math.floor(pace)));
     var paceSecStr = paceSec < 10 ? "0" + paceSec : paceSec;
@@ -176,6 +180,19 @@ function calcTotalPause(totalp, delta) {
 
     var result = String(100 + Math.floor(sum / 60)).substr(1) + ':' +
         String(100 + sum % 60).substr(1);
+    return result;
+}
+
+function calcTotalTime(totalDist, avgpace){
+    var p = avgpace.split(':'); // input pace "mm:ss"
+    var minsPerK = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
+    var totalMins = Math.floor(minsPerK * totalDist);
+    //console.log("minsPerK:  " + minsPerK + " min/km");
+    //console.log("totalMins: " + totalMins + " min");
+
+    var result = String(100 + Math.floor(totalMins / 60)).substr(1) + ':' +
+        String(100 + totalMins % 60).substr(1);
+
     return result;
 }
 
@@ -235,6 +252,15 @@ function setRankAndFinishtime(data) {
 
 }
 
+// function fillEstimatedTime() { ... }
+function getAidstationNames(aid) {
+    var a = [], n;
+    for (n in aid) {
+	a.push(aid[n].name);
+    }
+    return a;
+}
+
 
 // FIXME: quite some large piece of function code...
 // callback to sort when result table done ??!!
@@ -242,6 +268,7 @@ function fillResultTable(callback) {
     var tableContent = '';
     var tableHeader  = '';
     var aidStations  = [];
+    //var aidStationsEstimates = []; // copy of aidStations list where we pop off those reached by runner
 
     var tableCaption = '\
 T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
@@ -279,7 +306,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    return true;
 	});
     });
-
+    console.log(aidStations);
     // FIXME check input validation (using database input)
     $.getJSON('/runners', function(data) {
         $.each(data, function() {
@@ -299,6 +326,9 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    var totalpause = "0:00";
 	    var curStarter = this.startnum;
 	    var rankId = "rank_" + this.startnum;
+	    var k;
+	    var aidEstimates = getAidstationNames(aidStations);
+	    console.log(aidEstimates);
 
 	    tableContent += '<tr>';
 	    tableContent += '<td id=' + rankId + '>' + rank + '</td>'; // rank
@@ -322,6 +352,8 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		pause = "n/a";
 
 		if (results[aidId]) {
+		    aidEstimates.shift(); // remove this aidstation
+
 		    // make sure valids are really only true or false
 		    intimeValid = ((typeof results[aidId].intime_valid !== 'undefined')
 				   && (true === results[aidId].intime_valid)) ? true : false;
@@ -363,7 +395,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    // get last time (between last aid out and this aid in)
 		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
 		    console.log('prevAidIdx: ' + prevAidIdx);
-		    if (prevAidIdx >= 0) {
+		    if (prevAidIdx >= 0) { // index=0 means START
 			var prevAid = aidStations[prevAidIdx];
 			console.log('prevAid.name=' + prevAid.name);
 			console.log('prev aid results: ' + results[prevAid.name]);
@@ -396,14 +428,13 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		    }
 		    // calc pace ...
 		    // P1: avg. pace between aid stations
-		    var lastDist = aidStations.find(x => x.name === aidId).legDistance;
+		    var lastDist  = aidStations.find(x => x.name === aidId).legDistance;
 		    var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
 		    //console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
 		    //console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
 		    lastpace = calcPace(lasttime, lastDist);
 		    // P2: avg between start and current aidstation in
 		    avgpace = calcPace(totaltime, totalDist);
-		    // estTotalTime = FINISH.totalDist(km) * avgpace(min/km) -> min
 		}
 		if ("START" === aidId) {
 		    tableContent += '<td>' + outtime  + '</td>';
@@ -426,6 +457,20 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 		tableContent += '<td>' + avgpace   + '</td>';
 		return true;
 	    });
+
+	    // iterate over remaining aidstations/finish for this runner
+	    // and fill in estimated in-time and total-time (T2)
+	    // estimated arrival at next VPs and Finish with current avg. pace
+	    console.log("last avg pace = " + avgpace);
+	    for (k in aidEstimates) {
+		console.log("estimate for aid: " + aidEstimates[k]);
+		var aidIdx = aidStations.findIndex(x => x.name === aidEstimates[k]);
+		var thisTotalDist = aidStations[aidIdx].totalDistance;
+		console.log("totaldist=" + thisTotalDist);
+		var estTotalTime = calcTotalTime(thisTotalDist, avgpace); //(min/km) -> min
+		console.log("estTotalTime=" + estTotalTime);
+	    }
+
 
 	    if (isFinisher(curStarter)) {
 		tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime

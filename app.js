@@ -24,6 +24,9 @@ var database_port = nconf.get('database:port');
 console.log('database name: ' + nconf.get('database:name'));
 console.log('database host: ' + nconf.get('database:host'));
 console.log('database port: ' + nconf.get('database:port'));
+console.log(process.env.npm_package_name, process.env.npm_package_version);
+var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name : "";
+var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : "";
 
 var db = monk(database_host + ':' + database_port + '/' + database_name, function(err, db){
     if (err) {
@@ -52,9 +55,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Make our db accessible to our router
+// Make our db and progver accessible to our router
 app.use(function(req, res, next) {
     req.db = db;
+    req.progver = progname + " " + progver;
     next();
 });
 
