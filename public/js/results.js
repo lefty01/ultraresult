@@ -171,6 +171,19 @@ function substractTimeDate2Str(outTime, outDate, inTime, inDate) {
     return result;
 }
 
+function addTimeDate2Str(startTime, startDate, delta) { // start date/time + estTotalTime hh:mm
+    var dt = new Date(startDate + " " + startTime);
+    var d = delta.split(":");
+    var dMins = parseInt(d[0], 10) * 60 + parseInt(d[1], 10);
+    //console.log("addTimeDate2Str: start=" + dt + ", dMins=" + dMins);
+    // add minutes
+    var newD = new Date(dt.getTime() + dMins * 60000);
+    //console.log("addTimeDate2Str: intime=" + newD);
+    var newMinutes = newD.getMinutes() < 10 ? "0" + newD.getMinutes() : newD.getMinutes();
+    var result = newD.getHours() + ":" + newMinutes;
+    return result;
+}
+
 function calcTotalPause(totalp, delta) {
     var d = delta.split(':');
     var t = totalp.split(':');
@@ -271,10 +284,11 @@ function fillResultTable(callback) {
     //var aidStationsEstimates = []; // copy of aidStations list where we pop off those reached by runner
 
     var tableCaption = '\
-T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
-T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
-P<sub>1</sub>(mm:ss/km): Ø Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub> , &nbsp; \
-P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>';
+T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
+T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
+P<sub>1</sub>(mm:ss/km): Ø Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
+P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
+kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 
     tableHeader += '<tr>';
     tableHeader += '<th class="sortable_numeric">Rang</th>';
@@ -327,6 +341,7 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    var curStarter = this.startnum;
 	    var rankId = "rank_" + this.startnum;
 	    var k;
+	    var startTime, startDate;
 	    var aidEstimates = getAidstationNames(aidStations);
 	    console.log(aidEstimates);
 
@@ -406,8 +421,8 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 			    // FIXME: check if prev time valid, validate time
 			    var prevOutTime = isValidTime(results[prevAid.name].outtime) ? results[prevAid.name].outtime : "n/a";
 			    var prevOutDate = isValidDate(results[prevAid.name].outdate) ? results[prevAid.name].outdate : "n/a";
-			    var startTime   = isValidTime(results["START"].outtime) ? results["START"].outtime : "n/a";
-			    var startDate   = isValidDate(results["START"].outdate) ? results["START"].outdate : "n/a";
+			    startTime   = isValidTime(results["START"].outtime) ? results["START"].outtime : "n/a";
+			    startDate   = isValidDate(results["START"].outdate) ? results["START"].outdate : "n/a";
 
 			    console.log('last out time: ' + prevOutTime);
 			    console.log('last out date: ' + prevOutDate);//results[prevAid.name].outdate);
@@ -464,11 +479,23 @@ P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>
 	    console.log("last avg pace = " + avgpace);
 	    for (k in aidEstimates) {
 		console.log("estimate for aid: " + aidEstimates[k]);
+		if ('START' === aidEstimates[k]) break;
 		var aidIdx = aidStations.findIndex(x => x.name === aidEstimates[k]);
 		var thisTotalDist = aidStations[aidIdx].totalDistance;
 		console.log("totaldist=" + thisTotalDist);
 		var estTotalTime = calcTotalTime(thisTotalDist, avgpace); //(min/km) -> min
 		console.log("estTotalTime=" + estTotalTime);
+
+
+		var estIntime = addTimeDate2Str(startTime, startDate, estTotalTime); // start date/time + estTotalTime hh:mm
+
+		tableContent += '<td class="estimate"><i>' + estIntime + '</i></td>';
+		tableContent += '<td></td>';
+		tableContent += '<td></td>';
+		tableContent += '<td></td>';
+		tableContent += '<td class="estimate"><i>' + estTotalTime + '</i></td>';
+		tableContent += '<td></td>';
+		tableContent += '<td></td>';
 	    }
 
 
