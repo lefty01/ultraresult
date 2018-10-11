@@ -1,0 +1,6 @@
+{"_id":{"$oid":"5ba8eb9c17f849ae87e71999"},"lat": 48.59998,"lng": 9.09916,"legDistance":  0.000, "totalDistance":   0.000, "height":442.97,"pointType":"Start","name":"START","directions":"Dettenhausen"}
+{"_id":{"$oid":"5ba8eb9c17f849ae87e7199a"},"lat": 48.59998,"lng": 9.09916,"legDistance": 19.500, "totalDistance": 162.500, "height":442.97,"pointType":"Finish","name":"FINISH","directions":"Dettenhausen"}
+{"_id":{"$oid":"5ba8eb9c17f849ae87e7199b"},"lat": 48.63349,"lng": 8.94944,"legDistance": 36.000, "totalDistance":  36.000, "height":497.12,"pointType":"Food","name":"VP1","directions":"Plattenbruennele"}
+{"_id":{"$oid":"5ba8eb9c17f849ae87e7199c"},"lat": 48.53145,"lng": 9.09301,"legDistance": 37.000, "totalDistance": 109.000, "height":380.92,"pointType":"Food","name":"VP3","directions":"Lustnau Anders"}
+{"_id":{"$oid":"5ba8eb9c17f849ae87e7199e"},"lat": 48.62016,"lng": 9.19749,"legDistance": 34.000, "totalDistance": 143.000, "height":403.45,"pointType":"Food","name":"VP4","directions":"Neuenhaus"}
+{"_id":{"$oid":"5ba8eb9c17f849ae87e7199f"},"lat": 48.56049,"lng": 8.98391,"legDistance": 17.000, "totalDistance":  72.000, "height":474.24,"pointType":"Food","name":"VP2","directions":"Entringen"}
