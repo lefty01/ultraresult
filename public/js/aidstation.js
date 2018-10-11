@@ -261,11 +261,11 @@ function fillStarterTable(docTitle, theDate) {
 
 	    // FIXME: below maxlength/size is hardcoded to 10 to match date format of yyyy-mm-dd
 	    if (! isStart) {
-		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="text" maxlength="10" size="10" value="'
+		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="date" value="'
 		    + indate + '" ' + inreadonly + roStyle + '/></td>';
 
 		tableContent += '<td align="center"><input id="tin_' + this.startnum
-                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + intime + '" ' + inreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + roStyle + '>'
                     + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
 		// FIXME: data- does not require set or edit info since we have the class already
 		tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
@@ -274,11 +274,11 @@ function fillStarterTable(docTitle, theDate) {
                     + ' class="makeEditable">Edit</button></td>';
 	    }
             if (! isFinish) {
-		tableContent += '<td align="center"><input id="tdout_' + this.startnum + '" class="tdinput" type="text" maxlength="10" size="10" value="'
+		tableContent += '<td align="center"><input id="tdout_' + this.startnum + '" class="tdinput" type="date" value="'
 		    + outdate + '" ' + outreadonly + roStyle + '/></td>';
 
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
-                    + '" class="tinput" type="text" maxlength="5" size="5" value="' + outtime + '"' + outreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + outtime + '"' + outreadonly + roStyle + '>'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="' + outro + '"></td>';
 
                 tableContent += '<td><button data-setid="tout_set_' + this.startnum + '"'
