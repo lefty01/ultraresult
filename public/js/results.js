@@ -364,6 +364,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 		var times = res[1];
 		
 		console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
+		//fixme: for debug print aid "directions" aka real name
 		pause = "n/a";
 
 		if (results[aidId]) {
@@ -390,12 +391,12 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 			outtime = "n/a";
 		    }
 
-		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + intimeValid);
-		    console.log('fillStarterTable: ' + aidId + ' in time:   ' + intime);
-		    console.log('fillStarterTable: ' + aidId + ' in date:   ' + indate);
-		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + outtimeValid);
-		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + outtime);
-		    console.log('fillStarterTable: ' + aidId + ' out date:  ' + outdate);
+		    console.log('fillResultTable: ' + aidId + ' in valid:  ' + intimeValid);
+		    console.log('fillResultTable: ' + aidId + ' in time:   ' + intime);
+		    console.log('fillResultTable: ' + aidId + ' in date:   ' + indate);
+		    console.log('fillResultTable: ' + aidId + ' out valid: ' + outtimeValid);
+		    console.log('fillResultTable: ' + aidId + ' out time:  ' + outtime);
+		    console.log('fillResultTable: ' + aidId + ' out date:  ' + outdate);
 
 
 		    if ((true === outtimeValid) && (true === intimeValid)) {
@@ -404,7 +405,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 			var zzz = totalpause;
 			totalpause = calcTotalPause(zzz, pause);
 			console.log('calc total pause: ' + totalpause);
-			console.log('fillStarterTable: ' + aidId + ' pause:     ' + pause);
+			console.log('fillResultTable: ' + aidId + ' pause:     ' + pause);
                     }
 
 		    // get last time (between last aid out and this aid in)

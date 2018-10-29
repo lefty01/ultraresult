@@ -17,22 +17,34 @@ var session = require('express-session');
 
 nconf.file('ultraresult.conf');
 
-var database_name = nconf.get('database:name');
-var database_host = nconf.get('database:host');
-var database_port = nconf.get('database:port');
+const database_name = nconf.get('database:name');
+const database_host = nconf.get('database:host');
+const database_port = nconf.get('database:port');
+const database_user = nconf.get('database:user');
+const database_pwd  = nconf.get('database:pwd');
+
+
+// var dbURI = 'mongodb://' + database_user + ':' + database_pwd +
+// 	'@' + database_host + ':' + database_port + '/' + database_name;
+var dbURI = 'mongodb://' + database_user + ':' + database_pwd +
+	'@' + database_host + ':' + database_port + '/' + database_name;
+
 
 console.log('database name: ' + nconf.get('database:name'));
 console.log('database host: ' + nconf.get('database:host'));
 console.log('database port: ' + nconf.get('database:port'));
+
 console.log(process.env.npm_package_name, process.env.npm_package_version);
 var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name : "";
 var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : "";
 
-var db = monk(database_host + ':' + database_port + '/' + database_name, function(err, db){
+//var db = monk(database_host + ':' + database_port + '/' + database_name, function(err, db){
+var db = monk(dbURI, function(err, db){
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
 	console.log("connected to database");
+//	db.auth();
     }
 });
 

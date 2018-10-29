@@ -224,30 +224,32 @@ function fillStarterTable(docTitle, theDate) {
 	    var outro   = "0";
 	    var inreadonly  = "";
 	    var outreadonly = "";
-	    var roStyle = "";
+	    var inRoStyle   = "";
+	    var outRoStyle  = "";
 
 	    // check the results field if we have valid times for this runner/aid
 	    // if valid time is available set input field and mark as readonly
 	    var results = this.results;
 	    if (typeof results !== 'undefined' && results && results[aidId]) {
 		// if time's valid make input read-only (and todo: change color)
-		if (true == results[aidId].intime_valid) {
-// FIXME: json-string-date to Date(): //intime = json2timeStr(results[aidId].intime) / indate = ...
-		    // intime = json2timeStr(results[aidId].intime);
-		    // indate = json2dateStr(results[aidId].intime);
+		if ((results[aidId].intime_valid !== 'undefined') &&
+                    (true == results[aidId].intime_valid)) {
 		    intime = results[aidId].intime;
 		    indate = results[aidId].indate;
 		    inro = "1";
 		    inreadonly = "readonly";
-		    roStyle = ' style="background-color: #FF2F2F59" ';
+		    inRoStyle = ' style="background-color: #FF2F2F59" ';
 		}
-		if (true === results[aidId].outtime_valid) {
+
+		if ((results[aidId].outtime_valid !== 'undefined') &&
+		    (true === results[aidId].outtime_valid)) {
 		    outtime = results[aidId].outtime; // FIXME: outtimeObj = new Date(results[aidId].outtime);
 		    outdate = results[aidId].outdate;
 		    outro = "1";
 		    outreadonly = "readonly";
-		    roStyle = ' style="background-color: #FF2F2F59" ';
+		    outRoStyle = ' style="background-color: #FF2F2F59" ';
 		}
+
 		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
 		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' in time:   ' + results[aidId].intime);
 		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
@@ -262,10 +264,10 @@ function fillStarterTable(docTitle, theDate) {
 	    // FIXME: below maxlength/size is hardcoded to 10 to match date format of yyyy-mm-dd
 	    if (! isStart) {
 		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="date" value="'
-		    + indate + '" ' + inreadonly + roStyle + '/></td>';
+		    + indate + '" ' + inreadonly + inRoStyle + '/></td>';
 
 		tableContent += '<td align="center"><input id="tin_' + this.startnum
-                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + inRoStyle + '>'
                     + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
 		// FIXME: data- does not require set or edit info since we have the class already
 		tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
@@ -275,10 +277,10 @@ function fillStarterTable(docTitle, theDate) {
 	    }
             if (! isFinish) {
 		tableContent += '<td align="center"><input id="tdout_' + this.startnum + '" class="tdinput" type="date" value="'
-		    + outdate + '" ' + outreadonly + roStyle + '/></td>';
+		    + outdate + '" ' + outreadonly + outRoStyle + '/></td>';
 
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
-                    + '" class="tinput" type="time" value="' + outtime + '"' + outreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + outtime + '"' + outreadonly + outRoStyle + '>'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="' + outro + '"></td>';
 
                 tableContent += '<td><button data-setid="tout_set_' + this.startnum + '"'
