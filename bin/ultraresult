@@ -1,12 +1,21 @@
 #!/usr/bin/nodejs
 
-var debug = require('debug')('ultraresult');
-var app = require('../app');
+const debug = require('debug')('ultraresult');
+const app = require('../app');
+const fs = require('fs');
+const https = require('https');
 
-app.set('port', process.env.PORT || 2018);
+app.set('port', process.env.PORT || 2021);
 
-var server = app.listen(app.get('port'), function() {
-  debug('Express server listening on port ' + server.address().port);
+var options = {
+  cert: fs.readFileSync('cert.crt'),
+  key:  fs.readFileSync('cert.key'),
+  requestCert: true,
+  rejectUnauthorized: false
+};
+
+
+var server = https.createServer(options, app).listen(app.get('port'), () => {
+  debug("express server is running on port: " + app.get('port'));
 });
 
-console.log("server started on http://localhost:" + app.get('port'));

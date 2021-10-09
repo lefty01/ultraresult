@@ -1,34 +1,46 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var mongo = require('mongodb');
-var monk = require('monk');
-var assert = require('assert');
-//var validate = require('express-validation');
-var fs    = require('fs'),
-    nconf = require('nconf');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const mongo = require('mongodb');
+const monk = require('monk');
+const assert = require('assert');
+
+const fs = require('fs');
+const nconf = require('nconf');
 
 //var passport = require('passport');
-var Strategy = require('passport-local').Strategy;
-var session = require('express-session');
+const Strategy = require('passport-local').Strategy;
+const session = require('express-session');
 
 nconf.file('ultraresult.conf');
 
-var database_name = nconf.get('database:name');
-var database_host = nconf.get('database:host');
-var database_port = nconf.get('database:port');
+const database_name       = nconf.get('database:name');
+const database_host       = nconf.get('database:host');
+const database_port       = nconf.get('database:port');
+const database_sslcafile  = nconf.get('database:sslcafile');
+const database_sslkeyfile = nconf.get('database:sslkeyfile');
+const database_authdb     = nconf.get('database:authdb');
+const database_username   = nconf.get('database:username');
+const database_password   = nconf.get('database:password');
 
-console.log('database name: ' + nconf.get('database:name'));
-console.log('database host: ' + nconf.get('database:host'));
-console.log('database port: ' + nconf.get('database:port'));
+const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name
+      + '?tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile='
+      + database_sslkeyfile + '&username=' + database_username + '&password='
+      + database_password + '&authenticationDatabase=' + database_authdb;
+
+console.log('database uri:  ' + db_conn_uri);
+
 console.log(process.env.npm_package_name, process.env.npm_package_version);
 var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name : "";
 var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : "";
 
-var db = monk(database_host + ':' + database_port + '/' + database_name, function(err, db){
+const db = monk(db_conn_uri, function(err, db){
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
@@ -42,7 +54,11 @@ var starters   = require('./routes/starters');
 var aidstation = require('./routes/aidstation');
 var results    = require('./routes/results');
 
-var app = express();
+
+const app = express();
+app.use(helmet());
+app.use(cors());
+app.use(morgan('combined'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

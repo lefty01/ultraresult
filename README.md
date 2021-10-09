@@ -28,6 +28,33 @@ Format is json, for example create a file called 'ultraresult.conf':
 }
 ```
 
+# database setup / layout
+
+## mongoimport
+on redhat 8.4 required this env setting (with ssl)
+
+```
+$ export GODEBUG="x509ignoreCN=0"
+```
+
+then import:
+
+```
+$ mongoimport -v --ssl --sslCAFile CA.pem --sslPEMKeyFile client.pem  -u user -p passw0rd --authenticationDatabase database --host localhost --port port -d database -c collection --drop --file coll_file.json
+2021-10-08T16:08:03.541+0200	using write concern: &{majority false 0}
+2021-10-08T16:08:03.542+0200	using 8 decoding workers
+2021-10-08T16:08:03.542+0200	using 1 insert workers
+2021-10-08T16:08:03.542+0200	will listen for SIGTERM, SIGINT, and SIGKILL
+2021-10-08T16:08:03.925+0200	filesize: 2066 bytes
+2021-10-08T16:08:03.925+0200	using fields:
+2021-10-08T16:08:03.925+0200	connected to: mongodb://localhost:3333/
+2021-10-08T16:08:03.925+0200	ns: database.collection
+2021-10-08T16:08:03.953+0200	connected to node type: standalone
+2021-10-08T16:08:03.953+0200	dropping: database.collection
+2021-10-08T16:08:04.025+0200	9 document(s) imported successfully. 1 document(s) failed to import.
+```
+
+
 # Implementation
 ## results webpage
 Shows results aka aidstation in/out times as they are entered.
