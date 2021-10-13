@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var assert = require('assert');
-
+const debug = require('debug')('ultraresult:aid');
 
 /*
  *
@@ -34,6 +34,7 @@ router.get('/', function(req, res) {
  * note: directions field hold long descriptive name (P Rittweg)
  *       name field is the short id (vp1,k1,...)
  */
+// @auth-session establish / login page if no session
 router.get('/:id', function(req, res) {
     var db = req.db;
     var collection = db.get('aidstations');
@@ -41,10 +42,19 @@ router.get('/:id', function(req, res) {
     var match = /^(((VP|K)\d\d?)|START|FINISH)$/;
     var found = match.test(aidstationId);
 
-    // validate aidstation id or name
-    // right now allow VPn or Kn with n as single or double digit decimal number
+    if (found) {
+	req.session.aidurl = '/aid/' + aidstationId;
+    }
+
     console.log("aidstation: " + aidstationId);
     console.log("valid name? " + found);
+    console.log(req.session);
+
+    if (! req.session.loggedIn) {
+	res.redirect('/login');
+	return;
+    }
+
     if (! found) {
         // FIXME: 
         res.render('aid', { params : {

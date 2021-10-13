@@ -23,6 +23,7 @@ var rankedRunnerList = [];
 // DOM Ready =============================================================
 $(document).ready(function() {
     //var now = date();
+    showLiveTrackerLinks();
     
     if (document.title === "results not found") {
         alert("no results found!");
@@ -45,6 +46,42 @@ $(document).ready(function() {
 
 });
 
+function showLiveTrackerLinks() {
+
+    $.getJSON('/tracking', function(data) {
+	if (data === undefined || typeof data == 'undefined' ||
+	    data.length === 0) {
+	    return false;
+	}
+
+	// console.log("data:");
+	// console.log(data.length);
+	// console.log(data);
+	$("h3#trackerlinks").text("live tracking links:");
+
+        $.each(data, function() {
+	    console.log("tracking link name: " + this.name);
+	    console.log("tracking link url:  " + this.url);
+	    let skip = false;
+
+	    if (!isValidName(this.name)) {
+		console.log("invalid tracking link name!");
+		skip = true;
+	    }
+	    if (!isValidUrl(this.url)) {
+		console.log("invalid tracking link url!");
+		skip = true;
+	    }
+	    // populate ul with live tracking links if available
+	    if (!skip) {
+		let li_item = '<li>' + this.name + ': <a href="' + this.url + '">' + this.url + '</a></li>';
+		console.log("<li>: " + li_item);
+		$("ul#trackerlinks").append(li_item);
+	    }
+	});
+
+    });
+}
 
 /*
  * sort runnerList by aidId and time, fill in rank
@@ -128,6 +165,22 @@ function isValidDate(time) {
 function isValidTime(time) {
     var reTime = /^\d\d:\d\d$/;
     if (! reTime.test(time)) {
+	return false;
+    }
+    return true;
+}
+
+function isValidUrl(url) {
+    var valid = /^(http|https):\/\/[^ "]+$/.test(url);
+    if (! valid) {
+	return false;
+    }
+    return true;
+}
+
+function isValidName(name) {
+    var valid = /^[\w _-]+$/.test(name);
+    if (! valid) {
 	return false;
     }
     return true;

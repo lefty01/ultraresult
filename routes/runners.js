@@ -106,6 +106,11 @@ router.get('/starterlist', function(req, res) {
  * 'finish_time'
  */
 router.put('/update/rank/:num', function(req, res) {
+    if (! req.session.loggedIn) {
+	res.sendStatus(418);
+	return;
+    }
+
     var db = req.db;
     var collection = db.get('runnerlist');
 
@@ -133,7 +138,13 @@ router.put('/update/rank/:num', function(req, res) {
 /*
  * update in/out time
  */
+// @auth-session required
 router.put('/update/:num', function(req, res) {
+    if (! req.session.loggedIn) {
+	res.sendStatus(418);
+	return;
+    }
+
     var db = req.db;
     var collection = db.get('runnerlist');
 

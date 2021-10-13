@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  div.text-center
+
+  h1(class=h1Classes) Please login
+
+  form(class="form-signin" method="POST" action="/auth")
+
+    label(for="inputUsername" class="sr-only") Username
+        input(type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus)
+    label(for="inputPassword" class="sr-only") Password
+        input(type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required)
+    div(class=divClasses)
+      label
+        input(type="checkbox" value="remember-me")
+      span Remember me
+
+    button(class=buttonClass type="submit") Login

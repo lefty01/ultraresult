@@ -7,7 +7,9 @@ a {
   color: #00B7FF;
 }
 
-
+h2#errormsg {
+  color: #FF0000;
+}
 
 input.tinput {
     background-color: #99FFCC;

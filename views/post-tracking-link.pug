@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  div.text-center
+
+  h2#errormsg= msg
+
+  h1(class=h1Classes) Post Link below
+
+  form(class="form-tracking-link" method="POST" action="/tracking/add")
+
+    label(for="inputName" class="sr-only") Name
+      input(type="text" name="name" id="inputName" class="form-control" placeholder="Name" required autofocus)
+    br
+    label(for="inputLink" class="sr-only") Link
+      input(type="text" name="url" id="inputLink" class="form-control" placeholder="Traking URL" required)
+    br
+    button(class=buttonClass type="submit") Submit
