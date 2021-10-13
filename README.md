@@ -91,7 +91,6 @@ The related javascript code is in aidstation.js
 * write test
 * language (don't mix german english, switch language button)
 * socket io update result table on aidstation input
-* auth
 * dnf button/marker
 * sort
 * estimate finish time based on avg. pace
