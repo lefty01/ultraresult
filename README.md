@@ -1,5 +1,10 @@
 # ultraresult
 
+
+[![npm test status](https://github.com/lefty01/ultraresult/actions/workflows/node.js.yml/badge.svg)](https://github.com/lefty01/ultraresult/actions/workflows/node.js.yml)
+
+
+
 <!-- 
 [![Build Status](https://travis-ci.org/lefty01/ultraresult.svg?branch=leaderboard)](https://travis-ci.org/lefty01/ultraresult)
 -->
