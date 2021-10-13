@@ -114,7 +114,8 @@ router.put('/update/rank/:num', function(req, res) {
     var db = req.db;
     var collection = db.get('runnerlist');
 
-    var startnum   = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID"; // res.send('invalid input') // FIXME parseInt -> store startnum as in not string
+    var startnum   = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID";
+    // res.send('invalid input') // FIXME parseInt -> store startnum as in not string
 
     var rankCat    = isValidRank(req.body.rankcat) ? req.body.rankcat : "INVALID";
     var rankAll    = isValidRank(req.body.rankall) ? req.body.rankall : "INVALID";
@@ -138,7 +139,6 @@ router.put('/update/rank/:num', function(req, res) {
 /*
  * update in/out time
  */
-// @auth-session required
 router.put('/update/:num', function(req, res) {
     if (! req.session.loggedIn) {
 	res.sendStatus(418);
@@ -152,7 +152,8 @@ router.put('/update/:num', function(req, res) {
 
     var isIn      = (req.body.inout === "tin") ? true : false;
     var timeValid = (req.body.time_valid === 'true') ? true : false; // -> false !?
-    var startnum  = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID"; // res.sed('invalid input')  // FIXME parseInt -> store startnum as in not string
+    var startnum  = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID";
+    // res.sed('invalid input')  // FIXME parseInt -> store startnum as in not string
     // we get startnum via param and req.body.startnum -> can use as sanity check
 
     var aidName   = isValidAid(req.body.aid)   ? req.body.aid   : "INVALID";
@@ -191,7 +192,58 @@ router.put('/update/:num', function(req, res) {
 			  console.log("update  count=" + cnt.nModified);
 			  console.log("update status=" + stat);
     });
-
 });
+
+
+/*
+ * reset all in/out times
+ */
+router.put('/resetresult/:num', function(req, res) {
+    if (! req.session.loggedIn) {
+	res.sendStatus(418);
+	return;
+    }
+
+    var db = req.db;
+    var collection = db.get('runnerlist');
+    var startnum  = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID";
+    console.log("reset all results for runner with startnum=" + startnum);
+
+    collection.update({ 'startnum' : startnum },
+		      { $unset: {results: 1}}, //false, true,
+		      function(err, cnt, stat) {
+			  console.log("update  count=" + cnt.nModified);
+			  console.log("update status=" + stat);
+			  res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
+			  return;
+    });
+});
+
+/*
+ * set runner status to DNF
+ */
+router.put('/setdnf/:num', function(req, res) {
+    if (! req.session.loggedIn) {
+	res.sendStatus(418);
+	return;
+    }
+
+    var db = req.db;
+    var collection = db.get('runnerlist');
+    var startnum  = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID";
+    console.log("set DNF status for runner with startnum=" + startnum);
+    // FIXME
+    // collection.update({ 'startnum' : startnum },
+    // 		      { $unset: {results: 1}}, //false, true,
+    // 		      function(err, cnt, stat) {
+    // 			  console.log("update  count=" + cnt.nModified);
+    // 			  console.log("update status=" + stat);
+    // 			  res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
+    // 			  return;
+    // });
+    res.send({ msg: 'NOT IMPLEMENTED YET!' });
+    return;
+});
+
 
 module.exports = router;

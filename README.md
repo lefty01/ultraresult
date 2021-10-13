@@ -4,6 +4,7 @@
 [![npm test status](https://github.com/lefty01/ultraresult/actions/workflows/node.js.yml/badge.svg)](https://github.com/lefty01/ultraresult/actions/workflows/node.js.yml)
 
 
+[![CodeQL](https://github.com/lefty01/ultraresult/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/lefty01/ultraresult/actions/workflows/codeql-analysis.yml)
 
 <!-- 
 [![Build Status](https://travis-ci.org/lefty01/ultraresult.svg?branch=leaderboard)](https://travis-ci.org/lefty01/ultraresult)
@@ -28,11 +29,26 @@ Format is json, for example create a file called 'ultraresult.conf':
 ```json
 {
     "database": {
-        "name" : "ultra_2018",
-	"host" : "localhost",
-	"port" : 3333
+        "name" : "",
+	"host" : "",
+	"port" : ,
+	"username" : "",
+	"password" : "",
+	"sslcafile": "",
+	"sslkeyfile": "",
+	"authdb": ""
+    },
+    "aidauth" : {
+        "username": "username",
+	"password": "password",
+	"session_secret": "SECR3T",
+	"session_key": "K3Y"
     }
 }
+```
+# update package-lock version
+```
+$ npm i --package-lock-only
 ```
 
 # database setup / layout
@@ -102,6 +118,13 @@ remove all documents from collection:
 
 remove/drop collection:
 > db.aidstations.drop()
+
+
+reset results for runner by startnum (eg. startnum=1, nModified=1 if updated or 0 if no results field present):
+> db.runnerlist.find()
+> db.runnerlist.update({'startnum': 1}, {$unset: { results:1 }}, false, true);
+
+
 
 update document within collection:
 this would replace the document mathcing name and direction string, but the updated document only has new name and new directions. ALL OTHER FIELDS ARE GONE!

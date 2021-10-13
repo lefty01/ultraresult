@@ -186,6 +186,14 @@ function isValidName(name) {
     return true;
 }
 
+function isValidNum(num) {
+    var valid = /^\d{1,3}$/.test(num);
+    if (! valid) {
+	return false;
+    }
+    return true;
+}
+
 function paceStr2Min(p) {
 
 }
@@ -418,6 +426,11 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 		
 		console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
 		pause = "n/a";
+		if ("INVALID" === aidId) {
+		    alert('Error invalid data for runner: ' + curStarter);
+		    return true;
+		}
+
 
 		if (results[aidId]) {
 		    aidEstimates.shift(); // remove this aidstation
@@ -504,6 +517,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 		    // P2: avg between start and current aidstation in
 		    avgpace = calcPace(totaltime, totalDist);
 		}
+
 		if ("START" === aidId) {
 		    tableContent += '<td>' + outtime  + '</td>';
 		    return true;

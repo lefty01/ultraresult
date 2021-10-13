@@ -39,15 +39,23 @@ router.get('/:id', function(req, res) {
     var db = req.db;
     var collection = db.get('aidstations');
     var aidstationId = req.params.id.toUpperCase();
-    var match = /^(((VP|K)\d\d?)|START|FINISH)$/;
-    var found = match.test(aidstationId);
+    var match_num = /^(\d\d?)$/;
+    var match_aid = /^(((VP)\d\d?)|START|FINISH|DNF)$/;
+    var found_num = match_num.test(aidstationId);
 
-    if (found) {
+    // if only one or two digit then prepend 'VP'
+    if (found_num) {
+	aidstationId = 'VP' + aidstationId;
+    }
+
+    var found_aid = match_aid.test(aidstationId);
+
+    if (found_aid) {
 	req.session.aidurl = '/aid/' + aidstationId;
     }
 
     console.log("aidstation: " + aidstationId);
-    console.log("valid name? " + found);
+    console.log("valid name? " + found_aid);
     console.log(req.session);
 
     if (! req.session.loggedIn) {
@@ -55,7 +63,7 @@ router.get('/:id', function(req, res) {
 	return;
     }
 
-    if (! found) {
+    if (! found_aid) {
         // FIXME: 
         res.render('aid', { params : {
             title : 'aidstation not found',
@@ -63,6 +71,21 @@ router.get('/:id', function(req, res) {
             type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
         }});
         return;
+    }
+
+    // DNF / reset results
+    if (found_aid && aidstationId === 'DNF') {
+	// TODO
+        res.render('aid', { params : {
+            title         : 'DNF / Reset Results',
+            id            : 'DNF',
+            type          : 'DNF',
+            legDistance   : 'n/a',
+            legVpDistance : '',
+            totalDistance : 'n/a',
+            loc : { lat : '', lng : '' }
+        }});
+	return;
     }
 
     collection.findOne({ name: aidstationId }, function(err, docs) {
@@ -98,8 +121,6 @@ router.get('/:id', function(req, res) {
     	}
     });
 
-
-//    res.render('index', { title: 'Express aidstation ' + req.params.id });
 });
 
 

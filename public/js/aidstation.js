@@ -26,6 +26,8 @@ $(document).on('click', function (e) {
     var inout;
     var startnum;
     var data;
+    //console.log('click target: ' + target);
+    console.log('aidId: ' + aidId);
     
     if (target.is('.makeNonEditable')) {
         e.preventDefault(); // cancel the event flow
@@ -54,7 +56,8 @@ $(document).on('click', function (e) {
 	//      " @ aid=" + aidId + " time=" + time);
         saveTimeClick(data);
 
-    } else if (target.is('.makeEditable')) {
+    }
+    else if (target.is('.makeEditable')) {
         e.preventDefault();
         var editId = target.data('editid');
         res = editId.split("_"); // t[in|out]_edit_NN
@@ -70,6 +73,20 @@ $(document).on('click', function (e) {
 	    'date'     : date
         };
         editTimeClick(data);
+    }
+    else if (target.is('.dnfOrReset')) {
+        e.preventDefault(); // cancel the event flow
+        var setId = target.data('setid');
+        res = setId.split("_"); // tin_[dnf|reset]_NN
+        dnf_reset = res[1]; // dnf|reset
+        startnum  = res[2];
+
+	console.log('dnf_reset: ' + dnf_reset);
+	console.log('startnum:  ' + startnum);
+	if (dnf_reset === 'reset')
+	    resetResultsClick(startnum);
+	if (dnf_reset === 'dnf')
+	    setDNFClick(startnum);
     }
 });
 
@@ -198,7 +215,55 @@ function editTimeClick(data) {
     });
 }
 
+function resetResultsClick(startnum) {
+    var valid = /^\d{1,3}$/.test(startnum);
+    if (! valid) {
+	return false; // fixme handle error
+    }
 
+    console.log("trying to reset results for runner: " + startnum);
+
+    $.ajax({
+        type: 'PUT',
+        dataType: 'JSON',
+	data: {},
+        url: '/runners/resetresult/' + startnum
+    }).done(function(response) {
+        // Check for a successful (blank) response
+        if (response.msg === '') {
+	    console.log("reset runner OK!");
+	    alert('OK!');
+        }
+        else {
+            alert('Error: ' + response.msg);
+        }
+    });
+}
+
+function setDNFClick(startnum) {
+    var valid = /^\d{1,3}$/.test(startnum);
+    if (! valid) {
+	return false; // fixme handle error
+    }
+
+    console.log("trying to set DNF for runner: " + startnum);
+
+    $.ajax({
+        type: 'PUT',
+        dataType: 'JSON',
+	data: {},
+        url: '/runners/setdnf/' + startnum
+    }).done(function(response) {
+        // Check for a successful (blank) response
+        if (response.msg === '') {
+	    console.log("DNF for runner OK!");
+	    alert('OK!');
+        }
+        else {
+            alert('Error: ' + response.msg);
+        }
+    });
+}
 
 // theDate is Date() object
 function fillStarterTable(docTitle, theDate) {
@@ -206,9 +271,11 @@ function fillStarterTable(docTitle, theDate) {
     var matchVP = /^(VP)\d\d?$/i;
     var matchStart = /^START$/i;
     var matchFinish = /^FINISH$/i;
+    var matchDNF = /^DNF$/i;
     var isAidstation = matchVP.test(aidId);
     var isStart = matchStart.test(aidId);
     var isFinish = matchFinish.test(aidId);
+    var isDnf = matchDNF.test(aidId);
     var tableContent = '';
     var runnerNum = 1;
 
@@ -260,7 +327,7 @@ function fillStarterTable(docTitle, theDate) {
             tableContent += '<td>' + this.lastname  + '</td>';
 
 	    // FIXME: below maxlength/size is hardcoded to 10 to match date format of yyyy-mm-dd
-	    if (! isStart) {
+	    if (! isStart && ! isDnf) {
 		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="date" value="'
 		    + indate + '" ' + inreadonly + roStyle + '/></td>';
 
@@ -273,7 +340,7 @@ function fillStarterTable(docTitle, theDate) {
 		tableContent += '<td><button data-editid="tin_edit_' + this.startnum + '"'
                     + ' class="makeEditable">Edit</button></td>';
 	    }
-            if (! isFinish) {
+            if (! isFinish && ! isDnf) {
 		tableContent += '<td align="center"><input id="tdout_' + this.startnum + '" class="tdinput" type="date" value="'
 		    + outdate + '" ' + outreadonly + roStyle + '/></td>';
 
@@ -286,6 +353,18 @@ function fillStarterTable(docTitle, theDate) {
                 tableContent += '<td><button data-editid="tout_edit_' + this.startnum + '"'
                     + ' class="makeEditable">Edit</button></td>';
             }
+	    if (isDnf) {
+		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="date" value="'
+		    + indate + '" ' + inreadonly + roStyle + '/></td>';
+
+		tableContent += '<td align="center"><input id="tin_' + this.startnum
+                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + roStyle + '>'
+                    + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
+		tableContent += '<td><button data-setid="tin_dnf_' + this.startnum + '"'
+                    + ' class="dnfOrReset">DNF</button></td>';
+		tableContent += '<td><button data-setid="tin_reset_' + this.startnum + '"'
+                    + ' class="dnfOrReset">RESET</button></td>';
+	    }
 
             tableContent += '</tr>';
             runnerNum++;
