@@ -1,6 +1,8 @@
 # ultraresult
 
+/*
 [![Build Status](https://travis-ci.org/lefty01/ultraresult.svg?branch=leaderboard)](https://travis-ci.org/lefty01/ultraresult)
+*/
 
 [![Join the chat at https://gitter.im/lefty01/ultraresult](https://badges.gitter.im/lefty01/ultraresult.svg)](https://gitter.im/lefty01/ultraresult?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
