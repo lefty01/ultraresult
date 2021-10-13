@@ -38,10 +38,10 @@ const session_key    = nconf.get('aidauth:session_key');
 app.set('aid_secret', process.env.UR_SESSION_SECRET || session_secret);
 app.set('aid_key', process.env.UR_SESSION_KEY || session_key);
 
-const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name
-      + '?tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile='
-      + database_sslkeyfile + '&username=' + database_username + '&password='
-      + database_password + '&authenticationDatabase=' + database_authdb;
+const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name +
+      '?tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile=' +
+      database_sslkeyfile + '&username=' + database_username + '&password=' +
+      database_password + '&authenticationDatabase=' + database_authdb;
 
 console.log('database uri:   ' + db_conn_uri);
 console.log('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
@@ -141,8 +141,8 @@ app.get('/login', (req, res) => {
 
 
 app.get('/logout',(req,res) => {
-    req.session.destroy((err)=>{})
-    res.send('good bye!')
+    req.session.destroy((err) => {});
+    res.send('good bye!');
 });
 
 
