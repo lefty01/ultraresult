@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var assert = require('assert');
+const express = require('express');
+const router = express.Router();
+const assert = require('assert');
 const debug = require('debug')('ultraresult:aid');
 
 /*
@@ -16,17 +16,13 @@ router.get('/', function(req, res) {
     collection.find( {}, { 'sort' : ['totalDistance', 'asc']}, function(err, docs) {
         console.log("find in collection ...");
         if (err === null) {
-     	    res.json(docs);
-            //res.render('aid', { title: 'Aidstation: ' + docs.directions });
-    	}
+            return res.json(docs);
+        }
         else {
-            res.json({msg: 'error: ' + err});
-    	}
-
-        console.log(docs);
-        //res.json(docs);
+            debug(docs);
+            return res.json({msg: 'error: ' + err});
+        }
     });
-
 });
            
 /*
@@ -34,7 +30,7 @@ router.get('/', function(req, res) {
  * note: directions field hold long descriptive name (P Rittweg)
  *       name field is the short id (vp1,k1,...)
  */
-// @auth-session establish / login page if no session
+// establish session / go to login page if not authenticated
 router.get('/:id', function(req, res) {
     var db = req.db;
     var collection = db.get('aidstations');
@@ -42,6 +38,7 @@ router.get('/:id', function(req, res) {
     var match_num = /^(\d\d?)$/;
     var match_aid = /^(((VP)\d\d?)|START|FINISH|DNF)$/;
     var found_num = match_num.test(aidstationId);
+    var vps = [];
 
     // if only one or two digit then prepend 'VP'
     if (found_num) {
@@ -54,9 +51,9 @@ router.get('/:id', function(req, res) {
 	req.session.aidurl = '/aid/' + aidstationId;
     }
 
-    console.log("aidstation: " + aidstationId);
-    console.log("valid name? " + found_aid);
-    console.log(req.session);
+    debug("aidstation: " + aidstationId);
+    debug("valid name? " + found_aid);
+    debug(req.session);
 
     if (! req.session.loggedIn) {
 	res.redirect('/login');
@@ -65,18 +62,16 @@ router.get('/:id', function(req, res) {
 
     if (! found_aid) {
         // FIXME: 
-        res.render('aid', { params : {
+        return res.render('aid', { params : {
             title : 'aidstation not found',
             id    : aidstationId,
             type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
         }});
-        return;
     }
 
     // DNF / reset results
     if (found_aid && aidstationId === 'DNF') {
-	// TODO
-        res.render('aid', { params : {
+        return res.render('aid', { params : {
             title         : 'DNF / Reset Results',
             id            : 'DNF',
             type          : 'DNF',
@@ -85,42 +80,61 @@ router.get('/:id', function(req, res) {
             totalDistance : 'n/a',
             loc : { lat : '', lng : '' }
         }});
-	return;
     }
 
-    collection.findOne({ name: aidstationId }, function(err, docs) {
-        if (err === null && docs !== null) {
-     	    //res.json(docs);
-            console.log(docs);
+    // get all aidstation names for aidstation links
+    // const promise1 = find aidstation names ();
+    // const promise2 = promise1.then(successCb, failCb);
 
-            var numCheckpoints = 0;
+    // collection.find({}, {projections: { _id: 0, name: 1 }, sort: ['totalDistance', 'asc']})
+    // 	.then(function(result) {
+
+    const ret = collection.find({}, {projections: { _id: 0, name: 1 }, sort: ['totalDistance', 'asc']});
+    //if (ret) {
+    ret.each((vp, {close, pause, resume})  => {
+        debug('collection.find vp name: ' + vp.name);
+        vps.push(vp.name);
+    }).then(() => {
+	// I think now we can get rid of one ".then()" level
+	if (req.session.isAdmin)
+	    vps.push('DNF');
+    }).then(() => {
+        debug('vps: ' + vps);
+
+        collection.findOne({ name: aidstationId }, function(err, docs) {
+            if (err === null && docs !== null) {
+                debug("findOne name: " + aidstationId);
+                debug(docs);
+                debug('vps: ' + vps);
+
+                var numCheckpoints = 0;
             
-            if (docs.checkpoints) {
-                numCheckpoints = docs.checkpoints.length;
-                console.log(docs.name + " has " + numCheckpoints + " previous checkpoints: " + docs.checkpoints);
+                if (docs.checkpoints) {
+                    numCheckpoints = docs.checkpoints.length;
+                    console.log(docs.name + " has " + numCheckpoints + " previous checkpoints: " + docs.checkpoints);
+                }
+            
+                res.render('aid', { aid: vps, params : {
+                    title         : docs.name + ': ' + docs.directions,
+                    id            : docs.name,
+                    type          : docs.pointType,
+                    legDistance   : docs.legDistance,
+                    legVpDistance : docs.legVpDistance,
+                    totalDistance : docs.totalDistance,
+                    loc : { lat : docs.lat, lng : docs.lng }
+                }});
             }
-            
-            res.render('aid', { params : {
-                title         : docs.name + ': ' + docs.directions,
-                id            : docs.name,
-                type          : docs.pointType,
-                legDistance   : docs.legDistance,
-                legVpDistance : docs.legVpDistance,
-                totalDistance : docs.totalDistance,
-                loc : { lat : docs.lat, lng : docs.lng }
-            }});
-    	}
-        else {
-            //res.json({msg: 'error: ' + err});
-	    res.render('aid', { params : {
-		title : 'aidstation not found',
-		id    : aidstationId,
-		type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
-            }});
-            return;
-    	}
-    });
-
+            else {
+                //res.json({msg: 'error: ' + err});
+                res.render('aid', { params : {
+                    title : 'aidstation not found',
+                    id    : aidstationId,
+                    type  : 'undef', totalDistance : 'undef', legDistance : 'undef'
+                }});
+                return;
+            }
+        });
+    }); // then(() => {... after ret.each.
 });
 
 

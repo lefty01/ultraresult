@@ -24,6 +24,9 @@ var rankedRunnerList = [];
 $(document).ready(function() {
     //var now = date();
     showLiveTrackerLinks();
+
+    // showAidstationLinks(); // depending on logged in status!?
+    // NOTE: right now I implemented this via the results.js route and results.pug template
     
     if (document.title === "results not found") {
         alert("no results found!");
@@ -82,6 +85,9 @@ function showLiveTrackerLinks() {
 
     });
 }
+
+//function showAidstationLinks() {
+//}
 
 /*
  * sort runnerList by aidId and time, fill in rank
@@ -368,6 +374,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 		return false;
 	    }
 	    aidStations.push(this);
+	    console.log("results.js: push to aidstations:" + this.name);
 
 	    if ('START' === this.name) { return true; }
 	    if ('FINISH' === this.name) {
@@ -380,239 +387,238 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 		+ this.directions + ', @km ' + this.totalDistance.toFixed(1) + ',  &Delta; ' + this.legDistance.toFixed(1) + '</th>';
 	    return true;
 	});
-    });
-    console.log(aidStations);
-    // FIXME check input validation (using database input)
-    $.getJSON('/runners', function(data) {
-        $.each(data, function() {
-	    var intimeValid  = false;
-	    var outtimeValid = false;
-	    var resultsList = [];
-	    var intime     = "n/a";
-	    var indate     = "n/a";
-	    var outtime    = "n/a";
-	    var outdate    = "n/a";
-	    var pause      = "n/a";
-	    var lastpace   = "n/a";
-	    var avgpace    = "n/a";
-	    var lasttime   = "n/a";
-	    var totaltime  = "n/a";
-	    var rank       = "n/a";
-	    var totalpause = "0:00";
-	    var curStarter = this.startnum;
-	    var rankId = "rank_" + this.startnum;
-	    var k;
-	    var startTime, startDate;
-	    var aidEstimates = getAidstationNames(aidStations);
-	    console.log(aidEstimates);
+    })
+    .then(function(aidstations) {
+	console.log("results.js: aidstations: " + aidStations); // aidStations are objects!
 
-	    tableContent += '<tr>';
-	    tableContent += '<td id=' + rankId + '>' + rank + '</td>'; // rank
-            tableContent += '<td>' + this.startnum  + '</td>';
-	    tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
+	// FIXME check input validation (using database input)
+	$.getJSON('/runners', function(data) {
+            $.each(data, function() {
+		var intimeValid  = false;
+		var outtimeValid = false;
+		var resultsList = [];
+		var intime     = "n/a";
+		var indate     = "n/a";
+		var outtime    = "n/a";
+		var outdate    = "n/a";
+		var pause      = "n/a";
+		var lastpace   = "n/a";
+		var avgpace    = "n/a";
+		var lasttime   = "n/a";
+		var totaltime  = "n/a";
+		var rank       = "n/a";
+		var totalpause = "0:00";
+		var curStarter = this.startnum;
+		var rankId = "rank_" + this.startnum;
+		var k;
+		var startTime, startDate;
+		var aidEstimates = getAidstationNames(aidStations);
+		console.log(aidEstimates);
 
-	    console.log("=== checking runner #" + this.startnum + " ===");
+		tableContent += '<tr>';
+		tableContent += '<td id=' + rankId + '>' + rank + '</td>'; // rank
+		tableContent += '<td>' + this.startnum  + '</td>';
+		tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
 
-	    // check the results field if we have valid times for this runner/aid
-	    var results = this.results;
-	    //console.log(results);
+		console.log("=== checking runner #" + this.startnum + " ===");
 
-	    // sort result list ... if VPn data for some reason was entered before VPn-1 (eg. entering data after the run)
-	    resultsList = sortResultObject(results);
+		// check the results field if we have valid times for this runner/aid
+		var results = this.results;
+		//console.log(results);
 
-	    $.each(resultsList, function(index, res) {
-		var aidId = isValidAid(res[0]) ? res[0] : "INVALID"; // validate aidId
-		var times = res[1];
+		// sort result list ... if VPn data for some reason was entered before VPn-1 (eg. entering data after the run)
+		resultsList = sortResultObject(results);
+
+		$.each(resultsList, function(index, res) {
+		    var aidId = isValidAid(res[0]) ? res[0] : "INVALID"; // validate aidId
+		    var times = res[1];
 		
-		console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
-		pause = "n/a";
-		if ("INVALID" === aidId) {
-		    alert('Error invalid data for runner: ' + curStarter);
-		    return true;
-		}
-
-
-		if (results[aidId]) {
-		    aidEstimates.shift(); // remove this aidstation
-
-		    // make sure valids are really only true or false
-		    intimeValid = ((typeof results[aidId].intime_valid !== 'undefined')
-				   && (true === results[aidId].intime_valid)) ? true : false;
-		    outtimeValid = ((typeof results[aidId].outtime_valid !== 'undefined')
-				    && (true === results[aidId].outtime_valid)) ? true : false;
-
-		    if (true === intimeValid) {
-			intime  = isValidTime(results[aidId].intime) ? results[aidId].intime  : "n/a";
-			indate  = isValidDate(results[aidId].indate) ? results[aidId].indate  : "n/a";
-		    }
-		    else {
-			intime = "n/a";
-		    }
-		    if (true === outtimeValid) {
-			outtime = isValidTime(results[aidId].outtime) ? results[aidId].outtime : "n/a";
-			outdate = isValidDate(results[aidId].outdate) ? results[aidId].outdate : "n/a";
-		    }
-		    else {
-			outtime = "n/a";
+		    console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
+		    pause = "n/a";
+		    if ("INVALID" === aidId) {
+			alert('Error invalid data for runner: ' + curStarter);
+			return true;
 		    }
 
-		    console.log('fillStarterTable: ' + aidId + ' in valid:  ' + intimeValid);
-		    console.log('fillStarterTable: ' + aidId + ' in time:   ' + intime);
-		    console.log('fillStarterTable: ' + aidId + ' in date:   ' + indate);
-		    console.log('fillStarterTable: ' + aidId + ' out valid: ' + outtimeValid);
-		    console.log('fillStarterTable: ' + aidId + ' out time:  ' + outtime);
-		    console.log('fillStarterTable: ' + aidId + ' out date:  ' + outdate);
 
+		    if (results[aidId]) {
+			aidEstimates.shift(); // remove this aidstation
 
-		    if ((true === outtimeValid) && (true === intimeValid)) {
-			pause = substractTimeDate2Str(intime, indate, outtime, outdate);
-			//console.log("pause=" + pause + ", total pause=" + totalpause);
-			var zzz = totalpause;
-			totalpause = calcTotalPause(zzz, pause);
-			console.log('calc total pause: ' + totalpause);
-			console.log('fillStarterTable: ' + aidId + ' pause:     ' + pause);
-                    }
+			// make sure valids are really only true or false
+			intimeValid = ((typeof results[aidId].intime_valid !== 'undefined')
+				       && (true === results[aidId].intime_valid)) ? true : false;
+			outtimeValid = ((typeof results[aidId].outtime_valid !== 'undefined')
+					&& (true === results[aidId].outtime_valid)) ? true : false;
 
-		    // get last time (between last aid out and this aid in)
-		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
-		    console.log('prevAidIdx: ' + prevAidIdx);
-		    if (prevAidIdx >= 0) { // index=0 means START
-			var prevAid = aidStations[prevAidIdx];
-			console.log('prevAid.name=' + prevAid.name);
-			console.log('prev aid results: ' + results[prevAid.name]);
-			if ((typeof prevAid !== 'undefined') &&
-			    (typeof results[prevAid.name] !== 'undefined') &&
-			    (true === results[prevAid.name].outtime_valid) &&
-		     	    (true === results[aidId].intime_valid)) {
-			    // FIXME: check if prev time valid, validate time
-			    var prevOutTime = isValidTime(results[prevAid.name].outtime) ? results[prevAid.name].outtime : "n/a";
-			    var prevOutDate = isValidDate(results[prevAid.name].outdate) ? results[prevAid.name].outdate : "n/a";
-			    startTime   = isValidTime(results["START"].outtime) ? results["START"].outtime : "n/a";
-			    startDate   = isValidDate(results["START"].outdate) ? results["START"].outdate : "n/a";
-
-			    console.log('last out time: ' + prevOutTime);
-			    console.log('last out date: ' + prevOutDate);//results[prevAid.name].outdate);
-			    console.log('this  in time: ' + intime);
-			    console.log('this  in date: ' + indate);
-			    console.log('start    time: ' + startTime);
-			    console.log('start    date: ' + startDate);
-
-			    lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
-			    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
-			    setRunnerList(curStarter, aidId, totaltime);
-			    //console.log(runnerList);
+			if (true === intimeValid) {
+			    intime  = isValidTime(results[aidId].intime) ? results[aidId].intime  : "n/a";
+			    indate  = isValidDate(results[aidId].indate) ? results[aidId].indate  : "n/a";
 			}
 			else {
-			    lasttime = "n/a";
-			    totaltime = "n/a";
+			    intime = "n/a";
 			}
+			if (true === outtimeValid) {
+			    outtime = isValidTime(results[aidId].outtime) ? results[aidId].outtime : "n/a";
+			    outdate = isValidDate(results[aidId].outdate) ? results[aidId].outdate : "n/a";
+			}
+			else {
+			    outtime = "n/a";
+			}
+
+			console.log('fillResultTable: ' + aidId + ' in valid:  ' + intimeValid);
+			console.log('fillResultTable: ' + aidId + ' in time:   ' + intime);
+			console.log('fillResultTable: ' + aidId + ' in date:   ' + indate);
+			console.log('fillResultTable: ' + aidId + ' out valid: ' + outtimeValid);
+			console.log('fillResultTable: ' + aidId + ' out time:  ' + outtime);
+			console.log('fillResultTable: ' + aidId + ' out date:  ' + outdate);
+
+			if ((true === outtimeValid) && (true === intimeValid)) {
+			    pause = substractTimeDate2Str(intime, indate, outtime, outdate);
+			    //console.log("pause=" + pause + ", total pause=" + totalpause);
+			    var zzz = totalpause;
+			    totalpause = calcTotalPause(zzz, pause);
+			    console.log('calc total pause: ' + totalpause);
+			    console.log('fillResultTable: ' + aidId + ' pause:     ' + pause);
+			}
+
+			// get last time (between last aid out and this aid in)
+			var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
+			console.log('prevAidIdx: ' + prevAidIdx);
+			if (prevAidIdx >= 0) { // index=0 means START
+			    var prevAid = aidStations[prevAidIdx];
+			    console.log('prevAid.name=' + prevAid.name);
+			    console.log('prev aid results: ' + results[prevAid.name]);
+			    if ((typeof prevAid !== 'undefined') &&
+				(typeof results[prevAid.name] !== 'undefined') &&
+				(true === results[prevAid.name].outtime_valid) &&
+				(true === results[aidId].intime_valid)) {
+				// FIXME: check if prev time valid, validate time
+				var prevOutTime = isValidTime(results[prevAid.name].outtime) ? results[prevAid.name].outtime : "n/a";
+				var prevOutDate = isValidDate(results[prevAid.name].outdate) ? results[prevAid.name].outdate : "n/a";
+				startTime   = isValidTime(results["START"].outtime) ? results["START"].outtime : "n/a";
+				startDate   = isValidDate(results["START"].outdate) ? results["START"].outdate : "n/a";
+
+				console.log('last out time: ' + prevOutTime);
+				console.log('last out date: ' + prevOutDate);//results[prevAid.name].outdate);
+				console.log('this  in time: ' + intime);
+				console.log('this  in date: ' + indate);
+				console.log('start    time: ' + startTime);
+				console.log('start    date: ' + startDate);
+
+				lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
+				totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
+				setRunnerList(curStarter, aidId, totaltime);
+				//console.log(runnerList);
+			    }
+			    else {
+				lasttime = "n/a";
+				totaltime = "n/a";
+			    }
+			}
+			// calc pace ...
+			// P1: avg. pace between aid stations
+			var lastDist  = aidStations.find(x => x.name === aidId).legDistance;
+			var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
+			//console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
+			//console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
+			lastpace = calcPace(lasttime, lastDist);
+			// P2: avg between start and current aidstation in
+			avgpace = calcPace(totaltime, totalDist);
 		    }
-		    // calc pace ...
-		    // P1: avg. pace between aid stations
-		    var lastDist  = aidStations.find(x => x.name === aidId).legDistance;
-		    var totalDist = aidStations.find(x => x.name === aidId).totalDistance;
-		    //console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
-		    //console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
-		    lastpace = calcPace(lasttime, lastDist);
-		    // P2: avg between start and current aidstation in
-		    avgpace = calcPace(totaltime, totalDist);
-		}
 
-		if ("START" === aidId) {
-		    tableContent += '<td>' + outtime  + '</td>';
+		    if ("START" === aidId) {
+			tableContent += '<td>' + outtime  + '</td>';
+			return true;
+		    }
+		    if ("FINISH" === aidId) {
+			tableContent += '<td>' + intime  + '</td>';
+			tableContent += '<td>' + lasttime + '</td>';
+			tableContent += '<td><b>' + totaltime + '</b></td>'; // -> Ziel/Gesamtzeit
+			tableContent += '<td>' + lastpace + '</td>';
+			tableContent += '<td>' + avgpace  + '</td>';
+			return true;
+		    }
+		    tableContent += '<td>' + intime    + '</td>';
+		    tableContent += '<td>' + outtime   + '</td>';
+		    tableContent += '<td>' + pause     + '</td>';
+		    tableContent += '<td>' + lasttime  + '</td>';
+		    tableContent += '<td><b>' + totaltime + '</b></td>';
+		    tableContent += '<td>' + lastpace  + '</td>';
+		    tableContent += '<td>' + avgpace   + '</td>';
 		    return true;
+		});
+
+		// iterate over remaining aidstations/finish for this runner
+		// and fill in estimated in-time and total-time (T2)
+		// estimated arrival at next VPs and Finish with current avg. pace
+		console.log("last avg pace = " + avgpace);
+		for (k in aidEstimates) {
+		    console.log("estimate for aid: " + aidEstimates[k]);
+		    if ('START' === aidEstimates[k]) break;
+		    var aidIdx = aidStations.findIndex(x => x.name === aidEstimates[k]);
+		    var thisTotalDist = aidStations[aidIdx].totalDistance;
+		    console.log("totaldist=" + thisTotalDist);
+		    var estTotalTime = calcTotalTime(thisTotalDist, avgpace); //(min/km) -> min
+		    console.log("estTotalTime=" + estTotalTime);
+
+		    var estIntime = addTimeDate2Str(startTime, startDate, estTotalTime); // start date/time + estTotalTime hh:mm
+
+		    tableContent += '<td class="estimate"><i>' + estIntime + '</i></td>';
+		    tableContent += '<td></td>';
+		    tableContent += '<td></td>';
+		    tableContent += '<td></td>';
+		    tableContent += '<td class="estimate"><i>' + estTotalTime + '</i></td>';
+		    tableContent += '<td></td>';
+		    tableContent += '<td></td>';
 		}
-		if ("FINISH" === aidId) {
-		    tableContent += '<td>' + intime  + '</td>';
-		    tableContent += '<td>' + lasttime + '</td>';
-		    tableContent += '<td><b>' + totaltime + '</b></td>'; // -> Ziel/Gesamtzeit
-		    tableContent += '<td>' + lastpace + '</td>';
-		    tableContent += '<td>' + avgpace  + '</td>';
-		    return true;
+
+		if (isFinisher(curStarter)) {
+		    tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime
+		    tableContent += '<td>'    + totalpause + '</td>';     // totalpause
 		}
-		tableContent += '<td>' + intime    + '</td>';
-		tableContent += '<td>' + outtime   + '</td>';
-		tableContent += '<td>' + pause     + '</td>';
-		tableContent += '<td>' + lasttime  + '</td>';
-		tableContent += '<td><b>' + totaltime + '</b></td>';
-		tableContent += '<td>' + lastpace  + '</td>';
-		tableContent += '<td>' + avgpace   + '</td>';
-		return true;
-	    });
+		tableContent += '</tr>';
 
-	    // iterate over remaining aidstations/finish for this runner
-	    // and fill in estimated in-time and total-time (T2)
-	    // estimated arrival at next VPs and Finish with current avg. pace
-	    console.log("last avg pace = " + avgpace);
-	    for (k in aidEstimates) {
-		console.log("estimate for aid: " + aidEstimates[k]);
-		if ('START' === aidEstimates[k]) break;
-		var aidIdx = aidStations.findIndex(x => x.name === aidEstimates[k]);
-		var thisTotalDist = aidStations[aidIdx].totalDistance;
-		console.log("totaldist=" + thisTotalDist);
-		var estTotalTime = calcTotalTime(thisTotalDist, avgpace); //(min/km) -> min
-		console.log("estTotalTime=" + estTotalTime);
-
-
-		var estIntime = addTimeDate2Str(startTime, startDate, estTotalTime); // start date/time + estTotalTime hh:mm
-
-		tableContent += '<td class="estimate"><i>' + estIntime + '</i></td>';
-		tableContent += '<td></td>';
-		tableContent += '<td></td>';
-		tableContent += '<td></td>';
-		tableContent += '<td class="estimate"><i>' + estTotalTime + '</i></td>';
-		tableContent += '<td></td>';
-		tableContent += '<td></td>';
-	    }
-
-
-	    if (isFinisher(curStarter)) {
-		tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime
-		tableContent += '<td>'    + totalpause + '</td>';     // totalpause
-	    }
-            tableContent += '</tr>';
-
-        });
+            }); // end each
 	
-	// Inject the whole content string into our existing HTML table
-	tableHeader += '<th>Zeit</th>';
-	tableHeader += '<th>&sum; Pause</th>';
-	tableHeader += '</tr>';
+	    // Inject the whole content string into our existing HTML table
+	    tableHeader += '<th>Zeit</th>';
+	    tableHeader += '<th>&sum; Pause</th>';
+	    tableHeader += '</tr>';
 
-	// second header line ...
-	tableHeader += '<tr>';
-	tableHeader += '<th></th>';
-	tableHeader += '<th></th>';
-	tableHeader += '<th></th>';
-	tableHeader += '<th></th>';
-	$.each(aidStations, function() {
-	    if ('START'  === this.name) { return true; }
-	    if ('FINISH' === this.name) { return true; }
+	    // second header line ...
+	    tableHeader += '<tr>';
+	    tableHeader += '<th></th>';
+	    tableHeader += '<th></th>';
+	    tableHeader += '<th></th>';
+	    tableHeader += '<th></th>';
+	    $.each(aidStations, function() {
+		if ('START'  === this.name) { return true; }
+		if ('FINISH' === this.name) { return true; }
+		tableHeader += '<th>IN</th>';
+		tableHeader += '<th>OUT</th>';
+		tableHeader += '<th>Pause</th>';
+		tableHeader += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
+		tableHeader += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
+		tableHeader += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
+		tableHeader += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
+	    });
 	    tableHeader += '<th>IN</th>';
-	    tableHeader += '<th>OUT</th>';
-	    tableHeader += '<th>Pause</th>';
-	    tableHeader += '<th class="" headers="' + this.name + '">T<sub>1</sub></th>';
-	    tableHeader += '<th class="" headers="' + this.name + '">T<sub>2</sub></th>';
-	    tableHeader += '<th class="" headers="' + this.name + '">P<sub>1</sub></th>';
-	    tableHeader += '<th class="" headers="' + this.name + '">P<sub>2</sub></th>';
+	    tableHeader += '<th>T<sub>1</sub></th>';
+	    tableHeader += '<th>T<sub>2</sub></th>'; // -> Ziel/Gesamtzeit
+	    tableHeader += '<th>P<sub>1</sub></th>';
+	    tableHeader += '<th>P<sub>2</sub></th>';
+	    tableHeader += '<th></th>';
+	    tableHeader += '<th></th>';
+	    tableHeader += '</tr>';
+
+	    $('#resultstable table thead').html(tableHeader);
+	    $('#resultstable table caption').html(tableCaption);
+	    $('#resultstable table tbody').html(tableContent);
+
+	    rankedRunnerList = callback(runnerList);
+	    console.log("rankedRunnerList:");
+	    console.log(rankedRunnerList);
 	});
-	tableHeader += '<th>IN</th>';
-	tableHeader += '<th>T<sub>1</sub></th>';
-	tableHeader += '<th>T<sub>2</sub></th>'; // -> Ziel/Gesamtzeit
-	tableHeader += '<th>P<sub>1</sub></th>';
-	tableHeader += '<th>P<sub>2</sub></th>';
-	tableHeader += '<th></th>';
-	tableHeader += '<th></th>';
-	tableHeader += '</tr>';
-
-	$('#resultstable table thead').html(tableHeader);
-	$('#resultstable table caption').html(tableCaption);
-	$('#resultstable table tbody').html(tableContent);
-
-	rankedRunnerList = callback(runnerList);
-	console.log("rankedRunnerList:");
-	console.log(rankedRunnerList);
     });
 }
-
 

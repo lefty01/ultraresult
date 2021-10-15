@@ -10,6 +10,8 @@ const morgan = require('morgan');
 const mongo = require('mongodb');
 const monk = require('monk');
 const assert = require('assert');
+const bcrypt = require('bcryptjs');
+const debug_app = require('debug')('ultraresult:app');
 
 const fs = require('fs');
 const nconf = require('nconf');
@@ -35,17 +37,19 @@ const aid_password = nconf.get('aidauth:password');
 
 const session_secret = nconf.get('aidauth:session_secret');
 const session_key    = nconf.get('aidauth:session_key');
+const salt           = nconf.get('aidauth:salt');
 app.set('aid_secret', process.env.UR_SESSION_SECRET || session_secret);
 app.set('aid_key', process.env.UR_SESSION_KEY || session_key);
+app.set('salty', process.env.UR_SALT || salt);
 
 const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name +
       '?tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile=' +
       database_sslkeyfile + '&username=' + database_username + '&password=' +
       database_password + '&authenticationDatabase=' + database_authdb;
 
-console.log('database uri:   ' + db_conn_uri);
-console.log('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
-console.log('session user: ' + aid_username + ', pass: ' + aid_password);
+debug_app('database uri:   ' + db_conn_uri);
+debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
+debug_app('session user: ' + aid_username + ', pass: ' + aid_password);
 
 console.log(process.env.npm_package_name, process.env.npm_package_version);
 var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name : "";
@@ -61,6 +65,15 @@ const db = monk(db_conn_uri, function(err, db){
 
 
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+	"script-src-attr": ["'self'", "'unsafe-inline'"]
+    },
+  })
+);
+
 app.use(cors());
 app.use(morgan('combined'));
 
@@ -116,35 +129,64 @@ app.use('/tracking', tracking);
 
 
 app.post('/auth', (req, res, next) => {
-    if (req.body.username === aid_username &&
-	req.body.password === aid_password) {
-	//res.locals.username = req.body.username
-	console.log("OK ... authenticated!");
-	next();
+    var db = req.db;
+    var collection = db.get('users');
+    var reUser = /^\w{2,32}$/;
+    var rePass = /^.{4,32}$/;
+    var user = '';
+    var pass = '';
+    var hash = '';
+
+    if (reUser.test(req.body.username)) {
+	user = req.body.username;
     }
-    else {
-	res.sendStatus(401);
+    if (rePass.test(req.body.password)) {
+	pass = req.body.password;
     }
+
+    // lookup user
+    collection.findOne({user: user}).then((doc) => {
+	if (doc === null)
+	    return res.sendStatus(401);
+
+	//debug_app('compare pass: ' + pass + ' with hash: ' + doc.pass);
+	if (bcrypt.compareSync(pass, doc.pass)) {
+	    if ('admin' === doc.user) {
+		req.session.isAdmin = true;
+	    }
+	    debug_app("OK ... authenticated!");
+	    next();
+	}
+	else {
+	    return res.sendStatus(401);
+	}
+    });
+
 }, (req, res) => {
     req.session.loggedIn = true;
-    console.log(req.session);
+
+    if (true === req.session.isAdmin)
+	debug_app('admin session:');
+    debug_app(req.session);
 
     aid_url = req.session.aidurl || '/';
-    console.log("auth aid_url: " + aid_url);
+    debug_app("auth aid_url: " + aid_url);
 
-    res.redirect(aid_url); // next->original url request!?
+    return res.redirect(aid_url);
 });
 
 app.get('/login', (req, res) => {
-    res.render('login');
+    if (req.session.loggedIn) {
+	return res.send('already logged in!');
+    }
+    return res.render('login');
 });
 
 
 app.get('/logout',(req,res) => {
     req.session.destroy((err) => {});
-    res.send('good bye!');
+    return res.redirect('/');
 });
-
 
 
 // catch 404 and forwarding to error handler

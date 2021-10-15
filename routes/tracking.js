@@ -22,10 +22,10 @@ router.get('/', function(req, res) {
     var db = req.db;
     var collection = db.get('trackinglinks');
 
-    collection.find({}, {fields: { _id: 0,
-                                   name : 1,
-                                   url : 1,
-                                 }, sort : {name : 1}
+    collection.find({}, {projections: { _id: 0,
+					name : 1,
+					url : 1,
+                                      }, sort : {name : 1}
                         }, function(err, docs) {
                             console.log(docs);
                             res.json(docs);

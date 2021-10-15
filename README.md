@@ -106,10 +106,11 @@ The related javascript code is in aidstation.js
 # TODOs
 * write test
 * language (don't mix german english, switch language button)
-* socket io update result table on aidstation input
+* socket io update result table on aidstation input (real-time-feeling)
 * dnf button/marker
-* sort
-* estimate finish time based on avg. pace
+* sort ?? what did this mean
+* tracking links: better looks, add date/time whe it was created
+
 
 # mongo db cmdline snippets
 
@@ -157,4 +158,14 @@ eg. aidstations.name : VP1
 
 different approach, without array 
 > db.runnerlist.update( {"startnum" : "1" }, { $set : { "results.START.intime_valid" : "false", "results.START.outtime_valid" : "true", "results.START.outtime":"16:30"} } )
+
+# generate password hash
+## htpasswd
+> $ htpasswd -bnBC 10 "" password | tr -d ':' | sed 's/$2y/$2a/
+
+## node.js
+> var bcrypt = require('bcryptjs');
+> var salt = bcrypt.genSaltSync(10);
+> var hash = bcrypt.hashSync(process.argv[2], salt);
+> console.log(hash);
 

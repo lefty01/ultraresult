@@ -2,14 +2,14 @@
   "name": "ultra-result",
   "author": "Andreas Loeffler <al@exitzero.de>",
   "license": "GPL-3.0-or-later",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "private": true,
-    "scripts": {
-
-	"start": "UR_SESSION_SECRET=$(head -c32 /dev/urandom | base64) UR_SESSION_KEY=$(head -c8 /dev/urandom | base64) node ./bin/ultraresult",
-	"test": "jshint app.js bin/ultraresult"
+  "scripts": {
+    "start": "UR_SESSION_SECRET=$(head -c32 /dev/urandom | base64) UR_SESSION_KEY=$(head -c8 /dev/urandom | base64) node ./bin/ultraresult",
+    "test": "jshint app.js bin/ultraresult"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.10",

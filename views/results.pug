@@ -2,6 +2,14 @@ extends resultslayout
 
 block content
 
+  if aid
+    | Aidstations:
+    |  
+    each id in aid
+      - var link = 'window.location.href="/aid/' + id + '";';
+      button(onclick=link)= id
+      |  
+
   h1= title
   //p Welcome to #{title}
 
