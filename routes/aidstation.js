@@ -70,7 +70,7 @@ router.get('/:id', function(req, res) {
     }
 
     // DNF / reset results
-    if (found_aid && aidstationId === 'DNF') {
+    if (found_aid && req.session.isAdmin && aidstationId === 'DNF') {
         return res.render('aid', { params : {
             title         : 'DNF / Reset Results',
             id            : 'DNF',
