@@ -199,7 +199,7 @@ router.put('/update/:num', function(req, res) {
  * reset all in/out times
  */
 router.put('/resetresult/:num', function(req, res) {
-    if (! req.session.loggedIn) {
+    if (! (req.session.loggedIn && req.session.isAdmin)) {
 	res.sendStatus(418);
 	return;
     }
@@ -223,7 +223,7 @@ router.put('/resetresult/:num', function(req, res) {
  * set runner status to DNF
  */
 router.put('/setdnf/:num', function(req, res) {
-    if (! req.session.loggedIn) {
+    if (! (req.session.loggedIn && req.session.isAdmin)) {
 	res.sendStatus(418);
 	return;
     }
