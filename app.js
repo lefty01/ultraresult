@@ -51,7 +51,8 @@ debug_app('database uri:   ' + db_conn_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
 debug_app('session user: ' + aid_username + ', pass: ' + aid_password);
 
-console.log(process.env.npm_package_name, process.env.npm_package_version);
+debug_app(process.env.npm_package_name, process.env.npm_package_version);
+
 var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name : "";
 var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : "";
 
