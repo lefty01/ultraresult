@@ -5,8 +5,7 @@ block content
   br
   if aid
     each id in aid
-      - var link = 'window.location.href="/aid/' + id + '";';
-      button(onclick=link)= id
+      a(href='/aid/' + id class="btn btn-sm aidlink")= id
       |  
 
 

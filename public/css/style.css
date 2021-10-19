@@ -32,3 +32,19 @@ input.tinput {
 .estimate {
     background-color: #fff6f6;
 }
+
+/* a.button { */
+/*     -webkit-appearance:button; */
+/*     -moz-appearance: button; */
+/*     appearance: button; */
+/*     cursor:pointer; */
+/* } */
+
+.aidlink {
+    background-color: #c4c4c4;
+    color: #000;
+}
+a.aidlink:hover{
+     background: #26a69a    ;
+}
+

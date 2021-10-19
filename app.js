@@ -75,14 +75,14 @@ const tracking   = require('./routes/tracking');
 
 
 app.use(helmet());
-app.use(
-  helmet.contentSecurityPolicy({
-    useDefaults: true,
-    directives: {
-	"script-src-attr": ["'self'", "'unsafe-inline'"]
-    },
-  })
-);
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     useDefaults: true,
+//     directives: {
+// 	"script-src-attr": ["'self'", "'unsafe-inline'"]
+//     },
+//   })
+// );
 
 app.use(cors());
 app.use(morgan('combined'));
