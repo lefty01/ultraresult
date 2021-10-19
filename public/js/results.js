@@ -282,21 +282,28 @@ function calcTotalTime(totalDist, avgpace){
 function sortResultObject(o) {
     var a = [], i;
     for (i in o) {
-	if (o.hasOwnProperty(i)) {
+        if (o.hasOwnProperty(i)) {
             a.push([i, o[i]]);
-	}
+        }
     }
-    a.sort(function(a, b) {
-	var idA = a[0].toUpperCase();
-	var idB = b[0].toUpperCase();
 
-	if ((idA < idB) || ('FINISH' === idB)) {
-	    return -1;
-	}
-	if ((idA > idB) || ('FINISH' === idA)) {
-	    return 1;
-	}
-	return 0; // should not happen!
+    a.sort(function(a, b) {
+        var idA = a[0].toUpperCase();
+        var idB = b[0].toUpperCase();
+
+        if (('START' === idA) && ('FINISH' === idB))
+            return -1;
+
+        if (('START' === idB) && ('FINISH' === idA))
+            return 1;
+
+        if (('START' === idA) || ('FINISH' === idB))
+            return -1;
+
+        if (('START' === idB) || ('FINISH' === idA))
+            return 1;
+
+        return idA.localeCompare(idB, 'en', {numeric: true});
     });
     return a;
 }
@@ -428,20 +435,29 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 
 		// sort result list ... if VPn data for some reason was entered before VPn-1 (eg. entering data after the run)
 		resultsList = sortResultObject(results);
+		console.log('num results: ' + resultsList.length);
 
 		$.each(resultsList, function(index, res) {
 		    var aidId = isValidAid(res[0]) ? res[0] : "INVALID"; // validate aidId
 		    var times = res[1];
-		
+		    var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
+
 		    console.log("AIDID: " + aidId + ":"); //console.log(times); // note: only log single obj to view in chrome dev tool
+		    console.log("index: " + index);
 		    pause = "n/a";
 		    if ("INVALID" === aidId) {
-			alert('Error invalid data for runner: ' + curStarter);
+			console.log('Error invalid data for runner: ' + curStarter);
+			return true;
+		    }
+		    // sanity check if number of results index of this aidstation (name)
+		    if ((prevAidIdx + 1) != index) {
+			console.log('Error invalid result data for runner: ' + curStarter + ' (prevAidIdx: ' + prevAidIdx + ')');
 			return true;
 		    }
 
-
 		    if (results[aidId]) {
+			//if ("FINISH" === aidId)
+			//    return;
 			aidEstimates.shift(); // remove this aidstation
 
 			// make sure valids are really only true or false
@@ -482,12 +498,14 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 			}
 
 			// get last time (between last aid out and this aid in)
-			var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
+			//var prevAidIdx = aidStations.findIndex(x => x.name === aidId) - 1;
 			console.log('prevAidIdx: ' + prevAidIdx);
 			if (prevAidIdx >= 0) { // index=0 means START
 			    var prevAid = aidStations[prevAidIdx];
 			    console.log('prevAid.name=' + prevAid.name);
 			    console.log('prev aid results: ' + results[prevAid.name]);
+			    // FIXME: if results[prevAid.name] == undefined then this result cannot be valid either
+
 			    if ((typeof prevAid !== 'undefined') &&
 				(typeof results[prevAid.name] !== 'undefined') &&
 				(true === results[prevAid.name].outtime_valid) &&

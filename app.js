@@ -12,10 +12,9 @@ const monk = require('monk');
 const assert = require('assert');
 const bcrypt = require('bcryptjs');
 const debug_app = require('debug')('ultraresult:app');
-
 const fs = require('fs');
 const nconf = require('nconf');
-
+//const compression = require('compression');
 //var passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const session = require('express-session');
@@ -49,7 +48,7 @@ const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + d
 
 debug_app('database uri:   ' + db_conn_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
-debug_app('session user: ' + aid_username + ', pass: ' + aid_password);
+//debug_app('session user: '   + aid_username + ', pass: ' + aid_password);
 
 debug_app(process.env.npm_package_name, process.env.npm_package_version);
 
@@ -63,6 +62,16 @@ const db = monk(db_conn_uri, function(err, db){
 	console.log("connected to database");
     }
 });
+
+
+// route files being used
+const routes     = require('./routes/index');
+const runners    = require('./routes/runners');
+const starters   = require('./routes/starters');
+const aidstation = require('./routes/aidstation');
+const results    = require('./routes/results');
+const tracking   = require('./routes/tracking');
+
 
 
 app.use(helmet());
@@ -102,13 +111,7 @@ app.use(session({
 }));
 
 
-const routes     = require('./routes/index');
-const runners    = require('./routes/runners');
-const starters   = require('./routes/starters');
-const aidstation = require('./routes/aidstation');
-const results    = require('./routes/results');
-const tracking   = require('./routes/tracking');
-
+// app.use(compression());  // compress all routes
 
 app.use(express.static(path.join(__dirname, 'public')));
 

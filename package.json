@@ -2,7 +2,7 @@
   "name": "ultra-result",
   "author": "Andreas Loeffler <al@exitzero.de>",
   "license": "GPL-3.0-or-later",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "private": true,
   "scripts": {
     "start": "UR_SESSION_SECRET=$(head -c32 /dev/urandom | base64) UR_SESSION_KEY=$(head -c8 /dev/urandom | base64) node ./bin/ultraresult",
