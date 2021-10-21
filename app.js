@@ -13,6 +13,7 @@ const assert = require('assert');
 const bcrypt = require('bcryptjs');
 const debug_app = require('debug')('ultraresult:app');
 const fs = require('fs');
+const version = require('project-version');
 const nconf = require('nconf');
 //const compression = require('compression');
 //var passport = require('passport');
@@ -48,12 +49,10 @@ const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + d
 
 debug_app('database uri:   ' + db_conn_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
-//debug_app('session user: '   + aid_username + ', pass: ' + aid_password);
+debug_app('name + version: ' + process.env.npm_package_name, process.env.npm_package_version);
 
-debug_app(process.env.npm_package_name, process.env.npm_package_version);
-
-var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name : "";
-var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : "";
+var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name    : "ultraresult";
+var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : version;
 
 const db = monk(db_conn_uri, function(err, db){
     if (err) {

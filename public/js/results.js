@@ -66,8 +66,10 @@ function showLiveTrackerLinks() {
 	    console.log("tracking link name: " + this.name);
 	    console.log("tracking link url:  " + this.url);
 	    let skip = false;
+	    // Canonical Decomposition, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
+	    let name = this.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 
-	    if (!isValidName(this.name)) {
+	    if (!isValidName(name)) {
 		console.log("invalid tracking link name!");
 		skip = true;
 	    }
@@ -77,7 +79,7 @@ function showLiveTrackerLinks() {
 	    }
 	    // populate ul with live tracking links if available
 	    if (!skip) {
-		let li_item = '<li>' + this.name + ': <a href="' + this.url + '">' + this.url + '</a></li>';
+		let li_item = '<li>' + name + ': <a href="' + this.url + '">' + this.url + '</a></li>';
 		console.log("<li>: " + li_item);
 		$("ul#trackerlinks").append(li_item);
 	    }
