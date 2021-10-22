@@ -172,12 +172,14 @@ read the source
 
 ## TODOs
 * write test
-* language (don't mix german english, switch language button)
 * socket io update result table on aidstation input (real-time-feeling)
 * Race prediction can take course elevation into account if that data is provided.
+* tracking links: better looks, add date/time whe it was created (show name only as clickable link not url), add explicit allow list for known tracking link formats
+* secure api to add in/out (and/or checkpoint) time (external device like rfid reader posting times when runner pass a checkpoint along the course)
 * dnf button - note: button is there but nothing happens ...
+* language (don't mix german english, switch language button)
 * sort ?? what did this mean
-* tracking links: better looks, add date/time whe it was created
+
 * merge certificate branch, people can print finisher certificate based on some pdf template
 
 

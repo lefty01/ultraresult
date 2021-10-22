@@ -172,6 +172,7 @@ function saveTimeClick(data) {
     });
 }
 
+// FIXME: consider changing to current date/time if edit is clicked!?
 function editTimeClick(data) {
     var editId   = data.editId;   // eg. tout_7, tin_1
     var editRoId = data.editRoId; //     toutro_7
@@ -291,6 +292,9 @@ function fillStarterTable(docTitle, theDate) {
 	    var outro   = "0";
 	    var inreadonly  = "";
 	    var outreadonly = "";
+	    var inStyle  = ""; //' style="background-color: #99FFCC" ';
+	    var outStyle = ""; //' style="background-color: #99FFCC" ';
+	    //var roStyle = ' style="background-color: #99FFCC" ';
 	    var roStyle = "";
 
 	    // check the results field if we have valid times for this runner/aid
@@ -306,15 +310,19 @@ function fillStarterTable(docTitle, theDate) {
 		    indate = results[aidId].indate;
 		    inro = "1";
 		    inreadonly = "readonly";
-		    roStyle = ' style="background-color: #FF2F2F59" ';
+		    inStyle = ' style="background-color: #FF2F2F59" ';
 		}
+		else
+		    inStyle = ' style="background-color: #99FFCC" ';
 		if (true === results[aidId].outtime_valid) {
 		    outtime = results[aidId].outtime; // FIXME: outtimeObj = new Date(results[aidId].outtime);
 		    outdate = results[aidId].outdate;
 		    outro = "1";
 		    outreadonly = "readonly";
-		    roStyle = ' style="background-color: #FF2F2F59" ';
+		    outStyle = ' style="background-color: #FF2F2F59" ';
 		}
+		else
+		    outStyle = ' style="background-color: #99FFCC" ';
 		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' in valid:  ' + results[aidId].intime_valid);
 		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' in time:   ' + results[aidId].intime);
 		console.log('fillStarterTable (runner=' + this.startnum + '): ' + aidId + ' out valid: ' + results[aidId].outtime_valid);
@@ -329,10 +337,10 @@ function fillStarterTable(docTitle, theDate) {
 	    // FIXME: below maxlength/size is hardcoded to 10 to match date format of yyyy-mm-dd
 	    if (! isStart && ! isDnf) {
 		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="date" value="'
-		    + indate + '" ' + inreadonly + roStyle + '/></td>';
+		    + indate + '" ' + inreadonly + inStyle + '/></td>';
 
 		tableContent += '<td align="center"><input id="tin_' + this.startnum
-                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + inStyle + '>'
                     + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
 		// FIXME: data- does not require set or edit info since we have the class already
 		tableContent += '<td><button data-setid="tin_set_' + this.startnum + '"'
@@ -342,10 +350,10 @@ function fillStarterTable(docTitle, theDate) {
 	    }
             if (! isFinish && ! isDnf) {
 		tableContent += '<td align="center"><input id="tdout_' + this.startnum + '" class="tdinput" type="date" value="'
-		    + outdate + '" ' + outreadonly + roStyle + '/></td>';
+		    + outdate + '" ' + outreadonly + outStyle + '/></td>';
 
                 tableContent += '<td align="center"><input id="tout_' + this.startnum
-                    + '" class="tinput" type="time" value="' + outtime + '"' + outreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + outtime + '"' + outreadonly + outStyle + '>'
                     + '<input type="hidden" id="toutro_' + this.startnum + '" value="' + outro + '"></td>';
 
                 tableContent += '<td><button data-setid="tout_set_' + this.startnum + '"'
@@ -355,10 +363,10 @@ function fillStarterTable(docTitle, theDate) {
             }
 	    if (isDnf) {
 		tableContent += '<td align="center"><input id="tdin_' + this.startnum + '" class="tdinput" type="date" value="'
-		    + indate + '" ' + inreadonly + roStyle + '/></td>';
+		    + indate + '" ' + inreadonly + outStyle + '/></td>';
 
 		tableContent += '<td align="center"><input id="tin_' + this.startnum
-                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + roStyle + '>'
+                    + '" class="tinput" type="time" value="' + intime + '" ' + inreadonly + outStyle + '>'
                     + '<input type="hidden" id="tinro_' + this.startnum + '" value="' + inro + '"></td>';
 		tableContent += '<td><button data-setid="tin_dnf_' + this.startnum + '"'
                     + ' class="dnfOrReset">DNF</button></td>';
