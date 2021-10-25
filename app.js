@@ -54,8 +54,8 @@ const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + d
 debug_app('database uri:   ' + db_conn_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
 debug_app('name + version: ' + process.env.npm_package_name, process.env.npm_package_version);
-debug_app('config: show tracking links:   ' + conf_trackinglinks)
-debug_app('config: show aidstation links: ' + conf_aidlinks)
+debug_app('config: show tracking links:   ' + conf_trackinglinks);
+debug_app('config: show aidstation links: ' + conf_aidlinks);
 
 var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name    : "ultraresult";
 var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : version;
