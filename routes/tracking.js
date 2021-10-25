@@ -1,5 +1,6 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router  = express.Router();
+const debug   = require('debug')('ultraresult:tracking');
 
 function isValidUrl(url) {
     var valid = /^(http|https):\/\/[^ "]+$/.test(url);
@@ -19,6 +20,14 @@ function isValidName(name) {
 
 
 router.get('/', function(req, res) {
+    // if (! req.session.loggedIn) {
+    // 	res.sendStatus(418);
+    // 	return;
+    // }
+
+    if (! req.conf_trackinglinks)
+	return res.json({});
+
     var db = req.db;
     var collection = db.get('trackinglinks');
 
@@ -27,8 +36,8 @@ router.get('/', function(req, res) {
 					url : 1,
                                       }, sort : {name : 1}
                         }, function(err, docs) {
-                            console.log(docs);
-                            res.json(docs);
+                            debug(docs);
+                            return res.json(docs);
     });
 });
 
@@ -42,9 +51,9 @@ router.get('/add', function(req, res) {
 });
 
 router.post('/add', function(req, res) {
-    console.log("add tracking link, url:  " + req.body.url);
-    console.log("add tracking link, name: " + req.body.name);
-
+    debug("add tracking link, url:  " + req.body.url);
+    debug("add tracking link, name: " + req.body.name);
+    debug('config: show tracking links:   ' + conf_trackinglinks)
     
     if (! req.session.loggedIn) {
 	req.session.aidurl = '/tracking/add';

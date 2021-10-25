@@ -174,7 +174,7 @@ read the source
 * write test
 * socket io update result table on aidstation input (real-time-feeling)
 * Race prediction can take course elevation into account if that data is provided.
-* tracking links: better looks, add date/time whe it was created (show name only as clickable link not url), add explicit allow list for known tracking link formats
+* tracking links: better looks, add date/time whe it was created (show name only as clickable link not url), add explicit allow list for known tracking link formats, (open in new window)
 * secure api to add in/out (and/or checkpoint) time (external device like rfid reader posting times when runner pass a checkpoint along the course)
 * dnf button - note: button is there but nothing happens ...
 * language (don't mix german english, switch language button)

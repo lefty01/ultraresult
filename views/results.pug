@@ -19,9 +19,10 @@ block content
 
   br
 
-  h3#trackerlinks
-  ul#trackerlinks
-  a(href='/tracking/add') Add tracking link
+  if trackinglinks
+    h3#trackerlinks
+    ul#trackerlinks
+    a(href='/tracking/add') Add tracking link
 
   hr
   address #{progver}

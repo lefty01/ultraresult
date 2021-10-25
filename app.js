@@ -38,6 +38,10 @@ const aid_password = nconf.get('aidauth:password');
 const session_secret = nconf.get('aidauth:session_secret');
 const session_key    = nconf.get('aidauth:session_key');
 const salt           = nconf.get('aidauth:salt');
+
+const conf_trackinglinks = nconf.get('trackinglinks');
+const conf_aidlinks      = nconf.get('aidlinks');
+
 app.set('aid_secret', process.env.UR_SESSION_SECRET || session_secret);
 app.set('aid_key', process.env.UR_SESSION_KEY || session_key);
 app.set('salty', process.env.UR_SALT || salt);
@@ -45,11 +49,13 @@ app.set('salty', process.env.UR_SALT || salt);
 const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name +
       '?tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile=' +
       database_sslkeyfile + '&username=' + database_username + '&password=' +
-      database_password + '&authenticationDatabase=' + database_authdb;
+      encodeURIComponent(database_password) + '&authenticationDatabase=' + database_authdb;
 
 debug_app('database uri:   ' + db_conn_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
 debug_app('name + version: ' + process.env.npm_package_name, process.env.npm_package_version);
+debug_app('config: show tracking links:   ' + conf_trackinglinks)
+debug_app('config: show aidstation links: ' + conf_aidlinks)
 
 var progname = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_name    : "ultraresult";
 var progver  = (typeof process.env.npm_package_name !== 'undefined') ? process.env.npm_package_version : version;
@@ -114,10 +120,12 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Make our db and progver accessible to our router
+// make db, config, and progver accessible to router
 app.use(function(req, res, next) {
-    req.db = db;
-    req.progver = progname + " " + progver;
+    req.db                 = db;
+    req.conf_trackinglinks = conf_trackinglinks;
+    req.conf_aidlinks      = conf_aidlinks;
+    req.progver            = progname + " " + progver;
     next();
 });
 

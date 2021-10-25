@@ -9,21 +9,16 @@ router.get('/', function(req, res) {
     var progver = req.progver;
     var db = req.db;
     var collection = db.get('aidstations');
-    var vps = [];//['START'];
+    var vps = [];
 
     debug("is admin: " + req.session.isAdmin);
     debug("finding aidstations ...");
 
-    // compare with the code in routes/aidstation.js, in the get('/:id') route we also need
-    // to get the aid names in order to pass it to the aid.pug template
-
-    // collection.find({}, 'name').then((docs) => {
-    //  console.log("docs: " + docs);
-    //  if (docs !== null) {
-    //      aid = docs;
-    //  }
-    // });
-    // console.log(aid); // -> undefined! async call to mongo
+    if (! req.conf_aidlinks) {
+	return res.render('results', {
+	    title: 'SUT 100 - Live Results', progver: progver, aid: vps, trackinglinks: req.conf_trackinglinks
+	});
+    }
 
     collection.find({name: {$regex: '^vp[0-9]{1,2}$',  $options: 'i'}}, {sort: {name: 1}}).each((aid, {close, pause, resume}) => {
         // aidstations are streaming here
@@ -41,12 +36,13 @@ router.get('/', function(req, res) {
         debug('aid array: ' + vps);
 
         return res.render('results', {
-            title: 'SUT 100 - Live Results', progver: progver, aid: vps
+            title: 'SUT 100 - Live Results', progver: progver, aid: vps, trackinglinks: req.conf_trackinglinks
         });
     })
 
     //collection.find( {}, { 'sort' : ['totalDistance', 'asc']}, function(err, docs) {
-    // ohh ok ... I used somw other way of sorting here earlier ;)
+    // ohh ok ... I used some other way of sorting here earlier ;) so maybe replace the compare function again
+    // ... or do both and make a sanity check
 });
 
 
