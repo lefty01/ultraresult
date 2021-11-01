@@ -364,7 +364,8 @@ T<sub>1</sub>(hh:mm): Zeit zwischen VP<sub>n-1<sub>Tout</sub></sub> und VP<sub>n
 T<sub>2</sub>(hh:mm): Zeit zwischen Start und VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
 P<sub>1</sub>(mm:ss/km): Ø Pace zwischen VP<sub>n-1<sub>Tout</sub></sub> und  VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
 P<sub>2</sub>(mm:ss/km): Ø Pace zwischen Start und VP<sub>n<sub>Tin</sub></sub>, &nbsp; \
-kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
+kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
+<br>Note: T<sub>2</sub> und P<sub>2</sub> basieren entweder auf der IN-Zeit oder wenn vorhanden auf der OUT-Zeit (pause)!';
 
     tableHeader += '<tr>';
     tableHeader += '<th class="sortable_numeric">Rang</th>';
@@ -522,11 +523,18 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 				console.log('last out date: ' + prevOutDate);//results[prevAid.name].outdate);
 				console.log('this  in time: ' + intime);
 				console.log('this  in date: ' + indate);
+				console.log('this out time: ' + outtime);
+				console.log('this out date: ' + outdate);
 				console.log('start    time: ' + startTime);
 				console.log('start    date: ' + startDate);
 
-				lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
-				totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
+                                lasttime  = substractTimeDate2Str(prevOutTime, prevOutDate, intime, indate);
+				// total time includes pause time at aidstation once the out-time is valid (saved)
+                                if (true === outtimeValid)
+                                    totaltime = substractTimeDate2Str(startTime, startDate, outtime, outdate);
+                                else
+                                    totaltime = substractTimeDate2Str(startTime, startDate, intime, indate);
+
 				setRunnerList(curStarter, aidId, totaltime);
 				//console.log(runnerList);
 			    }
@@ -542,7 +550,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace';
 			//console.log("lasttime=" + lasttime + ", totaltime=" + totaltime);
 			//console.log("lastDist=" + lastDist + ", totalDist=" + totalDist);
 			lastpace = calcPace(lasttime, lastDist);
-			// P2: avg between start and current aidstation in
+			// P2: avg between start and current aidstation in or out
 			avgpace = calcPace(totaltime, totalDist);
 		    }
 
