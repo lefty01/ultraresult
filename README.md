@@ -147,7 +147,9 @@ $ export GODEBUG="x509ignoreCN=0"
 then import:
 
 ```
-$ mongoimport -v --ssl --sslCAFile CA.pem --sslPEMKeyFile client.pem  -u user -p passw0rd --authenticationDatabase database --host localhost --port port -d database -c collection --drop --file coll_file.json
+$ mongoimport -v --ssl --sslCAFile CA.pem --sslPEMKeyFile client.pem  -u user -p 'passw0rd' --authenticationDatabase DB --host localhost --port port -d database -c COLLECTION --drop --file coll_file.json
+$ mongoimport -v --ssl --sslCAFile CA.pem --sslPEMKeyFile client.pem  -u user -p 'passw0rd' --authenticationDatabase DB -c COLLECTION mongodb://host.de:12345/DB --drop --file collection.json
+
 2021-10-08T16:08:03.541+0200	using write concern: &{majority false 0}
 2021-10-08T16:08:03.542+0200	using 8 decoding workers
 2021-10-08T16:08:03.542+0200	using 1 insert workers
@@ -160,7 +162,13 @@ $ mongoimport -v --ssl --sslCAFile CA.pem --sslPEMKeyFile client.pem  -u user -p
 2021-10-08T16:08:03.953+0200	dropping: database.collection
 2021-10-08T16:08:04.025+0200	9 document(s) imported successfully. 1 document(s) failed to import.
 ```
-
+### mongoexport
+```
+$ mongoexport  -v --ssl --sslCAFile CA.pem   --sslPEMKeyFile client.pem  -u user -p passw0rd --authenticationDatabase DB -c COLLECTION mongodb://host.de:12345/DB -o aid.json
+2021-10-28T15:15:55.474+0200	will listen for SIGTERM, SIGINT, and SIGKILL
+2021-10-28T15:15:55.975+0200	connected to: mongodb://host.de:12345/test1
+2021-10-28T15:15:56.130+0200	exported 10 records
+```
 
 
 ## Implementation details
