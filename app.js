@@ -10,7 +10,6 @@ const morgan = require('morgan');
 const mongo = require('mongodb');
 const monk = require('monk');
 const assert = require('assert');
-const bcrypt = require('bcryptjs');
 const debug_app = require('debug')('ultraresult:app');
 const fs = require('fs');
 const version = require('project-version');
@@ -70,7 +69,8 @@ const db = monk(db_conn_uri, function(err, db){
 
 
 // route files being used
-const routes     = require('./routes/index');
+const appver     = require('./routes/index');
+const auth       = require('./routes/auth');
 const runners    = require('./routes/runners');
 const starters   = require('./routes/starters');
 const aidstation = require('./routes/aidstation');
@@ -129,8 +129,10 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.use('/',         auth);
+
 app.use('/',         results);
-app.use('/version',  routes);
+app.use('/version',  appver);
 app.use('/runners',  runners); // update runner results (aid in/out times)
 app.use('/starters', starters);
 app.use('/aid',      aidstation);
@@ -138,66 +140,6 @@ app.use('/results',  results);
 app.use('/tracking', tracking);
 
 
-
-app.post('/auth', (req, res, next) => {
-    var db = req.db;
-    var collection = db.get('users');
-    var reUser = /^\w{2,32}$/;
-    var rePass = /^.{4,32}$/;
-    var user = '';
-    var pass = '';
-    var hash = '';
-
-    if (reUser.test(req.body.username)) {
-	user = req.body.username;
-    }
-    if (rePass.test(req.body.password)) {
-	pass = req.body.password;
-    }
-
-    // lookup user
-    collection.findOne({user: user}).then((doc) => {
-	if (doc === null)
-	    return res.sendStatus(401);
-
-	//debug_app('compare pass: ' + pass + ' with hash: ' + doc.pass);
-	if (bcrypt.compareSync(pass, doc.pass)) {
-	    if ('admin' === doc.user) {
-		req.session.isAdmin = true;
-	    }
-	    debug_app("OK ... authenticated!");
-	    next();
-	}
-	else {
-	    return res.sendStatus(401);
-	}
-    });
-
-}, (req, res) => {
-    req.session.loggedIn = true;
-
-    if (true === req.session.isAdmin)
-	debug_app('admin session:');
-    debug_app(req.session);
-
-    aid_url = req.session.aidurl || '/';
-    debug_app("auth aid_url: " + aid_url);
-
-    return res.redirect(aid_url);
-});
-
-app.get('/login', (req, res) => {
-    if (req.session.loggedIn) {
-	return res.send('already logged in!');
-    }
-    return res.render('login');
-});
-
-
-app.get('/logout',(req,res) => {
-    req.session.destroy((err) => {});
-    return res.redirect('/');
-});
 
 
 // catch 404 and forwarding to error handler
