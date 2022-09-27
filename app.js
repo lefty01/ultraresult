@@ -22,6 +22,8 @@ const nconf = require('nconf');
 //var passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const express_session = require('express-session');
+//const MongoStore = require('connect-mongo');
+
 const app = express();
 
 

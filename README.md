@@ -142,12 +142,39 @@ runnerlist contains runner info and the aidstation timings.
 aidstations contains info about the aidstation (name, location, leg distance and total distance, type, name)
 
 
+#### Adding a user that can login to ultraresult (to enter timing)
+Maybe in the future the users could (or should) be distinguished by some role. Eg. a runner can update only his own aidstation times but for all aidstations. On the other side a aidstation volunteer might update times for all runners but only at one particular aidstation.
+
+So first generate some password for user named 'aid':
+```
+htpasswd -bnBC 10 "" MySecurePassword | tr -d ':' | sed 's/$2y/$2a/'
+
+$2a$10$7m.TlDXAtTt/ypxxxxxxgO0gI/CCxxxxxxxxqBu/.ESDIlxc3eO.O
+```
+The insert into the users collection of your database:
+```
+> db.users.insert({"user": "aid", "pass": "$2a$10$7m.TlDXAtTt/ypxxxxxxgO0gI/CCxxxxxxxxqBu/.EAAAldf3eO.O"})
+WriteResult({ "nInserted" : 1 })
+```
+
+
 
 ```
 $ npm i --package-lock-only
 ```
 
 
+#### Import aidstation json file
+```
+$ mongoimport   -v --ssl --sslCAFile ca.file  --sslPEMKeyFile client.file -u user -p 'password' --authenticationDatabase db -c aidstations  mongodb://db:12345/db aidstations.json
+2022-09-27T15:45:45.953+0200	using write concern: &{majority false 0}
+2022-09-27T15:45:46.521+0200	filesize: 1646 bytes
+2022-09-27T15:45:46.521+0200	using fields: 
+2022-09-27T15:45:46.521+0200	connected to: mongodb://db.de:12345/db
+2022-09-27T15:45:46.521+0200	ns: db.aidstations
+2022-09-27T15:45:46.541+0200	connected to node type: standalone
+2022-09-27T15:45:46.579+0200	10 document(s) imported successfully. 0 document(s) failed to import.
+```
 
 
 
