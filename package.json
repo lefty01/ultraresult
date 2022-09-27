@@ -2,10 +2,10 @@
   "name": "ultra-result",
   "author": "Andreas Loeffler <al@exitzero.de>",
   "license": "GPL-3.0-or-later",
-  "version": "0.0.18",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
-    "start": "UR_SESSION_SECRET=$(head -c32 /dev/urandom | base64) UR_SESSION_KEY=$(head -c8 /dev/urandom | base64) node ./bin/ultraresult",
+    "start": "UR_SESSION_SECRET=$(head -c32 /dev/urandom | base64) UR_SESSION_KEY=$(head -c8 /dev/urandom | base64)  UR_COOKIESESSION_KEY1=$(head -c30 /dev/urandom | base64) UR_COOKIESESSION_KEY2=$(head -c30 /dev/urandom | base64) UR_COOKIEPARSER_KEY=$(head -c30 /dev/urandom | base64) UR_CSRF_TOKEN_KEY=$(head -c30 /dev/urandom | base64)  node ./bin/ultraresult",
     "test": "jshint app.js bin/ultraresult"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.10",
     "cookie-parser": "~1.3.5",
+    "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "~1.15.6",
@@ -22,8 +23,8 @@
     "https": "^1.0.0",
     "jshint": "^2.13.5",
     "mocha": "^10.0.0",
-    "mongodb": "^3.3.4",
-    "mongoose": "^5.11.9",
+    "mongodb": "^3.7.3",
+    "mongoose": "^5.13.15",
     "monk": "^7.1.1",
     "morgan": "^1.10.0",
     "mquery": "^3.2.3",
@@ -33,6 +34,7 @@
     "project-version": "^2.0.0",
     "pug": "^3.0.1",
     "request": "^2.88.0",
+    "saslprep": "^1.0.3",
     "serve-favicon": "~2.4.5"
   },
   "devDependencies": {

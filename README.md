@@ -106,7 +106,7 @@ Such a file can be generated or created manually and then imported into the mong
 { "_id" : ObjectId("6165a12e3a18332785ae8339"), "lat" : 48.61571, "lng" : 8.99734, "legDistance" : 18, "totalDistance" : 161.4, "height" : 523.29, "pointType" : "Finish", "name" : "FINISH", "directions" : "Sportplatz Altdorf" }
 ```
 
-Important here is pointType (one of Start, Finish, or Food) and name needs to match either VP[digit] or START, FINISH.
+Important here is pointType (one of Start, Finish, or Food) and name needs to match either VP[digit] or START, FINISH. The aidstations are the ordered from start to finish with increasing vp number.
 
 
 
@@ -116,7 +116,9 @@ You can use these commands to generate a password hash that can be stored into t
 
 #### htpasswd
 
-> $ htpasswd -bnBC 10 "" password | tr -d ':' | sed 's/$2y/$2a/
+$ htpasswd -bnBC 10 "" password | tr -d ':' | sed 's/$2y/$2a/'
+
+
 
 #### node.js
 
@@ -124,6 +126,20 @@ You can use these commands to generate a password hash that can be stored into t
 > var salt = bcrypt.genSaltSync(10);
 > var hash = bcrypt.hashSync(process.argv[2], salt);
 > console.log(hash);
+
+
+### collections in database
+> show collections
+aidstations
+runnerlist
+users
+
+
+users contains username and password hash used to auth for aid station edit.
+
+runnerlist contains runner info and the aidstation timings.
+
+aidstations contains info about the aidstation (name, location, leg distance and total distance, type, name)
 
 
 
@@ -249,4 +265,15 @@ eg. aidstations.name : VP1
 
 different approach, without array 
 > db.runnerlist.update( {"startnum" : "1" }, { $set : { "results.START.intime_valid" : "false", "results.START.outtime_valid" : "true", "results.START.outtime":"16:30"} } )
+
+
+
+
+## Testing vs. Production, deploy on server
+
+The files: bin/ultraresult.sample and ultraresult.conf.sample needs to be change according to your setup.
+
+The config file can also be specified via environment variable: `CONFIG_FILE`
+
+For debug run for example: `DEBUG=* nodemon start`
 
