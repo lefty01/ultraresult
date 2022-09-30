@@ -4,7 +4,6 @@ const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
-const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -22,7 +21,8 @@ const nconf = require('nconf');
 //var passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const express_session = require('express-session');
-//const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo');
+//const FileStore = require('session-file-store')(express_session);
 
 const app = express();
 
@@ -58,22 +58,26 @@ app.set('cookieSession_key2', process.env.UR_COOKIESESSION_KEY1 || cookiesession
 app.set('cookieParser_key'  , process.env.UR_COOKIEPARSER_KEY   || cookieparser_key);
 app.set('csrf_token_key'    , process.env.UR_CSRF_TOKEN_KEY     || csrf_token_key);
 
-const db_conn_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name +
+const monk_db_uri = 'mongodb://' + database_host + ':' + database_port + '/' + database_name +
       '?tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile=' +
       database_sslkeyfile + '&username=' + database_username + '&password=' +
       encodeURIComponent(database_password) + '&authenticationDatabase=' + database_authdb;
 
+const mongo_uri = 'mongodb://' + database_username + ":" + database_password + "@" + database_host + ':' + database_port + '/' +
+      '?authSource=' + database_authdb + '&tls=true&tlsCAFile=' + database_sslcafile + '&tlsCertificateKeyFile=' + database_sslkeyfile;
+
 const progname = process.env.npm_package_name    || "ultraresult";
 const progver  = process.env.npm_package_version || version;
 
-debug_app('database uri:   ' + db_conn_uri);
+debug_app('monk  database uri:   ' + monk_db_uri);
+debug_app('mongo database uri:   ' + mongo_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
 debug_app('name + version: ' + progname, progver);
 debug_app('config: show tracking links:   ' + conf_trackinglinks);
 debug_app('config: show aidstation links: ' + conf_aidlinks);
 
 
-const db = monk(db_conn_uri, function(err, db) {
+const db = monk(monk_db_uri, function(err, db) {
     if (err) {
 	console.error("error: not connected to database:", err.message);
     } else {
@@ -92,7 +96,6 @@ const results    = require('./routes/results');
 const tracking   = require('./routes/tracking');
 
 const allowedOrigins = ['https://localhost:2022', 'https://sut100.de'];
-
 
 app.use(helmet());
 // app.use(
@@ -117,15 +120,15 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//app.use(cookieParser());
-app.use(cookieParser(app.get('cookieParser_key')));
+app.use(cookieParser());
+// ??? do we need this with sesstion store
+//app.use(cookieParser(app.get('cookieParser_key')));
 // app.use(cookieSession({
 //   keys: [
 //     app.get('cookieSession_key1'),
-//      app.get('cookieSession_key2')
+//     app.get('cookieSession_key2')
 //   ]
 // }));
-
 
 
 app.use(express_session({
@@ -134,12 +137,20 @@ app.use(express_session({
     resave: false,
     saveUninitialized: false,
     name: 'ultra_result_session',
+
     cookie: {
       maxAge: 172800000, // 48h
       secure: true,
       httpOnly: true,
       sameSite: 'strict'
-    }
+    },
+
+    store: MongoStore.create({
+        mongoUrl: mongo_uri,
+        ttl: 172800000, // 48
+        dbName: database_name,
+        collection: "sessions"
+    })
 }));
 
 // somehow not working: ReferenceError: CSRFValidator is not defined ... still investigating why
@@ -172,7 +183,6 @@ app.use(express_session({
 // //  if (allowedOrigins.includes(origin)) {
 //   next();
 // });
-
 
 // app.use(compression());  // compress all routes
 

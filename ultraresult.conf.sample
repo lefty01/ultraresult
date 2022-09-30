@@ -1,0 +1,15 @@
+{
+    "database": {
+        "name" : "test",
+	"host" : "mongodb.de",
+	"port" : 1234,
+	"username" : "test",
+	"password" : "********",
+	"sslcafile":  "CA.pem",
+	"sslkeyfile": "client.pem",
+	"authdb": "test_auth"
+    },
+
+    "trackinglinks": false,
+    "aidlinks": false
+}

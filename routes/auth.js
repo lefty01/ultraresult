@@ -23,6 +23,11 @@ router.post('/auth', (req, res, next) => {
 	pass = req.body.password;
     }
 
+    if (user === "" || pass === "" ) {
+	debug("error: no user and/or pass!");
+	return res.sendStatus(401);
+    }
+
     // lookup user
     collection.findOne({user: user}).then((doc) => {
 	if (doc === null)
@@ -30,7 +35,7 @@ router.post('/auth', (req, res, next) => {
 
 	//debug('compare pass: ' + pass + ' with hash: ' + doc.pass);
 	if (bcrypt.compareSync(pass, doc.pass)) {
-	    if ('admin' === doc.user) {
+	    if ('admin' === doc.role) {
 		req.session.isAdmin = true;
 	    }
 	    debug("OK ... authenticated!");

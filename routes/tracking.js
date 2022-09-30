@@ -53,13 +53,15 @@ router.get('/add', function(req, res) {
 router.post('/add', function(req, res) {
     debug("add tracking link, url:  " + req.body.url);
     debug("add tracking link, name: " + req.body.name);
-    debug('config: show tracking links:   ' + conf_trackinglinks)
+    debug('config: show tracking links:   ' + req.conf_trackinglinks)
     
     if (! req.session.loggedIn) {
 	req.session.aidurl = '/tracking/add';
 	res.redirect('/login');
 	return;
     }
+    var db = req.db;
+    var trackinglinks = db.get('trackinglinks');
 
     if (! isValidName(req.body.name)) {
 	res.render('post-tracking-link', { msg: 'invalid name' });
@@ -71,25 +73,29 @@ router.post('/add', function(req, res) {
 	return;
     }
 
-    var db = req.db;
-    var collection = db.get('trackinglinks');
+    // find name and update if it exists or insert otherwise
+    trackinglinks.findOne({name: req.body.name}).then((doc) => {
+	if (doc === null) {
+	    // not found, insert
+	    debug("name not found")
+	}
+	else {
+	    // found ... update link for this name
+	    debug("name already has a link, update!")
+	}
+    });
 
-    var data = {
-	'name': req.body.name,
-	'url':  req.body.url
-    };
-
-    collection.update({'name': req.body.name},
-		      { $set:  data },
+    trackinglinks.update({'name': req.body.name},
+		      { 'name': req.body.name, 'url':  req.body.url },
 		      { replaceOne: true, upsert: true},
 		      function(err, cnt, stat) {
-			  console.log('update:  ' + JSON.stringify(cnt));
+			  debug('update:  ' + JSON.stringify(cnt));
 			  
 			  if (err === null) {
  			      res.redirect('/');
 			      return;
 			  }
-			  console.log('collection update error: ' + err);
+			  debug('collection update error: ' + err);
 			  res.render('post-tracking-link', { msg: 'db error' });
     });
 });
