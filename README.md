@@ -106,7 +106,7 @@ Such a file can be generated or created manually and then imported into the mong
 { "_id" : ObjectId("6165a12e3a18332785ae8339"), "lat" : 48.61571, "lng" : 8.99734, "legDistance" : 18, "totalDistance" : 161.4, "height" : 523.29, "pointType" : "Finish", "name" : "FINISH", "directions" : "Sportplatz Altdorf" }
 ```
 
-Important here is pointType (one of Start, Finish, or Food) and name needs to match either VP[digit] or START, FINISH.
+Important here is pointType (one of Start, Finish, or Food) and name needs to match either VP[digit] or START, FINISH. The aidstations are the ordered from start to finish with increasing vp number.
 
 
 
@@ -116,7 +116,9 @@ You can use these commands to generate a password hash that can be stored into t
 
 #### htpasswd
 
-> $ htpasswd -bnBC 10 "" password | tr -d ':' | sed 's/$2y/$2a/
+$ htpasswd -bnBC 10 "" password | tr -d ':' | sed 's/$2y/$2a/'
+
+
 
 #### node.js
 
@@ -126,12 +128,53 @@ You can use these commands to generate a password hash that can be stored into t
 > console.log(hash);
 
 
+### collections in database
+> show collections
+aidstations
+runnerlist
+users
+
+
+users contains username and password hash used to auth for aid station edit.
+
+runnerlist contains runner info and the aidstation timings.
+
+aidstations contains info about the aidstation (name, location, leg distance and total distance, type, name)
+
+
+#### Adding a user that can login to ultraresult (to enter timing)
+Maybe in the future the users could (or should) be distinguished by some role. Eg. a runner can update only his own aidstation times but for all aidstations. On the other side a aidstation volunteer might update times for all runners but only at one particular aidstation.
+
+So first generate some password for user named 'aid':
+```
+htpasswd -bnBC 10 "" MySecurePassword | tr -d ':' | sed 's/$2y/$2a/'
+
+$2a$10$7m.TlDXAtTt/ypxxxxxxgO0gI/CCxxxxxxxxqBu/.ESDIlxc3eO.O
+```
+The insert into the users collection of your database:
+```
+> db.users.insert({"user": "aid", "pass": "$2a$10$7m.TlDXAtTt/ypxxxxxxgO0gI/CCxxxxxxxxqBu/.EAAAldf3eO.O"})
+WriteResult({ "nInserted" : 1 })
+```
+
+
 
 ```
 $ npm i --package-lock-only
 ```
 
 
+#### Import aidstation json file
+```
+$ mongoimport   -v --ssl --sslCAFile ca.file  --sslPEMKeyFile client.file -u user -p 'password' --authenticationDatabase db -c aidstations  mongodb://db:12345/db aidstations.json
+2022-09-27T15:45:45.953+0200	using write concern: &{majority false 0}
+2022-09-27T15:45:46.521+0200	filesize: 1646 bytes
+2022-09-27T15:45:46.521+0200	using fields: 
+2022-09-27T15:45:46.521+0200	connected to: mongodb://db.de:12345/db
+2022-09-27T15:45:46.521+0200	ns: db.aidstations
+2022-09-27T15:45:46.541+0200	connected to node type: standalone
+2022-09-27T15:45:46.579+0200	10 document(s) imported successfully. 0 document(s) failed to import.
+```
 
 
 
@@ -249,4 +292,15 @@ eg. aidstations.name : VP1
 
 different approach, without array 
 > db.runnerlist.update( {"startnum" : "1" }, { $set : { "results.START.intime_valid" : "false", "results.START.outtime_valid" : "true", "results.START.outtime":"16:30"} } )
+
+
+
+
+## Testing vs. Production, deploy on server
+
+The files: bin/ultraresult.sample and ultraresult.conf.sample needs to be change according to your setup.
+
+The config file can also be specified via environment variable: `CONFIG_FILE`
+
+For debug run for example: `DEBUG=* nodemon start`
 

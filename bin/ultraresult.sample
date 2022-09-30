@@ -1,0 +1,23 @@
+#!/usr/bin/nodejs
+
+const debug = require('debug')('ultraresult');
+const app = require('../app');
+const fs = require('fs');
+const https = require('https');
+
+app.set('port', process.env.ULTRARESULT_PORT || 1234);
+
+var options = {
+  cert: fs.readFileSync('.crt'),
+  key:  fs.readFileSync('.key'),
+  requestCert: true,
+  rejectUnauthorized: false
+};
+
+
+var server = https.createServer(options, app).listen(app.get('port'), () => {
+  debug("express server is running on port: " + app.get('port'));
+  debug("secret: ", process.env.UR_SESSION_SECRET);
+  debug("   key: ", process.env.UR_SESSION_KEY);
+});
+

@@ -48,3 +48,6 @@ a.aidlink:hover{
      background: #26a69a    ;
 }
 
+ul#trackerlinks li {
+    list-style-type: circle;
+}
