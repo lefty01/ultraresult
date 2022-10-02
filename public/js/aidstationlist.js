@@ -11,13 +11,14 @@ function genAidstationList() {
 
     $.getJSON( '/aid', function(data) {
         // For each item in our JSON, add a table row and cells to the content string
-        $.each(data, function(){
+        $.each(data, function() {
+	    var osmLink = 'https://www.openstreetmap.org/#map=18/' + this.lat + '/' + this.lng
             tableContent += '<tr>';
             tableContent += '<td>' + this.name + '</td>';
             tableContent += '<td>' + this.directions + '</td>';
 	    tableContent += '<td>' + this.totalDistance + '</td>';
             tableContent += '<td>' + this.legDistance + '</td>';
-	    tableContent += '<td>' + this.lat + ', ' + this.lng + '</td>';
+	    tableContent += '<td><a href="' + osmLink + '">' + this.lat + ', ' + this.lng + '</a></td>';
 	    tableContent += '<td>' + this.height + '</td>';
             tableContent += '</tr>';
             aidNum++;

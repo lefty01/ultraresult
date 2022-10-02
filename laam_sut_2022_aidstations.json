@@ -1,8 +1,7 @@
 {"lat":48.61589, "lng":8.99734, "legDistance":0.000,"totalDistance":0.000,"height":520.66,"pointType":"Start", "name":"START", "directions":"Sportplatz Altdorf"}
 {"lat":48.60278, "lng":8.903399,"legDistance":20.6, "totalDistance":20.6, "height":548.7, "pointType":"Food",  "name":"VP1",   "directions":"Naturfreundehaus Herrenberg"}
 {"lat":48.56072, "lng":8.983784,"legDistance":24.8, "totalDistance":45.4, "height":473.6, "pointType":"Food",  "name":"VP2",   "directions":"Parkplatz Saurucken"}
-{"lat":48.551914,"lng":9.056759,"legDistance":26.3, "totalDistance":71.7, "height":337.8, "pointType":"Food",  "name":"VP3",   "directions":"Wanderparkplatz Kirnbachtal"}
+{"lat":48.54918, "lng":9.07408, "legDistance":26.3, "totalDistance":71.7, "height":337.8, "pointType":"Food",  "name":"VP3",   "directions":"Wanderparkplatz Kirnbachtal"}
 {"lat":48.59280, "lng":9.14731, "legDistance":31.8, "totalDistance":103.5,"height":477.5, "pointType":"Food",  "name":"VP4",   "directions":"Parkplatz Steinbrennerhaus"}
 {"lat":48.603193,"lng":9.054564,"legDistance":39.9, "totalDistance":143.4,"height":503.1, "pointType":"Food",  "name":"VP5",   "directions":"Parkplatz Weißer Stein"}
 {"lat":48.61571, "lng":8.99734, "legDistance":18,   "totalDistance":161.4,"height":523.29,"pointType":"Finish","name":"FINISH","directions":"Sportplatz Altdorf"}
-
