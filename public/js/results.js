@@ -582,24 +582,37 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 		// and fill in estimated in-time and total-time (T2)
 		// estimated arrival at next VPs and Finish with current avg. pace
 		console.log("last avg pace = " + avgpace);
+		var atFinish = false;
 		for (k in aidEstimates) {
-		    console.log("estimate for aid: " + aidEstimates[k]);
+		    console.log("--- ESTIMATE for aid: " + aidEstimates[k]);
 		    if ('START' === aidEstimates[k]) break;
+		    if ('FINISH' === aidEstimates[k]) {
+			atFinish = true;
+		    }
 		    var aidIdx = aidStations.findIndex(x => x.name === aidEstimates[k]);
 		    var thisTotalDist = aidStations[aidIdx].totalDistance;
-		    console.log("totaldist=" + thisTotalDist);
 		    var estTotalTime = calcTotalTime(thisTotalDist, avgpace); //(min/km) -> min
-		    console.log("estTotalTime=" + estTotalTime);
-
 		    var estIntime = addTimeDate2Str(startTime, startDate, estTotalTime); // start date/time + estTotalTime hh:mm
 
+		    console.log("aidIdx=" + aidIdx);
+		    console.log("totaldist=" + thisTotalDist);
+		    console.log("estTotalTime=" + estTotalTime);
+		    console.log('total pause: ' + totalpause);
+		    console.log("Arrive at FINISH ..." + atFinish);
+
 		    tableContent += '<td class="estimate"><i>' + estIntime + '</i></td>';
-		    tableContent += '<td></td>';
-		    tableContent += '<td></td>';
+		    if (false === atFinish) { // out and pause fields not present at finish
+			tableContent += '<td></td>';
+			tableContent += '<td></td>';
+		    }
 		    tableContent += '<td></td>';
 		    tableContent += '<td class="estimate"><i>' + estTotalTime + '</i></td>';
 		    tableContent += '<td></td>';
 		    tableContent += '<td></td>';
+		    if (true === atFinish) { // out and pause fields not present at finish
+			tableContent += '<td></td>';
+			tableContent += '<td></td>';
+		    }
 		}
 
 		if (isFinisher(curStarter)) {
