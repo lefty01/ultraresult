@@ -169,6 +169,10 @@ function saveTimeClick(data) {
         }
 	// do somthing like update the table
         // update();
+	// fixme: we need to trigger the function to generate the ranked list
+	//        righ now this happens while the main result page is loaded
+	//        this only reads and processes the timing data. but at that stage could
+	//        put back the total finish time and rank into the database ... but it requires login!
     });
 }
 

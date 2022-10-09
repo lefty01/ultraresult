@@ -2,7 +2,7 @@
   "name": "ultra-result",
   "author": "Andreas Loeffler <al@exitzero.de>",
   "license": "GPL-3.0-or-later",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "start": "UR_SESSION_SECRET=$(head -c32 /dev/urandom | base64) UR_SESSION_KEY=$(head -c8 /dev/urandom | base64)  UR_COOKIESESSION_KEY1=$(head -c30 /dev/urandom | base64) UR_COOKIESESSION_KEY2=$(head -c30 /dev/urandom | base64) UR_COOKIEPARSER_KEY=$(head -c30 /dev/urandom | base64) UR_CSRF_TOKEN_KEY=$(head -c30 /dev/urandom | base64)  node ./bin/ultraresult",
@@ -34,6 +34,7 @@
     "nodemon": "^2.0.20",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^7.1.2",
+    "pdfkit": "^0.13.0",
     "project-version": "^2.0.0",
     "pug": "^3.0.2",
     "saslprep": "^1.0.3",

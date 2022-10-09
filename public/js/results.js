@@ -102,6 +102,8 @@ function fillRankId() {
 
 }
 // fixme: split function, eg. rank table cell update as extra function
+//        rename variables o -> runnerList, this is global anyway!!
+//        for runner in runnerList
 function genRankedList(o) {
     var a = [], i, n;
     for (i in o) {
@@ -129,9 +131,15 @@ function genRankedList(o) {
 
 	a[n][1]['rank'] = rank;
 	runnerList[startnum].rank = rank;
-	console.log("genrankedklist: startnum=" + startnum + ", rank=" + rank);
+	console.log("genrankedklist: startnum=" + startnum + ", totalTime=" + runnerList[startnum].totalTime
+		    + ", rank=" + rank + ", isFinisher=" + runnerList[startnum].finisher);
 	document.getElementById('rank_' + startnum).innerHTML = rank;
 	//console.log("rank td#rank_" + startnum + ", " + document.getElementById('rank_' + startnum).innerHTML);
+
+	if (true === runnerList[startnum].finisher) {
+	    // update database with rank and finisher time
+            setRankAndFinishtime(startnum);
+	}
     }
 
     return a;
@@ -142,7 +150,7 @@ function setRunnerList(num, aid, time) {
     if (typeof runnerList[num] === 'undefined') {
 	runnerList[num] = {};
     }
-    runnerList[num].rank = 0;
+    //runnerList[num].rank = 0;
     runnerList[num].lastAidIn = aid;
     runnerList[num].totalTime = time;
 }
@@ -316,20 +324,20 @@ function sortResultObject(o) {
 /*
  *
  */
-function setRankAndFinishtime(data) {
-
+function setRankAndFinishtime(startnum) {
     var ranking = {
-	'startnum'   : data.startnum,
-	'rankall'    : data.rankall,
-	'rankcat'    : rankcat,
-	'finishtime' : finishtime
+	'rankall'    : runnerList[startnum].rank,
+	'finishtime' : runnerList[startnum].totalTime
+	//'startnum'   : data.startnum,
+	//'rankcat'    : data.rankcat,
     };
+    console.log("setRankAndFinishtime, ranking: " + ranking);
 
     $.ajax({
         type: 'PUT',
         dataType: 'JSON',
         data: ranking,
-        url: '/runners/update/rank/' + data.startnum
+        url: '/runners/update/rank/' + startnum
     }).done(function(response) {
         // Check for a successful (blank) response
         if (response.msg === '') {
@@ -417,7 +425,8 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 		var lastpace   = "n/a";
 		var avgpace    = "n/a";
 		var lasttime   = "n/a";
-		var totaltime  = "n/a";
+	        var totaltime  = "n/a";
+	        var finishTime = "n/a";
 		var rank       = "n/a";
 		var totalpause = "0:00";
 		var curStarter = this.startnum;
@@ -560,7 +569,8 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 			tableContent += '<td>' + outtime  + '</td>';
 			return true;
 		    }
-		    if ("FINISH" === aidId) {
+                    if ("FINISH" === aidId) {
+			finishTime = totaltime;
 			tableContent += '<td>' + intime  + '</td>';
 			tableContent += '<td>' + lasttime + '</td>';
 			tableContent += '<td><b>' + totaltime + '</b></td>'; // -> Ziel/Gesamtzeit
@@ -616,6 +626,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 		}
 
 		if (isFinisher(curStarter)) {
+		    runnerList[curStarter].finisher = true;
 		    tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime
 		    tableContent += '<td>'    + totalpause + '</td>';     // totalpause
 		}
