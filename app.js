@@ -15,7 +15,7 @@ const assert = require('assert');
 const debug_app = require('debug')('ultraresult:app');
 
 const fs = require('fs');
-const pdfkit = require('pdfkit');
+//const pdfkit = require('pdfkit');
 const version = require('project-version');
 const nconf = require('nconf');
 //const compression = require('compression');
