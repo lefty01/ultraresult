@@ -1,6 +1,7 @@
 // aidstation.js
 // handle aidstation input save/edit, display runnerlist table for each aid
 
+import {runnerList, rankedRunnerList, prepareResultsTable, genRankedList} from './process_results.js';
 
 // DOM Ready =============================================================
 $(document).ready(function() {
@@ -173,6 +174,11 @@ function saveTimeClick(data) {
 	//        righ now this happens while the main result page is loaded
 	//        this only reads and processes the timing data. but at that stage could
 	//        put back the total finish time and rank into the database ... but it requires login!
+	if ('FINISH' === data.aid) {
+	    console.log("Saving Finish time!");
+	    prepareResultsTable(genRankedList);
+	    console.log("ranked list from results.js : " + rankedRunnerList);
+	}
     });
 }
 

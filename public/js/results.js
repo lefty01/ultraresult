@@ -1,11 +1,6 @@
 // results.js display leaderboard
 // calculate pace and avg. pace, ...
 
-// TODO:
-// for certificate store rank and finish time ...
-// 'rank_cat'  => 1,
-// 'rank_all'  => 1,
-// 'finish_time'  => 1
 
 // TODO: clean up this mess!!
 //       probably could  "outsource" functions into module
@@ -16,9 +11,23 @@
 
 "use strict";
 
-var finisher = {};
-var runnerList = {};
-var rankedRunnerList = [];
+import {runnerList,
+	rankedRunnerList,
+	genRankedList,
+	isValidAid,
+	isValidDate,
+	isValidTime,
+	calcPace,
+	calcTotalPause,
+	calcTotalTime,
+	substractTimeDate2Str,
+	addTimeDate2Str,
+	sortResultObject,
+	setRunnerList,
+	isFinisher,
+	getAidstationNames
+       } from './process_results.js';
+
 
 // DOM Ready =============================================================
 $(document).ready(function() {
@@ -38,9 +47,7 @@ $(document).ready(function() {
 	var tableObj = document.getElementById('results-table');
         sorttable.makeSortable(tableObj);
 
-	//rankedRunnerList = genRankedList(runnerList); not yet available ...
-	//console.log("rankedRunnerList:");
-	//console.log(rankedRunnerList);
+	//rankedRunnerList = genRankedList(runnerList); not yet available ... therefore using a callback for now
     }
 
     // $("td#rank_").each(function( index ) {
@@ -70,7 +77,8 @@ function showLiveTrackerLinks() {
 		return;
 	    }
 
-	    // Canonical Decomposition, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
+	    // Canonical Decomposition:
+	    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
 	    let name = this.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 
 	    if (!isValidName(name)) {
@@ -97,96 +105,12 @@ function showLiveTrackerLinks() {
  * sort runnerList by aidId and time, fill in rank
  * return sorted array
  */
+
 // fixme: callback ...
 function fillRankId() {
 
 }
-// fixme: split function, eg. rank table cell update as extra function
-//        rename variables o -> runnerList, this is global anyway!!
-//        for runner in runnerList
-function genRankedList(o) {
-    var a = [], i, n;
-    for (i in o) {
-	if (o.hasOwnProperty(i)) {
-            a.push([i, o[i]]);
-	}
-    }
-    a.sort(function(a, b) {
-	// we need FINISH before VPx
-	var idA = a[1].lastAidIn.toUpperCase() === 'FINISH' ? 'ZZZ' : a[1].lastAidIn.toUpperCase();
-	var idB = b[1].lastAidIn.toUpperCase() === 'FINISH' ? 'ZZZ' : b[1].lastAidIn.toUpperCase();
 
-	if (idA < idB)  return 1;
-	if (idA > idB)  return -1;
-	// same VP (aidstation name), check time
-	if (a[1].totalTime > b[1].totalTime) return  1; // totalTime format: "hh:mm"
-	if (a[1].totalTime < b[1].totalTime) return -1;
-	return 0;
-    });
-
-    // fill-out rank
-    for (n in a) {
-	var startnum = a[n][0];
-	var rank = parseInt(n) + 1;
-
-	a[n][1]['rank'] = rank;
-	runnerList[startnum].rank = rank;
-	console.log("genrankedklist: startnum=" + startnum + ", totalTime=" + runnerList[startnum].totalTime
-		    + ", rank=" + rank + ", isFinisher=" + runnerList[startnum].finisher);
-	document.getElementById('rank_' + startnum).innerHTML = rank;
-	//console.log("rank td#rank_" + startnum + ", " + document.getElementById('rank_' + startnum).innerHTML);
-
-	if (true === runnerList[startnum].finisher) {
-	    // update database with rank and finisher time
-            setRankAndFinishtime(startnum);
-	}
-    }
-
-    return a;
-}
-
-
-function setRunnerList(num, aid, time) {
-    if (typeof runnerList[num] === 'undefined') {
-	runnerList[num] = {};
-    }
-    //runnerList[num].rank = 0;
-    runnerList[num].lastAidIn = aid;
-    runnerList[num].totalTime = time;
-}
-
-
-function isFinisher(num) {
-    if ((typeof runnerList[num] !== 'undefined') &&
-	('FINISH' === runnerList[num].lastAidIn.toUpperCase())) {
-	return true;
-    }
-    return false;
-}
-
-function isValidAid(aid) {
-    var reAid = /^(START|FINISH|VP\d{1,3})+$/i;
-    if (! reAid.test(aid)) {
-	return false;
-    }
-    return true;
-}
-
-function isValidDate(time) {
-    var reTime = /^\d\d\d\d-\d\d-\d\d$/;
-    if (! reTime.test(time)) {
-	return false;
-    }
-    return true;
-}
-
-function isValidTime(time) {
-    var reTime = /^\d\d:\d\d$/;
-    if (! reTime.test(time)) {
-	return false;
-    }
-    return true;
-}
 
 function isValidUrl(url) {
     var valid = /^(http|https):\/\/[^ "]+$/.test(url);
@@ -212,153 +136,6 @@ function isValidNum(num) {
     return true;
 }
 
-function paceStr2Min(p) {
-
-}
-
-// expect t to be a string "hh:mm", d is distance in km
-function calcPace(t, d) {
-    var intime = t.split(':');
-    //console.log("intime h="+intime[0]+", intime m="+intime[1]);
-    if (isNaN(intime[0])) return "n/a";
-
-    var mins = parseInt(intime[0], 10) * 60 + parseInt(intime[1], 10); //intime[0] * 60 + intime[1];
-    var pace = mins / d;
-
-    var paceSec = Math.floor(60 * (pace - Math.floor(pace)));
-    var paceSecStr = paceSec < 10 ? "0" + paceSec : paceSec;
-    var result = Math.floor(pace) + ":" + paceSecStr;
-    return result;
-}
-/*
- * substractTimeDate2Str(outTime, outDate, intime, indate);
- * substrace the in time/date from out date/time
- * return difference as hours and minutes in the form "hh:mm"
- * parm outTime
- * parm outDate
- * parm inTime
- * parm inTime
- */
-function substractTimeDate2Str(outTime, outDate, inTime, inDate) {
-    var outD = new Date(outDate + " " + outTime);
-    var inD  = new Date(inDate + " " + inTime);
-    var diffMin = ((inD - outD) / 1000) / 60;
-    //console.log(outD); console.log(inD);
-    var result = String(100 + Math.floor(diffMin / 60)).substr(1) + ':' +
-        String(100 + diffMin % 60).substr(1);
-
-    return result;
-}
-
-function addTimeDate2Str(startTime, startDate, delta) { // start date/time + estTotalTime hh:mm
-    var dt = new Date(startDate + " " + startTime);
-    var d = delta.split(":");
-    var dMins = parseInt(d[0], 10) * 60 + parseInt(d[1], 10);
-    //console.log("addTimeDate2Str: start=" + dt + ", dMins=" + dMins);
-    // add minutes
-    var newD = new Date(dt.getTime() + dMins * 60000);
-    //console.log("addTimeDate2Str: intime=" + newD);
-    var newMinutes = newD.getMinutes() < 10 ? "0" + newD.getMinutes() : newD.getMinutes();
-    var result = newD.getHours() + ":" + newMinutes;
-    return result;
-}
-
-function calcTotalPause(totalp, delta) {
-    var d = delta.split(':');
-    var t = totalp.split(':');
-    var dMins = parseInt(d[0], 10) * 60 + parseInt(d[1], 10);
-    var tMins = parseInt(t[0], 10) * 60 + parseInt(t[1], 10);
-    var sum = tMins + dMins;
-
-    var result = String(100 + Math.floor(sum / 60)).substr(1) + ':' +
-        String(100 + sum % 60).substr(1);
-    return result;
-}
-
-function calcTotalTime(totalDist, avgpace){
-    var p = avgpace.split(':'); // input pace "mm:ss"
-    var minsPerK = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
-    var totalMins = Math.floor(minsPerK * totalDist);
-    //console.log("minsPerK:  " + minsPerK + " min/km");
-    //console.log("totalMins: " + totalMins + " min");
-
-    var result = String(100 + Math.floor(totalMins / 60)).substr(1) + ':' +
-        String(100 + totalMins % 60).substr(1);
-
-    return result;
-}
-
-/*
- *
- */
-function sortResultObject(o) {
-    var a = [], i;
-    for (i in o) {
-        if (o.hasOwnProperty(i)) {
-            a.push([i, o[i]]);
-        }
-    }
-
-    a.sort(function(a, b) {
-        var idA = a[0].toUpperCase();
-        var idB = b[0].toUpperCase();
-
-        if (('START' === idA) && ('FINISH' === idB))
-            return -1;
-
-        if (('START' === idB) && ('FINISH' === idA))
-            return 1;
-
-        if (('START' === idA) || ('FINISH' === idB))
-            return -1;
-
-        if (('START' === idB) || ('FINISH' === idA))
-            return 1;
-
-        return idA.localeCompare(idB, 'en', {numeric: true});
-    });
-    return a;
-}
-
-
-/*
- *
- */
-function setRankAndFinishtime(startnum) {
-    var ranking = {
-	'rankall'    : runnerList[startnum].rank,
-	'finishtime' : runnerList[startnum].totalTime
-	//'startnum'   : data.startnum,
-	//'rankcat'    : data.rankcat,
-    };
-    console.log("setRankAndFinishtime, ranking: " + ranking);
-
-    $.ajax({
-        type: 'PUT',
-        dataType: 'JSON',
-        data: ranking,
-        url: '/runners/update/rank/' + startnum
-    }).done(function(response) {
-        // Check for a successful (blank) response
-        if (response.msg === '') {
-	    console.log("update rank/time for runner " + data.startnum + " OK!");
-        }
-        else {
-            alert('Error: ' + response.msg);
-        }
-
-    });
-
-}
-
-// function fillEstimatedTime() { ... }
-function getAidstationNames(aid) {
-    var a = [], n;
-    for (n in aid) {
-	a.push(aid[n].name);
-    }
-    return a;
-}
 
 
 // FIXME: quite some large piece of function code...
@@ -472,13 +249,17 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 		    if (results[aidId]) {
 			//if ("FINISH" === aidId)
 			//    return;
-			aidEstimates.shift(); // remove this aidstation
+			aidEstimates.shift(); // remove this aidstation (fixme: only if outtime?)
 
 			// make sure valids are really only true or false
 			intimeValid = ((typeof results[aidId].intime_valid !== 'undefined')
 				       && (true === results[aidId].intime_valid)) ? true : false;
 			outtimeValid = ((typeof results[aidId].outtime_valid !== 'undefined')
 					&& (true === results[aidId].outtime_valid)) ? true : false;
+
+			// if (outtimeValid || (("FINISH" === aidId) && intimeValid)) {
+			//     aidEstimates.shift(); // remove this aidstation, only if outtime
+			// }
 
 			if (true === intimeValid) {
 			    intime  = isValidTime(results[aidId].intime) ? results[aidId].intime  : "n/a";
@@ -669,7 +450,8 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 	    $('#resultstable table caption').html(tableCaption);
 	    $('#resultstable table tbody').html(tableContent);
 
-	    rankedRunnerList = callback(runnerList);
+	    //rankedRunnerList = callback(runnerList);
+	    callback(runnerList);
 	    console.log("rankedRunnerList:");
 	    console.log(rankedRunnerList);
 	});
