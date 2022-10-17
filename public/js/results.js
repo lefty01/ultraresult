@@ -172,15 +172,17 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 	    }
 	    aidStations.push(this);
 	    console.log("results.js: push to aidstations:" + this.name);
+	    var osmLink = 'https://www.openstreetmap.org/?mlat=' + this.lat + '&mlon=' + this.lng + '#map=18/' + this.lat + '/' + this.lng
+	    console.log("osmlink: " + osmLink);
 
 	    if ('START' === this.name) { return true; }
 	    if ('FINISH' === this.name) {
-		// colspan number of cells in finish coloumn: in, last pace, avg. pace, last time
-		tableHeader += '<th colspan="5">' + this.name + ' ' + this.directions +
-		    ', @' + this.totalDistance.toFixed(1) + ',  &Delta; ' + this.legDistance.toFixed(1) + '</th>';
+                // colspan number of cells in finish coloumn: in, last pace, avg. pace, last time
+	        tableHeader += '<th colspan="5">' + this.name + ' ' + this.directions +
+		               ', @' + this.totalDistance.toFixed(1) + ',  &Delta; ' + this.legDistance.toFixed(1) + '</th>';
 		return true;
 	    }
-	    tableHeader += '<th colspan="7" id="' + this.name + '">' + this.name + ' '
+	    tableHeader += '<th colspan="7" id="' + this.name + '">' + '<a href="' + osmLink + '">' + this.name + '</a> '
 		+ this.directions + ', @km ' + this.totalDistance.toFixed(1) + ',  &Delta; ' + this.legDistance.toFixed(1) + '</th>';
 	    return true;
 	});
