@@ -12,7 +12,7 @@ function genAidstationList() {
     $.getJSON( '/aid', function(data) {
         // For each item in our JSON, add a table row and cells to the content string
         $.each(data, function() {
-	    var osmLink = 'https://www.openstreetmap.org/#map=18/' + this.lat + '/' + this.lng
+	    var osmLink = 'https://www.openstreetmap.org/?mlat=' + this.lat + '&mlon=' + this.lng + '#map=18/' + this.lat + '/' + this.lng
             tableContent += '<tr>';
             tableContent += '<td>' + this.name + '</td>';
             tableContent += '<td>' + this.directions + '</td>';
