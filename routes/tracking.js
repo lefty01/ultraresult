@@ -3,12 +3,16 @@ const router  = express.Router();
 const debug   = require('debug')('ultraresult:tracking');
 
 function isValidUrl(url) {
+    var isClear = /^CLEAR$/.test(url);
     var valid = /^(http|https):\/\/[^ "]+$/.test(url);
-    if (! valid) {
-	return false;
+    if (valid || isClear) {
+	return true;
     }
-    return true;
+    return false;
 }
+// unsafe url chars: []{}|\"%~#<>
+//var re = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/;
+
 
 function isValidName(name) {
     var valid = /^[\w _-]{2,32}$/.test(name);
@@ -29,15 +33,15 @@ router.get('/', function(req, res) {
 	return res.json({});
 
     var db = req.db;
-    var collection = db.get('trackinglinks');
+    var trackinglinks = db.get('trackinglinks');
 
-    collection.find({}, {projections: { _id: 0,
-					name : 1,
-					url : 1,
-                                      }, sort : {name : 1}
-                        }, function(err, docs) {
-                            debug(docs);
-                            return res.json(docs);
+    trackinglinks.find({}, {projections: { _id: 0,
+					   name : 1,
+					   url : 1,
+					 }, sort : {name : 1}
+                           }, function(err, docs) {
+                               debug(docs);
+                               return res.json(docs);
     });
 });
 
@@ -82,6 +86,8 @@ router.post('/add', function(req, res) {
 	else {
 	    // found ... update link for this name
 	    debug("name already has a link, update!")
+	  // check if isClear ... then drop from db
+	  // right now the url 'CLEAR' won't get displayed anyway...
 	}
     });
 

@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-
+const express = require('express');
+const router = express.Router();
+const debug = require('debug')('ultraresult:runners');
 
 function isValidNum(num) {
     var reNum = /^\d{1,4}$/;
@@ -112,28 +112,44 @@ router.put('/update/rank/:num', function(req, res) {
     }
 
     var db = req.db;
-    var collection = db.get('runnerlist');
-
+    var runnerlist = db.get('runnerlist');
     var startnum   = isValidNum(req.params.num) ? parseInt(req.params.num) : "INVALID";
     // res.send('invalid input') // FIXME parseInt -> store startnum as in not string
 
-    var rankCat    = isValidRank(req.body.rankcat) ? req.body.rankcat : "INVALID";
-    var rankAll    = isValidRank(req.body.rankall) ? req.body.rankall : "INVALID";
-    var finishTime = isValidTime(req.body.finishtime) ? req.body.time : "INVALID";
+    //var rankCat    = isValidRank(req.body.rankcat) ? req.body.rankcat : "INVALID";
+    var rankAll    = isValidRank(req.body.rankall)    ? req.body.rankall    : "INVALID";
+    var finishTime = isValidTime(req.body.finishtime) ? req.body.finishtime : "INVALID";
 
-    console.log("runner: " + startnum + ", finish_time: " + finishTime +
-		", rank_all: " + rankAll + ", rank_cat: " + rankCat);
+    debug("runner: " + startnum + ", finishTime: " + finishTime +
+	  ", rankAll: " + rankAll); // + ", rankCat: " + rankCat);
 
-    var resultData = { 'rank_all': rankAll, 'rank_cat': rankCat, 'finish_time': finishTime };
-    //var resultData = { 'rank_all': 1, 'rank_cat': 1, 'finish_time': "99:99" };
+    var resultData = { 'rank_all': rankAll, 'finish_time': finishTime }; // rank_cat
 
-    collection.updateOne({ 'startnum' : startnum },
-			 { $set : resultDate },
-			 function(err, cnt, stat) {
-			     res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
-			     console.log("update  count=" + cnt.nModified);
-			     console.log("update status=" + stat);
-			 });
+    // todo: check again if this does the same as below and only updates
+    //.. well maybe does not work if rank_all and/or finish_time does not exist yet
+    // runnerlist.update({ 'startnum' : startnum },
+    // 		      { $set : resultData },
+    // 		      function(err, cnt, stat) {
+    //  			  res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
+    // 			  console.log("update  count=" + cnt.nModified);
+    // 			  console.log("update status=" + stat);
+    // });
+
+    runnerlist.findOneAndUpdate({'startnum' : startnum},
+                                { $set: resultData },
+                                //{ upsert: true },
+                                function(err, cnt, stat) {
+                                    debug("update cnt:  " + JSON.stringify(cnt));
+                                    debug("update stat: " + stat);
+
+                                    if (err === null) {
+                                        res.send('');
+                                        return;
+                                    }
+                                    debug('collection update error: ' + err);
+                                    //res.send({ msg: 'error: ' + err });
+                                });
+
 });
 
 /*

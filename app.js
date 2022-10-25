@@ -15,6 +15,7 @@ const assert = require('assert');
 const debug_app = require('debug')('ultraresult:app');
 
 const fs = require('fs');
+//const pdfkit = require('pdfkit');
 const version = require('project-version');
 const nconf = require('nconf');
 //const compression = require('compression');
@@ -28,7 +29,13 @@ const app = express();
 
 
 const config_file = process.env.CONFIG_FILE || 'ultraresult.conf';
-nconf.file(config_file);
+if (! fs.existsSync(config_file)) {
+    throw new Error('config file not available!');
+}
+else {
+    debug_app('opening config file: ' + config_file);
+    nconf.file(config_file);
+}
 
 const database_name       = nconf.get('database:name');
 const database_host       = nconf.get('database:host');
@@ -47,8 +54,13 @@ const cookiesession_key2  = nconf.get('csrf:session_key2');
 const cookieparser_key    = nconf.get('csrf:parser_key');
 const csrf_token_key      = nconf.get('csrf:token_key');
 
+const cert_logo           = nconf.get('certificate:logo_image');
+const cert_year           = nconf.get('certificate:date_year');
+const cert_days           = nconf.get('certificate:date_days');
+
 const conf_trackinglinks = nconf.get('trackinglinks');
 const conf_aidlinks      = nconf.get('aidlinks');
+const conf_certlinks     = nconf.get('certlinks');
 
 app.set('aid_secret',         process.env.UR_SESSION_SECRET     || session_secret);
 app.set('aid_key',            process.env.UR_SESSION_KEY        || session_key);
@@ -73,8 +85,9 @@ debug_app('monk  database uri:   ' + monk_db_uri);
 debug_app('mongo database uri:   ' + mongo_uri);
 debug_app('session secret: ' + app.get('aid_secret') + ', key: ' + app.get('aid_key'));
 debug_app('name + version: ' + progname, progver);
-debug_app('config: show tracking links:   ' + conf_trackinglinks);
-debug_app('config: show aidstation links: ' + conf_aidlinks);
+debug_app('config: show tracking links:    ' + conf_trackinglinks);
+debug_app('config: show aidstation links:  ' + conf_aidlinks);
+debug_app('config: show certificate links: ' + conf_certlinks);
 
 
 const db = monk(monk_db_uri, function(err, db) {
@@ -94,6 +107,7 @@ const starters   = require('./routes/starters');
 const aidstation = require('./routes/aidstation');
 const results    = require('./routes/results');
 const tracking   = require('./routes/tracking');
+const urkunde    = require('./routes/certificate');
 
 const allowedOrigins = ['https://localhost:2022', 'https://sut100.de'];
 
@@ -195,6 +209,13 @@ app.use(function(req, res, next) {
     req.conf_trackinglinks = conf_trackinglinks;
     req.conf_aidlinks      = conf_aidlinks;
     req.progver            = progname + " " + progver;
+    // for certificate pdf
+    if (conf_certlinks) {
+      req.conf_certlinks = conf_certlinks;
+      req.conf_cert_logo = cert_logo;
+      req.conf_cert_year = cert_year;
+      req.conf_cert_days = cert_days;
+    }
     next();
 });
 
@@ -207,7 +228,7 @@ app.use('/starters', starters);
 app.use('/aid',      aidstation);
 app.use('/results',  results);
 app.use('/tracking', tracking);
-
+app.use('/urkunde',  urkunde);
 
 
 
