@@ -412,6 +412,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 		    runnerList[curStarter].finisher = true;
 		    tableContent += '<td><b>' + totaltime  + '</b></td>'; // totaltime
 		    tableContent += '<td>'    + totalpause + '</td>';     // totalpause
+		    tableContent += '<td><a href="/urkunde/' + curStarter + '">PDF</a></td>';
 		}
 		tableContent += '</tr>';
 
@@ -420,6 +421,7 @@ kursiv (roter Hintergrund) Hochrechnung basierend auf avg. pace. &nbsp; \
 	    // Inject the whole content string into our existing HTML table
 	    tableHeader += '<th>Zeit</th>';
 	    tableHeader += '<th>&sum; Pause</th>';
+	    tableHeader += '<th>&darr; Urkunde</th>';
 	    tableHeader += '</tr>';
 
 	    // second header line ...

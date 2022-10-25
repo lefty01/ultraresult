@@ -54,6 +54,10 @@ const cookiesession_key2  = nconf.get('csrf:session_key2');
 const cookieparser_key    = nconf.get('csrf:parser_key');
 const csrf_token_key      = nconf.get('csrf:token_key');
 
+const cert_logo           = nconf.get('certificate:logo_image');
+const cert_year           = nconf.get('certificate:date_year');
+const cert_days           = nconf.get('certificate:date_days');
+
 const conf_trackinglinks = nconf.get('trackinglinks');
 const conf_aidlinks      = nconf.get('aidlinks');
 const conf_certlinks     = nconf.get('certlinks');
@@ -103,7 +107,7 @@ const starters   = require('./routes/starters');
 const aidstation = require('./routes/aidstation');
 const results    = require('./routes/results');
 const tracking   = require('./routes/tracking');
-const urkunde    = require('./routes/urkunde');
+const urkunde    = require('./routes/certificate');
 
 const allowedOrigins = ['https://localhost:2022', 'https://sut100.de'];
 
@@ -205,6 +209,13 @@ app.use(function(req, res, next) {
     req.conf_trackinglinks = conf_trackinglinks;
     req.conf_aidlinks      = conf_aidlinks;
     req.progver            = progname + " " + progver;
+    // for certificate pdf
+    if (conf_certlinks) {
+      req.conf_certlinks = conf_certlinks;
+      req.conf_cert_logo = cert_logo;
+      req.conf_cert_year = cert_year;
+      req.conf_cert_days = cert_days;
+    }
     next();
 });
 
