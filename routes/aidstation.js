@@ -24,7 +24,16 @@ router.get('/', function(req, res) {
         }
     });
 });
-           
+
+
+/*
+ *
+ */
+router.get('/list', function(req, res) {
+    res.render('aidlist', { title: 'Liste Verpflegungsposten (VP/Aid)' });
+});
+
+
 /*
  * GET entry page for specific aidstation by their (short) name.
  * note: directions field hold long descriptive name (P Rittweg)
@@ -49,6 +58,10 @@ router.get('/:id', function(req, res) {
 
     if (found_aid) {
 	req.session.aidurl = '/aid/' + aidstationId;
+    }
+    else {
+	// render error
+	return;
     }
 
     debug("aidstation: " + aidstationId);
