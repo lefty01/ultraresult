@@ -28,7 +28,7 @@
     "mongoose": "^6.6.2",
     "monk": "^7.3.4",
     "monk-middleware-debug": "^0.2.0",
-    "morgan": "^1.10.0",
+    "morgan": "^1.11.0",
     "mquery": "^4.0.3",
     "nconf": "^0.12.0",
     "passport-local": "^1.0.0",
